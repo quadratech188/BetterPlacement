@@ -1,0 +1,69 @@
+{
+   "partList" : [
+      {
+         "box" : {
+            "x" : 1,
+            "y" : 1,
+            "z" : 1
+         },
+         "name" : "Interface-5 Way +Z",
+         "physicsMaterial" : "Default",
+         "renderable" : "$CONTENT_DATA/Objects/Renderables/interface-5way_+Z.rend",
+         "rotationSet" : "Default",
+         "sticky" : "All",
+         "uuid" : "d8fc440b-ad25-45db-b72b-36a99414435b"
+      },
+	  {
+         "box" : {
+            "x" : 1,
+            "y" : 1,
+            "z" : 1
+         },
+         "name" : "Interface-5 Way +X",
+         "physicsMaterial" : "Default",
+         "renderable" : "$CONTENT_DATA/Objects/Renderables/interface-5way_+X.rend",
+         "rotationSet" : "Default",
+         "sticky" : "All",
+         "uuid" : "03422fac-1103-4f93-9206-5324c1406a86"
+      },
+	  {
+         "box" : {
+            "x" : 1,
+            "y" : 1,
+            "z" : 1
+         },
+         "name" : "Interface-5 Way +Y",
+         "physicsMaterial" : "Default",
+         "renderable" : "$CONTENT_DATA/Objects/Renderables/interface-5way_+Y.rend",
+         "rotationSet" : "Default",
+         "sticky" : "All",
+         "uuid" : "728e9744-9b40-45e7-9c0a-0e386f01e592"
+      },
+	  {
+         "box" : {
+            "x" : 1,
+            "y" : 1,
+            "z" : 1
+         },
+         "name" : "Interface-5 Way -X",
+         "physicsMaterial" : "Default",
+         "renderable" : "$CONTENT_DATA/Objects/Renderables/interface-5way_-X.rend",
+         "rotationSet" : "Default",
+         "sticky" : "All",
+         "uuid" : "8cbaa03b-90f2-42fc-888b-1626650325c5"
+      },
+	  {
+         "box" : {
+            "x" : 1,
+            "y" : 1,
+            "z" : 1
+         },
+         "name" : "Interface-5 Way -Y",
+         "physicsMaterial" : "Default",
+         "renderable" : "$CONTENT_DATA/Objects/Renderables/interface-5way_-Y.rend",
+         "rotationSet" : "Default",
+         "sticky" : "All",
+         "uuid" : "01e9830e-4b80-47b5-9cbb-736024f12d53"
+      }
+   ]
+}

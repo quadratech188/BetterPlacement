@@ -1,0 +1,24 @@
+{
+   "toolList" : [
+      {
+         "name" : "Better Placement Tool",
+         "previewRenderable" : "$GAME_DATA/Character/Char_Tools/Char_liftremote/char_liftremote.rend",
+         "script" : {
+            "class" : "BetterPlacementTool",
+            "data" : {},
+            "file" : "$CONTENT_DATA/Scripts/BetterPlacementTool.lua"
+         },
+         "uuid" : "74febb3f-cc08-4e02-89c8-9fd0d0a1aa3c"
+      },
+      {
+         "name" : "Input Handler",
+         "previewRenderable" : "",
+         "script" : {
+            "class" : "InputHandler",
+            "data" : {},
+            "file" : "$CONTENT_DATA/Scripts/InputHandler.lua"
+         },
+         "uuid" : "4335bb26-f672-48b3-bce7-03f3841f369d"
+      }
+   ]
+}
