@@ -73,7 +73,9 @@ function BetterPlacementTool.client_onEquippedUpdate(self, primaryState, seconda
     return false, false
 end
 
-function BetterPlacementTool:client_onUpdate()
+function BetterPlacementTool:client_onUpdate(dt)
+
+    DeltaTime = dt
 
     Item = sm.localPlayer.getActiveItem()
 

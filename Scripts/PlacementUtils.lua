@@ -4,6 +4,9 @@ dofile("$CONTENT_DATA/Scripts/DefaultBody.lua")
 PlacementUtils = class()
 
 
+---@param object any
+---@param table table
+---@return boolean
 function sm.util.contains(object, table)
     
     for _, value in pairs(table) do
@@ -17,8 +20,9 @@ function sm.util.contains(object, table)
     return false
 end
 
---- @param container Container
----@return table returnTable
+
+---@param container Container
+---@return table
 function sm.util.containerToTable(container)
     
     local size = container:getSize()
@@ -34,8 +38,8 @@ function sm.util.containerToTable(container)
 end
 
 
---- @param container Container
----@return table returnTable
+---@param container Container
+---@return table
 function sm.util.containerToStringTable(container)
     
     local size = container:getSize()
@@ -55,42 +59,70 @@ function sm.util.containerToStringTable(container)
 end
 
 
+---@param effect Effect
+---@param pos Vec3
+---@param rot Quat
+function sm.effect.setTransforms(effect, pos, rot)
+    
+    effect:setPosition(pos)
+    effect:setRotation(rot)
+end
+
+
 function PlacementUtils.is6Way(item)
     
+    -- WIP
+
     return false
 end
 
 
+---@param num number
+---@return number
 function PlacementUtils.roundToCenterGrid(num)
 
     return SubdivideRatio * (math.floor(num / SubdivideRatio) + 1/2)
 end
 
 
+---@param vec Vec3
+---@return Vec3
 function PlacementUtils.roundVecToCenterGrid(vec)
 
     return sm.vec3.new(PlacementUtils.roundToCenterGrid(vec.x), PlacementUtils.roundToCenterGrid(vec.y), PlacementUtils.roundToCenterGrid(vec.z))
 end
 
 
+---@param num number
+---@return number
 function PlacementUtils.roundToGrid(num)
     
     return SubdivideRatio * math.floor(num / SubdivideRatio + 1/2)
 end
 
 
+---@param vec Vec3
+---@return Vec3
 function PlacementUtils.roundVecToGrid(vec)
     
     return sm.vec3.new(PlacementUtils.roundToGrid(vec.x), PlacementUtils.roundToGrid(vec.y), PlacementUtils.roundToGrid(vec.z))
 end
 
 
+---@param vec Vec3
+---@param range number
+---@return Vec3
 function PlacementUtils.clampVec(vec, range)
 
     return sm.vec3.new(sm.util.clamp(vec.x, - range, range), sm.util.clamp(vec.y, - range, range), sm.util.clamp(vec.z, - range, range))
 end
 
 
+---@param raycastPos Vec3
+---@param raycastDirection Vec3
+---@param planePos Vec3
+---@param planeNormal Vec3
+---@return Vec3
 function PlacementUtils.raycastToPlane(raycastPos, raycastDirection, planePos, planeNormal)
     
     local distance = planePos - raycastPos
@@ -103,6 +135,11 @@ function PlacementUtils.raycastToPlane(raycastPos, raycastDirection, planePos, p
 end
 
 
+---@param raycastPos Vec3
+---@param raycastDirection Vec3
+---@param linePos Vec3
+---@param lineDirection Vec3
+---@return number
 function PlacementUtils.raycastToLine(raycastPos, raycastDirection, linePos, lineDirection)
 
     local distance = raycastPos - linePos
@@ -115,6 +152,8 @@ function PlacementUtils.raycastToLine(raycastPos, raycastDirection, linePos, lin
 end
 
 
+---@param raycastResult RaycastResult
+---@return Body
 function PlacementUtils.getTransformBody(raycastResult)
 
     if raycastResult.type == "body" then
@@ -132,6 +171,7 @@ function PlacementUtils.getTransformBody(raycastResult)
 end
 
 
+---@param raycastResult RaycastResult
 function PlacementUtils.getAttachedObject(raycastResult)
     
     if raycastResult.type == "body" then
@@ -148,7 +188,9 @@ function PlacementUtils.getAttachedObject(raycastResult)
     end
 end
 
-
+---@param raycastResult RaycastResult
+---@param normalVector Vec3
+---@return number 1 is true, 0 is false
 function PlacementUtils.isPlaceableFace(raycastResult, normalVector)
     
     if raycastResult.type == "body" then

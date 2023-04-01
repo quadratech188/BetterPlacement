@@ -1,7 +1,9 @@
 
--- This Class exists for the sole purpose of making the code look better
+---@class DefaultBody
 
 DefaultBody = class()
+
+DefaultBody.worldPosition = sm.vec3.zero()
 
 DefaultBody.worldRotation = sm.quat.identity()
 

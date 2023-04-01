@@ -1,71 +1,19 @@
 
+---@diagnostic disable: need-check-nil
+
 ---@class BetterPlacement:ToolClass
 
 dofile("$SURVIVAL_DATA/Scripts/game/survival_shapes.lua")
 
 dofile("$CONTENT_DATA/Scripts/PlacementUtils.lua")
 
+dofile("$CONTENT_DATA/Scripts/EffectSets.lua")
+
+dofile("$CONTENT_DATA/Scripts/LineEffect.lua")
+
 
 BetterPlacement = class()
 
-
-function BetterPlacement:refreshRotationStorage(hotbar)
-
-    if not hotbar:hasChanged(sm.game.getServerTick() - 1) then
-        
-        return
-    end
-
-    for key, item in pairs(self.currentHotbar) do
-
-        print(self.currentHotbar)
-
-        -- Create entries for new items
-
-        if not sm.util.contains(item, self.lastHotbar) then
-
-            print(item)
-            
-            PlacementRotationStorage[tostring(item)] = {
-                ["+X"] = 0,
-                ["+Y"] = 0,
-                ["+Z"] = 0,
-                ["-X"] = 0,
-                ["-Y"] = 0
-            }
-        end
-    end
-
-    for key, item in pairs(self.lastHotbar) do
-
-        -- Delete entries for nonexistant items
-
-        if not sm.util.contains(item, self.currentHotbar) then
-            
-            PlacementRotationStorage[tostring(item)] = nil
-        end
-    end
-end
-
-
-function BetterPlacement:showSelectionEffect()
-    
-    if self.lastAxisAsString == nil then
-
-        PlacementEffects[self.placementAxisAsString]:start()
-
-    elseif self.lastAxisAsString ~= self.placementAxisAsString then
-
-        PlacementEffects[self.lastAxisAsString]:stop()
-        PlacementEffects[self.placementAxisAsString]:start()
-    end
-
-    PlacementEffects[self.placementAxisAsString]:setPosition(self.worldSurfacePos)
-    PlacementEffects[self.placementAxisAsString]:setRotation(self.worldNormalRot)
-
-    self.lastAxisAsString = self.placementAxisAsString
-    
-end
 
 --- @param data table The table of data for the placement; {raycastResult, uuid, localPosition, localRotation, forceAccept}
 function BetterPlacement:sv_createPart(data)
@@ -85,8 +33,6 @@ function BetterPlacement:sv_createPart(data)
 
         local localPlacementPosition = localPosition / SubdivideRatio - shapeSize * 0.5
 
-        print(localPlacementPosition)
-
         if sm.item.isPart(uuid) then
             
             parent:getBody():createPart(uuid, localPlacementPosition, zAxis, xAxis, forceAccept)
@@ -104,7 +50,7 @@ function BetterPlacement:onToggle()
 
         -- Shape rotation
 
-        PlacementRotationStorage[self.currentItemAsString][self.placementAxisAsString] = (PlacementRotationStorage[self.currentItemAsString][self.placementAxisAsString] + 1) % 4
+        ItemRotationStorage[self.placementAxisAsString] = (ItemRotationStorage[self.placementAxisAsString] + 1) % 4
 
     elseif self.primaryState == 1 or self.primaryState == 2 then
 
@@ -133,21 +79,28 @@ function BetterPlacement:initializeMod()
 
     self.currentItem = nil
 
-    self.currentHotbar = {"placeholder"}
-
     self.lastAxisAsString = nil
 
     PlacementRotationStorage = {}
 
-    -- Set constants
+    -- Settings
 
+    UsePositionInPhase1 = false
+    PositionSelectionTimer = 5
+    PlacementRadii = 7.5
+    VerticalPositioningUISize = sm.vec3.new(0.2, 0.2, 1)
+
+    -- Constants
+
+
+    ---@type number
     SubdivideRatio_2 = sm.construction.constants.subdivideRatio_2
+
+    ---@type number
     SubdivideRatio = sm.construction.constants.subdivideRatio
     
     BlockSize = sm.vec3.new(1, 1, 1) * SubdivideRatio
-    PlacementRadii = 7.5
     CenterSize = 0.46875
-    PositionSelectionTimer = 5
 
     PosX = sm.vec3.new(1,0,0)
     PosY = sm.vec3.new(0,1,0)
@@ -171,12 +124,12 @@ function BetterPlacement:initializeMod()
         [3] = Quat90 * Quat90 * Quat90
     }
 
-    SupportedSurfaces = {"body", "joint", "terrainSurface", "terrainAsset"}
+    SupportedSurfaces = {"body", "joint"}
 
     -- Initialize placement selection effects
 
     local placementUuids = {
-        ["+X"] =  "03422fac-1103-4f93-9206-5324c1406a86",
+        ["+X"] = "03422fac-1103-4f93-9206-5324c1406a86",
         ["+Y"] = "728e9744-9b40-45e7-9c0a-0e386f01e592",
         ["+Z"] = "d8fc440b-ad25-45db-b72b-36a99414435b",
         ["-X"] = "8cbaa03b-90f2-42fc-888b-1626650325c5",
@@ -184,39 +137,27 @@ function BetterPlacement:initializeMod()
 
     }
 
-    PlacementEffects = {}
+    SelectionEffects = EffectSet.new(placementUuids)
 
-    for direction, uuid in pairs(placementUuids) do
+    local positioningUuids = {
+        ["Vertical"] = ""
+    }
 
-        local effect = sm.effect.createEffect("ShapeRenderable")
+    PositioningEffects = EffectSet.new(positioningUuids)
 
-        effect:setParameter("uuid", sm.uuid.new(uuid))
-        effect:setScale(BlockSize)
-        
-        PlacementEffects[direction] = effect
-    end
-    
-    -- Start at +Z effect
+    PositioningEffects.effectData["Vertical"].effect = LineEffect.new(VerticalPositioningUISize * SubdivideRatio, "5f41af56-df4c-4837-9b3c-10781335757f")
 
-    PlacementEffects["+Z"]:start()
+    PositioningEffects:getEffect("Vertical"):setParameter("color", sm.color.new(0,1,0,1))
 
-    -- visualization effect
+    -- Visualization effect
 
     VisualizationEffect = sm.effect.createEffect("ShapeRenderable")
     VisualizationEffect:setScale(BlockSize)
     VisualizationEffect:setParameter("visualization", true)
 
-    -- Testing purposes
-
-    TestEffect = sm.effect.createEffect("ShapeRenderable")
-    TestEffect:setParameter("uuid", sm.uuid.new("ed27f5e2-cac5-4a32-a5d9-49f116acc6af"))
-    TestEffect:setScale(BlockSize)
-    TestEffect:setParameter("visualization", true)
-    TestEffect:start()
-
     -- Initialize placement
 
-    BetterPlacement.resetPlacement(self)
+    self:resetPlacement()
 
     sm.gui.chatMessage("Initialized BetterPlacement Mod")
     print("Initialized BetterPlacement Mod")
@@ -227,11 +168,8 @@ function BetterPlacement:resetPlacement()
 
     self.lockedSelection = false
             -- Whether selection is locked to a face
-
-    if self.lastAxisAsString ~= nil then
         
-        PlacementEffects[self.lastAxisAsString]:stop()
-    end
+    SelectionEffects:hideAll()
 
     self.lastAxisAsString = nil
 
@@ -239,31 +177,9 @@ function BetterPlacement:resetPlacement()
 
     self.verticalPositioning = false
 
+    self.positionSelectionTime = 0
+
     VisualizationEffect:stop()
-end
-
-
-function BetterPlacement:calculatePlacementPosition(delta)
-
-    local placementDeltaRot = self.placementAxis * RotationList[PlacementRotationStorage[self.currentItemAsString][self.placementAxisAsString]]
-
-    self.localPlacementRot = self.localNormalRot * placementDeltaRot
-    
-    self.worldPlacementRot = self.transformBody.worldRotation * self.localPlacementRot
-
-    -- Find Relative Placement Position
-        
-    local shapeSize = sm.item.getShapeSize(self.currentItem) * SubdivideRatio
-
-    local rotatedShapeSize = placementDeltaRot * shapeSize
-
-    local roundedOffset = PlacementUtils.roundVecToCenterGrid(delta - rotatedShapeSize / 2) + rotatedShapeSize / 2
-
-    roundedOffset.z = math.abs(rotatedShapeSize.z / 2)
-
-    self.localPlacementPos = self.localSurfacePos + self.localNormalRot * roundedOffset
-
-    self.worldPlacementPos = self.transformBody:transformPoint(self.localPlacementPos)
 end
 
 
@@ -297,8 +213,6 @@ function BetterPlacement:calculateSurfacePosition()
 
             self.localNormal = sm.vec3.closestAxis(RaycastResult.normalLocal)
 
-            self.worldNormal = self.transformBody.worldRotation * self.localNormal
-
             -- Can you build there?
             
             if PlacementUtils.isPlaceableFace(RaycastResult, self.localNormal) == 1 then
@@ -311,19 +225,7 @@ function BetterPlacement:calculateSurfacePosition()
 
                 self.localSurfacePos = PlacementUtils.roundVecToCenterGrid(self.localHitPos + self.localNormal * SubdivideRatio_2) - self.localNormal * SubdivideRatio_2
 
-                self.worldSurfacePos = self.transformBody:transformPoint(self.localSurfacePos)
-
-                self.localNormalRot = sm.vec3.getRotation(sm.vec3.new(0,0,1), self.localNormal)
-
-                self.worldNormalRot = self.transformBody.worldRotation * self.localNormalRot
-
-                -- Figure out where the curser is pointing to on the plane
-
-                local raycastToPlane = PlacementUtils.raycastToPlane(sm.localPlayer.getRaycastStart(), RaycastResult.directionWorld, self.worldSurfacePos, self.worldNormal)
-    
-                self.worldDeltaPlacement = raycastToPlane + sm.localPlayer.getRaycastStart() - self.worldSurfacePos
-
-                self.localDeltaPlacement = sm.quat.inverse(self.worldNormalRot) * self.worldDeltaPlacement
+                self.localSurfaceRot = sm.vec3.getRotation(sm.vec3.new(0,0,1), self.localNormal)
 
                 return true
 
@@ -339,28 +241,69 @@ function BetterPlacement:calculateSurfacePosition()
 
         -- Check I can still build there
 
-        if not sm.exists(self.attachedObject) then
+        if not sm.exists(self.transformBody) then
             
             return false
         end
 
-        -- I just copied these bits lol
-
-        self.worldNormal = self.transformBody.worldRotation * self.localNormal
-
-        self.worldSurfacePos = self.transformBody:transformPoint(self.localSurfacePos)
-
-        self.worldNormalRot = self.transformBody.worldRotation * self.localNormalRot
-
-        local raycastToPlane = PlacementUtils.raycastToPlane(sm.localPlayer.getRaycastStart(), RaycastResult.directionWorld, self.worldSurfacePos, self.worldNormal)
-
-        self.worldDeltaPlacement = raycastToPlane + sm.localPlayer.getRaycastStart() - self.worldSurfacePos
-
-        self.localDeltaPlacement = sm.quat.inverse(self.worldNormalRot) * self.worldDeltaPlacement
-
         return true
     end
 
+end
+
+
+function BetterPlacement:updateValues()
+
+    self.worldNormal = self.transformBody.worldRotation * self.localNormal
+
+    self.worldSurfacePos = self.transformBody:transformPoint(self.localSurfacePos)
+
+    self.worldSurfaceRot = self.transformBody.worldRotation * self.localSurfaceRot
+
+    local raycastToPlane = PlacementUtils.raycastToPlane(sm.localPlayer.getRaycastStart(), RaycastResult.directionWorld, self.worldSurfacePos, self.worldNormal)
+
+    self.worldDeltaPlacement = raycastToPlane + sm.localPlayer.getRaycastStart() - self.worldSurfacePos
+
+    self.localDeltaPlacement = sm.quat.inverse(self.worldSurfaceRot) * self.worldDeltaPlacement
+end
+
+
+---@param item Uuid
+---@param rawItemRotation Quat
+---@param planePosition Vec3
+---@param planeRotation Quat
+---@param relativePosition Vec3
+---@param calculateHorizontalDelta boolean
+---@return Vec3
+---@return Quat
+function BetterPlacement.calculatePlacementOnPlane(item, rawItemRotation, planePosition, planeRotation, relativePosition, calculateHorizontalDelta)
+
+    if calculateHorizontalDelta == nil then
+        
+        calculateHorizontalDelta = true
+    end
+
+    local localPlacementRot = planeRotation * rawItemRotation
+        
+    local shapeSize = sm.item.getShapeSize(item) * SubdivideRatio
+
+    local rotatedShapeSize = rawItemRotation * shapeSize
+
+    local roundedOffset = sm.vec3.zero()
+
+    if calculateHorizontalDelta then
+
+        roundedOffset = PlacementUtils.roundVecToCenterGrid(relativePosition - rotatedShapeSize / 2) + rotatedShapeSize / 2
+    else
+
+        roundedOffset = PlacementUtils.roundVecToGrid(relativePosition)
+    end
+
+    roundedOffset.z = math.abs(rotatedShapeSize.z / 2)
+
+    local localPlacementPos = planePosition + planeRotation * roundedOffset
+
+    return localPlacementPos, localPlacementRot
 end
 
 
@@ -413,20 +356,37 @@ function BetterPlacement:doPhase0()
             self.placementAxis = QuatPosX
             self.placementAxisAsString = "+X"
         end
-    
-        -- Make selection effect
-        
-        BetterPlacement.showSelectionEffect(self)
+
+        if ItemRotationStorage == nil then
+            
+            ItemRotationStorage = {
+                ["+X"] = 0,
+                ["+Y"] = 0,
+                ["+Z"] = 0,
+                ["-X"] = 0,
+                ["-Y"] = 0
+            }
+        end
+
+        -- Show selection effect
+
+        SelectionEffects:showOnly(self.placementAxisAsString)
+
+        SelectionEffects:setTransforms(self.worldSurfacePos, self.worldSurfaceRot)
 
         -- Calculate Visualization position
 
-        BetterPlacement.calculatePlacementPosition(self, clampedDeltaPlacement)
+        local rawPlacementRot = self.placementAxis * RotationList[ItemRotationStorage[self.placementAxisAsString]]
+
+        self.localPlacementPos, self.localPlacementRot = BetterPlacement.calculatePlacementOnPlane(self.currentItem, rawPlacementRot, self.localSurfacePos, self.localSurfaceRot, clampedDeltaPlacement, UsePositionInPhase1)
 
         -- Show placement visualization
 
-        VisualizationEffect:setPosition(self.worldPlacementPos)
-        
-        VisualizationEffect:setRotation(self.worldPlacementRot)
+        self.worldPlacementPos = self.transformBody:transformPoint(self.localPlacementPos)
+
+        self.worldPlacementRot = self.transformBody.worldRotation * self.localPlacementRot
+
+        sm.effect.setTransforms(VisualizationEffect, self.worldPlacementPos, self.worldPlacementRot)
     end
 end
 
@@ -435,13 +395,22 @@ function BetterPlacement:startPhase1()
     
     self.lockedSelection = true
 
-    PlacementEffects[self.placementAxisAsString]:stop()
+    PositioningEffects:getEffect("Vertical").fallbackDirection = self.localNormal
+
+    PositioningEffects:getEffect("Vertical").parent = self.transformBody
+
+    PositioningEffects:getEffect("Vertical"):setStart(self.localPlacementPos)
+    PositioningEffects:getEffect("Vertical"):setEnd(self.localPlacementPos)
+
+    SelectionEffects:hideAll()
 end
 
 
 function BetterPlacement:doPhase1()
     
     if self.verticalPositioning == true then
+
+        PositioningEffects:showOnly("Vertical")
         
         local delta = PlacementUtils.roundToGrid(PlacementUtils.raycastToLine(sm.localPlayer.getRaycastStart(), RaycastResult.directionWorld, self.worldPlacementPos, self.worldNormal))
 
@@ -449,21 +418,29 @@ function BetterPlacement:doPhase1()
 
         self.localPlacementPos = self.localPlacementPos + self.localNormal * delta
 
-        self.worldPlacementPos = self.transformBody:transformPoint(self.localPlacementPos)
-
-        self.worldPlacementRot = self.transformBody.worldRotation * self.localPlacementRot
+        PositioningEffects:getEffect("Vertical"):setEnd(self.localPlacementPos)
     else
 
-        BetterPlacement.calculatePlacementPosition(self, self.localDeltaPlacement)
+        PositioningEffects:showOnly("Horizontal")
+
+        local rawPlacementRot = self.placementAxis * RotationList[ItemRotationStorage[self.placementAxisAsString]]
+
+        self.localPlacementPos, self.localPlacementRot = BetterPlacement.calculatePlacementOnPlane(self.currentItem, rawPlacementRot, self.localSurfacePos, self.localSurfaceRot, self.localDeltaPlacement, true)
+
+        PositioningEffects:getEffect("Vertical"):setStart(self.localPlacementPos)
     end
 
-    VisualizationEffect:setPosition(self.worldPlacementPos)
-            
-    VisualizationEffect:setRotation(self.worldPlacementRot)
+    self.worldPlacementPos = self.transformBody:transformPoint(self.localPlacementPos)
+
+    self.worldPlacementRot = self.transformBody.worldRotation * self.localPlacementRot
+
+    sm.effect.setTransforms(VisualizationEffect, self.worldPlacementPos, self.worldPlacementRot)
 end
 
 
 function BetterPlacement:doPhase2()
+
+    PositioningEffects:hideAll()
 
     if self.raycastStorage.type == "body" then
         self.network:sendToServer("sv_createPart", {self.raycastStorage:getShape(), self.currentItem, self.localPlacementPos, self.localPlacementRot, true})
@@ -472,7 +449,7 @@ function BetterPlacement:doPhase2()
         self.network:sendToServer("sv_createPart", {self.raycastStorage:getJoint(), self.currentItem, self.localPlacementPos, self.localPlacementPos, true})
     end
 
-    BetterPlacement.resetPlacement(self)
+    self:resetPlacement()
 end
 
 function BetterPlacement:managePhases()
@@ -498,9 +475,6 @@ function BetterPlacement:managePhases()
 
         BetterPlacement.doPhase2(self)
     end
-
-
-
 end
 
 
@@ -508,17 +482,23 @@ function BetterPlacement:doFrame()
     
     RaycastSuccess, RaycastResult = sm.localPlayer.getRaycast(PlacementRadii)
 
-    self.lastItem = self.currentItem
+    local lastItem = self.currentItem
 
     self.currentItem = sm.localPlayer.getActiveItem()
     self.currentItemAsString = tostring(self.currentItem)
+
+
     
-    if self.lastItem ~= self.currentItem then
+    if lastItem ~= self.currentItem then
+
+        PlacementRotationStorage[tostring(lastItem)] = ItemRotationStorage
+
+        ItemRotationStorage = PlacementRotationStorage[self.currentItemAsString]
         
         self.itemHasChanged = true
         self.isPart = sm.item.isPart(self.currentItem) or sm.item.isJoint(self.currentItem)
 
-        BetterPlacement.resetPlacement(self)
+        self:resetPlacement()
 
         VisualizationEffect:stop()
 
@@ -527,9 +507,6 @@ function BetterPlacement:doFrame()
         self.itemHasChanged = false
     end
 
-    local currentHotbar = sm.localPlayer.getHotbar()
-
-    BetterPlacement:refreshRotationStorage(currentHotbar)
     
     self.doingPlacement = BetterPlacement.calculateSurfacePosition(self) and self.isPart
 
@@ -538,6 +515,8 @@ function BetterPlacement:doFrame()
         VisualizationEffect:stop()
 
         VisualizationEffect:start()
+
+        BetterPlacement.updateValues(self)
             
         BetterPlacement.managePhases(self)
     else
