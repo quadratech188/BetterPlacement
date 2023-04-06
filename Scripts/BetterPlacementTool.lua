@@ -79,7 +79,7 @@ function BetterPlacementTool:client_onUpdate(dt)
 
     Item = sm.localPlayer.getActiveItem()
 
-    local forceTool = sm.item.isPart(Item) or sm.item.isJoint(Item) or Item == sm.uuid.getNil()
+    local forceTool = sm.item.isPart(Item) or Item == sm.uuid.getNil()-- or sm.item.isJoint(Item)
 
     if forceTool and self.on then
         
@@ -87,6 +87,11 @@ function BetterPlacementTool:client_onUpdate(dt)
     else
 
         sm.tool.forceTool(nil)
+    end
+
+    if Item == self.toolUuid then
+        
+        sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Enable BetterPlacement")
     end
 
     if self.on then

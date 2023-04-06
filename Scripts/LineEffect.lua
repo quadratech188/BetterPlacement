@@ -77,13 +77,13 @@ end
 
 
 function LineEffect:start()
-    print("start")
+    
     self.lineEffect:start()
 end
 
 
 function LineEffect:stop()
-    print("stop")
+    
     self.lineEffect:stop()
 end
 
