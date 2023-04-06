@@ -85,7 +85,8 @@ function BetterPlacement:initializeMod()
 
     -- Settings
 
-    UsePositionInPhase1 = false
+    UsePositionOnPhase1 = false
+    RoundToGridOnPhase1 = true
     PositionSelectionTimer = 5
     PlacementRadii = 7.5
     VerticalPositioningUISize = sm.vec3.new(0.2, 0.2, 1)
@@ -191,7 +192,7 @@ function BetterPlacement:calculateSurfacePosition()
             
             -- Don't process unsupported types
 
-            if not sm.util.contains(RaycastResult.type, SupportedSurfaces) then
+            if not PlacementUtils.contains(RaycastResult.type, SupportedSurfaces) then
                 return false
             end
 
@@ -274,9 +275,10 @@ end
 ---@param planeRotation Quat
 ---@param relativePosition Vec3
 ---@param calculateHorizontalDelta boolean
+---@param roundUncalculatedHorizontalDelta boolean
 ---@return Vec3
 ---@return Quat
-function BetterPlacement.calculatePlacementOnPlane(item, rawItemRotation, planePosition, planeRotation, relativePosition, calculateHorizontalDelta)
+function BetterPlacement.calculatePlacementOnPlane(item, rawItemRotation, planePosition, planeRotation, relativePosition, calculateHorizontalDelta, roundUncalculatedHorizontalDelta)
 
     if calculateHorizontalDelta == nil then
         
@@ -291,9 +293,16 @@ function BetterPlacement.calculatePlacementOnPlane(item, rawItemRotation, planeP
 
     local roundedOffset = sm.vec3.zero()
 
-    if calculateHorizontalDelta then
+    if roundUncalculatedHorizontalDelta then
+        
+        local itemPivotPoint = PlacementUtils.roundVecToCenterGrid(shapeSize / 2) - shapeSize / 2
+
+        roundedOffset = PlacementUtils.roundVecToGrid(relativePosition) + rawItemRotation * itemPivotPoint
+
+    elseif calculateHorizontalDelta then
 
         roundedOffset = PlacementUtils.roundVecToCenterGrid(relativePosition - rotatedShapeSize / 2) + rotatedShapeSize / 2
+
     else
 
         roundedOffset = PlacementUtils.roundVecToGrid(relativePosition)
@@ -378,7 +387,7 @@ function BetterPlacement:doPhase0()
 
         local rawPlacementRot = self.placementAxis * RotationList[ItemRotationStorage[self.placementAxisAsString]]
 
-        self.localPlacementPos, self.localPlacementRot = BetterPlacement.calculatePlacementOnPlane(self.currentItem, rawPlacementRot, self.localSurfacePos, self.localSurfaceRot, clampedDeltaPlacement, UsePositionInPhase1)
+        self.localPlacementPos, self.localPlacementRot = BetterPlacement.calculatePlacementOnPlane(self.currentItem, rawPlacementRot, self.localSurfacePos, self.localSurfaceRot, clampedDeltaPlacement, UsePositionInPhase1, RoundToGridOnPhase1)
 
         -- Show placement visualization
 
@@ -386,7 +395,7 @@ function BetterPlacement:doPhase0()
 
         self.worldPlacementRot = self.transformBody.worldRotation * self.localPlacementRot
 
-        sm.effect.setTransforms(VisualizationEffect, self.worldPlacementPos, self.worldPlacementRot)
+        PlacementUtils.setTransforms(VisualizationEffect, self.worldPlacementPos, self.worldPlacementRot)
     end
 end
 
@@ -434,7 +443,7 @@ function BetterPlacement:doPhase1()
 
     self.worldPlacementRot = self.transformBody.worldRotation * self.localPlacementRot
 
-    sm.effect.setTransforms(VisualizationEffect, self.worldPlacementPos, self.worldPlacementRot)
+    PlacementUtils.setTransforms(VisualizationEffect, self.worldPlacementPos, self.worldPlacementRot)
 end
 
 
@@ -485,10 +494,9 @@ function BetterPlacement:doFrame()
     local lastItem = self.currentItem
 
     self.currentItem = sm.localPlayer.getActiveItem()
+
     self.currentItemAsString = tostring(self.currentItem)
 
-
-    
     if lastItem ~= self.currentItem then
 
         PlacementRotationStorage[tostring(lastItem)] = ItemRotationStorage

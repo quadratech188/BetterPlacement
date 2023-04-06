@@ -7,7 +7,7 @@ PlacementUtils = class()
 ---@param object any
 ---@param table table
 ---@return boolean
-function sm.util.contains(object, table)
+function PlacementUtils.contains(object, table)
     
     for _, value in pairs(table) do
         
@@ -23,7 +23,7 @@ end
 
 ---@param container Container
 ---@return table
-function sm.util.containerToTable(container)
+function PlacementUtils.containerToTable(container)
     
     local size = container:getSize()
 
@@ -40,7 +40,7 @@ end
 
 ---@param container Container
 ---@return table
-function sm.util.containerToStringTable(container)
+function PlacementUtils.containerToStringTable(container)
     
     local size = container:getSize()
 
@@ -62,7 +62,7 @@ end
 ---@param effect Effect
 ---@param pos Vec3
 ---@param rot Quat
-function sm.effect.setTransforms(effect, pos, rot)
+function PlacementUtils.setTransforms(effect, pos, rot)
     
     effect:setPosition(pos)
     effect:setRotation(rot)
