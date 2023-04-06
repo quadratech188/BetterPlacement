@@ -496,7 +496,7 @@ function BetterPlacement:doFrame()
         ItemRotationStorage = PlacementRotationStorage[self.currentItemAsString]
         
         self.itemHasChanged = true
-        self.isPart = sm.item.isPart(self.currentItem) or sm.item.isJoint(self.currentItem)
+        self.isPart = sm.item.isPart(self.currentItem)-- or sm.item.isJoint(self.currentItem)
 
         self:resetPlacement()
 
