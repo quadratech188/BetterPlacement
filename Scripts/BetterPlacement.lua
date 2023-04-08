@@ -135,10 +135,9 @@ function BetterPlacement:initializeMod()
         ["+Z"] = "d8fc440b-ad25-45db-b72b-36a99414435b",
         ["-X"] = "8cbaa03b-90f2-42fc-888b-1626650325c5",
         ["-Y"] = "01e9830e-4b80-47b5-9cbb-736024f12d53"
-
     }
 
-    SelectionEffects = EffectSet.new(placementUuids)
+    RotationEffects = EffectSet.new(placementUuids)
 
     local positioningUuids = {
         ["Vertical"] = ""
@@ -158,7 +157,7 @@ function BetterPlacement:initializeMod()
 
     -- Initialize placement
 
-    self:resetPlacement()
+    BetterPlacement:resetPlacement()
 
     sm.gui.chatMessage("Initialized BetterPlacement Mod")
     print("Initialized BetterPlacement Mod")
@@ -170,7 +169,7 @@ function BetterPlacement:resetPlacement()
     self.lockedSelection = false
             -- Whether selection is locked to a face
         
-    SelectionEffects:hideAll()
+    RotationEffects:hideAll()
 
     self.lastAxisAsString = nil
 
@@ -379,9 +378,9 @@ function BetterPlacement:doPhase0()
 
         -- Show selection effect
 
-        SelectionEffects:showOnly(self.placementAxisAsString)
+        RotationEffects:showOnly(self.placementAxisAsString)
 
-        SelectionEffects:setTransforms(self.worldSurfacePos, self.worldSurfaceRot)
+        RotationEffects:setTransforms(self.worldSurfacePos, self.worldSurfaceRot)
 
         -- Calculate Visualization position
 
@@ -411,7 +410,7 @@ function BetterPlacement:startPhase1()
     PositioningEffects:getEffect("Vertical"):setStart(self.localPlacementPos)
     PositioningEffects:getEffect("Vertical"):setEnd(self.localPlacementPos)
 
-    SelectionEffects:hideAll()
+    RotationEffects:hideAll()
 end
 
 
