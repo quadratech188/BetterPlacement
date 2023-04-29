@@ -7,7 +7,7 @@ LineEffect = class()
 ---Try using LineEffect.new instead
 ---@param thickness Vec3 X, Y: thickness of the line, Z: the overhang beyond the endpoints
 ---@param material string The Uuid of the block/part the line is made of (preferrably 1x1x1)
----@param parent Body|DefaultBody The Body that the line is attached to, position/rotation is calculated relative to here
+---@param parent Body | DefaultBody The Body that the line is attached to, position/rotation is calculated relative to here
 function LineEffect:initialize(thickness, material, parent)
 
     self.lineEffect = sm.effect.createEffect("ShapeRenderable")
@@ -17,12 +17,13 @@ function LineEffect:initialize(thickness, material, parent)
     self.fallbackDirection = PosZ
     self.thickness = thickness
     self.parent = parent
+    self.itemSize = sm.item.getShapeSize(material)
 end
 
 
 ---Creates a new LineEffect.
 ---@param thickness Vec3 X, Y: thickness of the line, Z: the overhang beyond the endpoints
----@param material string The Uuid of the block/part the line is made of (preferrably 1x1x1)
+---@param material string The Uuid of the block/part the line is made of (preferrably 1x1x1, other sizes will be corrected)
 ---@param parent Body|nil (optional) The Body that the line is attached to, position/rotation is calculated relative to here
 ---@return LineEffect
 function LineEffect.new(thickness, material, parent)
@@ -48,7 +49,7 @@ function LineEffect:update()
 
     self.lineEffect:setPosition(worldPosition)
     self.lineEffect:setRotation(worldRotation)
-    self.lineEffect:setScale(scale)
+    self.lineEffect:setScale(scale / self.itemSize)
 end
 
 

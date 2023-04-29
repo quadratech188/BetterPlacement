@@ -9,8 +9,6 @@ dofile("$CONTENT_DATA/Scripts/PlacementUtils.lua")
 
 dofile("$CONTENT_DATA/Scripts/EffectSets.lua")
 
-dofile("$CONTENT_DATA/Scripts/LineEffect.lua")
-
 
 BetterPlacement = class()
 
@@ -89,7 +87,6 @@ function BetterPlacement:initializeMod()
     RoundToGridOnPhase1 = true
     PositionSelectionTimer = 5
     PlacementRadii = 7.5
-    VerticalPositioningUISize = sm.vec3.new(0.2, 0.2, 1)
 
     -- Constants
 
@@ -102,6 +99,7 @@ function BetterPlacement:initializeMod()
     
     BlockSize = sm.vec3.new(1, 1, 1) * SubdivideRatio
     CenterSize = 0.46875
+    TransformUISize = sm.vec3.new(0.2, 0.2, 2) * SubdivideRatio
 
     PosX = sm.vec3.new(1,0,0)
     PosY = sm.vec3.new(0,1,0)
@@ -115,10 +113,12 @@ function BetterPlacement:initializeMod()
     QuatPosZ = sm.quat.identity()
     QuatNegX = sm.vec3.getRotation(PosZ, NegX)
     QuatNegY = sm.vec3.getRotation(PosZ, NegY)
+    QuatNegZ = sm.vec3.getRotation(PosZ, NegZ)
 
     Quat90 = sm.quat.angleAxis(- math.pi / 2, PosZ)
 
     RotationList = {
+
         [0] = sm.quat.identity(),
         [1] = Quat90,
         [2] = Quat90 * Quat90,
@@ -130,6 +130,7 @@ function BetterPlacement:initializeMod()
     -- Initialize placement selection effects
 
     local placementUuids = {
+
         ["+X"] = "03422fac-1103-4f93-9206-5324c1406a86",
         ["+Y"] = "728e9744-9b40-45e7-9c0a-0e386f01e592",
         ["+Z"] = "d8fc440b-ad25-45db-b72b-36a99414435b",
@@ -139,15 +140,25 @@ function BetterPlacement:initializeMod()
 
     RotationEffects = EffectSet.new(placementUuids)
 
-    local positioningUuids = {
-        ["Vertical"] = ""
-    }
+    RotationEffects:setScale(BlockSize)
 
-    PositioningEffects = EffectSet.new(positioningUuids)
+    TransformEffects = EffectSet.new({
 
-    PositioningEffects.effectData["Vertical"].effect = LineEffect.new(VerticalPositioningUISize * SubdivideRatio, "5f41af56-df4c-4837-9b3c-10781335757f")
+        ["X"] = "5f41af56-df4c-4837-9b3c-10781335757f",
+        ["Y"] = "5f41af56-df4c-4837-9b3c-10781335757f",
+        ["Z"] = "5f41af56-df4c-4837-9b3c-10781335757f"
+    })
 
-    PositioningEffects:getEffect("Vertical"):setParameter("color", sm.color.new(0,1,0,1))
+    TransformEffects:getEffect("X"):setParameter("color", sm.color.new(1,0,0,1))
+    TransformEffects:getEffect("Y"):setParameter("color", sm.color.new(0,1,0,1))
+    TransformEffects:getEffect("Z"):setParameter("color", sm.color.new(0,0,1,1))
+
+    TransformEffects:setOffsetTransforms({
+
+        ["X"] = {QuatPosX * (TransformUISize * PosZ / 2), QuatPosX, TransformUISize},
+        ["Y"] = {QuatPosY * (TransformUISize * PosZ / 2), QuatPosY, TransformUISize},
+        ["Z"] = {QuatPosZ * (TransformUISize * PosZ / 2), QuatPosZ, TransformUISize}
+    })
 
     -- Visualization effect
 
@@ -170,6 +181,8 @@ function BetterPlacement:resetPlacement()
             -- Whether selection is locked to a face
         
     RotationEffects:hideAll()
+
+    TransformEffects:hideAll()
 
     self.lastAxisAsString = nil
 
@@ -291,17 +304,16 @@ function BetterPlacement.calculatePlacementOnPlane(item, rawItemRotation, planeP
     local rotatedShapeSize = rawItemRotation * shapeSize
 
     local roundedOffset = sm.vec3.zero()
+    
+    if calculateHorizontalDelta then
 
-    if roundUncalculatedHorizontalDelta then
+        roundedOffset = PlacementUtils.roundVecToCenterGrid(relativePosition - rotatedShapeSize / 2) + rotatedShapeSize / 2
+
+    elseif roundUncalculatedHorizontalDelta then
         
         local itemPivotPoint = PlacementUtils.roundVecToCenterGrid(shapeSize / 2) - shapeSize / 2
 
         roundedOffset = PlacementUtils.roundVecToGrid(relativePosition) + rawItemRotation * itemPivotPoint
-
-    elseif calculateHorizontalDelta then
-
-        roundedOffset = PlacementUtils.roundVecToCenterGrid(relativePosition - rotatedShapeSize / 2) + rotatedShapeSize / 2
-
     else
 
         roundedOffset = PlacementUtils.roundVecToGrid(relativePosition)
@@ -368,6 +380,7 @@ function BetterPlacement:doPhase0()
         if ItemRotationStorage == nil then
             
             ItemRotationStorage = {
+
                 ["+X"] = 0,
                 ["+Y"] = 0,
                 ["+Z"] = 0,
@@ -380,7 +393,9 @@ function BetterPlacement:doPhase0()
 
         RotationEffects:showOnly(self.placementAxisAsString)
 
-        RotationEffects:setTransforms(self.worldSurfacePos, self.worldSurfaceRot)
+        RotationEffects:setPosition(self.worldSurfacePos)
+
+        RotationEffects:setRotation(self.worldSurfaceRot)
 
         -- Calculate Visualization position
 
@@ -403,13 +418,6 @@ function BetterPlacement:startPhase1()
     
     self.lockedSelection = true
 
-    PositioningEffects:getEffect("Vertical").fallbackDirection = self.localNormal
-
-    PositioningEffects:getEffect("Vertical").parent = self.transformBody
-
-    PositioningEffects:getEffect("Vertical"):setStart(self.localPlacementPos)
-    PositioningEffects:getEffect("Vertical"):setEnd(self.localPlacementPos)
-
     RotationEffects:hideAll()
 end
 
@@ -418,29 +426,27 @@ function BetterPlacement:doPhase1()
     
     if self.verticalPositioning == true then
 
-        PositioningEffects:showOnly("Vertical")
+        TransformEffects:showOnly("Z")
         
         local delta = PlacementUtils.roundToGrid(PlacementUtils.raycastToLine(sm.localPlayer.getRaycastStart(), RaycastResult.directionWorld, self.worldPlacementPos, self.worldNormal))
 
         self.localSurfacePos = self.localSurfacePos + self.localNormal * delta
 
         self.localPlacementPos = self.localPlacementPos + self.localNormal * delta
-
-        PositioningEffects:getEffect("Vertical"):setEnd(self.localPlacementPos)
     else
 
-        PositioningEffects:showOnly("Horizontal")
+        TransformEffects:showOnly({"X", "Y"})
 
         local rawPlacementRot = self.placementAxis * RotationList[ItemRotationStorage[self.placementAxisAsString]]
 
-        self.localPlacementPos, self.localPlacementRot = BetterPlacement.calculatePlacementOnPlane(self.currentItem, rawPlacementRot, self.localSurfacePos, self.localSurfaceRot, self.localDeltaPlacement, true)
-
-        PositioningEffects:getEffect("Vertical"):setStart(self.localPlacementPos)
+        self.localPlacementPos, self.localPlacementRot = BetterPlacement.calculatePlacementOnPlane(self.currentItem, rawPlacementRot, self.localSurfacePos, self.localSurfaceRot, self.localDeltaPlacement, true, false)
     end
 
     self.worldPlacementPos = self.transformBody:transformPoint(self.localPlacementPos)
 
     self.worldPlacementRot = self.transformBody.worldRotation * self.localPlacementRot
+
+    TransformEffects:setPositionAndRotation(self.worldPlacementPos, self.worldSurfaceRot)
 
     PlacementUtils.setTransforms(VisualizationEffect, self.worldPlacementPos, self.worldPlacementRot)
 end
@@ -448,7 +454,7 @@ end
 
 function BetterPlacement:doPhase2()
 
-    PositioningEffects:hideAll()
+    TransformEffects:hideAll()
 
     if self.raycastStorage.type == "body" then
         self.network:sendToServer("sv_createPart", {self.raycastStorage:getShape(), self.currentItem, self.localPlacementPos, self.localPlacementRot, true})
@@ -457,7 +463,7 @@ function BetterPlacement:doPhase2()
         self.network:sendToServer("sv_createPart", {self.raycastStorage:getJoint(), self.currentItem, self.localPlacementPos, self.localPlacementPos, true})
     end
 
-    self:resetPlacement()
+    BetterPlacement.resetPlacement(self)
 end
 
 function BetterPlacement:managePhases()
@@ -505,7 +511,7 @@ function BetterPlacement:doFrame()
         self.itemHasChanged = true
         self.isPart = sm.item.isPart(self.currentItem)-- or sm.item.isJoint(self.currentItem)
 
-        self:resetPlacement()
+        BetterPlacement.resetPlacement(self)
 
         VisualizationEffect:stop()
 

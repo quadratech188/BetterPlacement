@@ -17,6 +17,8 @@ function EffectSet:initialize(effects)
 
     self.worldRotation = sm.quat.identity()
 
+    self.scale = sm.vec3.one()
+
     for key, uuid in pairs(effects) do
 
         local effect = sm.effect.createEffect("ShapeRenderable")
@@ -24,10 +26,12 @@ function EffectSet:initialize(effects)
         effect:setParameter("uuid", sm.uuid.new(uuid))
         effect:setScale(sm.vec3.new(1,1,1) * sm.construction.constants.subdivideRatio)
         
-        self.effectData[key] = {["effect"] = effect, ["isPlaying"] = false}
+        self.effectData[key] = {["effect"] = effect, ["isPlaying"] = false, ["offsetTransforms"] = {sm.vec3.zero(), sm.quat.identity(), sm.vec3.one()}}
 
         table.insert(self.allEffectKeys, key)
     end
+
+    self:updateEffectTransforms()
 end
 
 
@@ -48,49 +52,119 @@ function EffectSet:getAllEffectData()
     return self.effectData
 end
 
+
 function EffectSet:getAllEffectKeys()
     
     return self.allEffectKeys
 end
+
 
 function EffectSet:getEffect(key)
     
     return self.effectData[key].effect
 end
 
-function EffectSet:setTransforms(worldPosition, worldRotation)
 
-    self.worldPosition = worldPosition
-
-    self.worldRotation = worldRotation
-
-    for _, effectData in pairs(self.effectData) do
+function EffectSet:setEffect(key, effect)
+    
+    if self.effectData[key] ~= nil then
         
-        effectData.effect:setPosition(worldPosition)
-
-        effectData.effect:setRotation(worldRotation)
+        self.effectData[key].effect:stop()
     end
+
+    self.effectData[key] = {
+        ["effect"] = effect,
+        ["isPlaying"] = false,
+        ["offsetTransforms"] = {sm.vec3.zero(), sm.quat.identity(), sm.vec3.one()}
+    }
+
+    table.insert(self.allEffectKeys, key)
+
+    self:updateEffectTransforms()
 end
 
 
+---Set world position of EffectSet
+---@param worldPosition Vec3
 function EffectSet:setPosition(worldPosition)
 
     self.worldPosition = worldPosition
 
-    for _, effectData in pairs(self.effectData) do
-        
-        effectData.effect:setPosition(worldPosition)
-    end
+    self:updateEffectTransforms()
 end
 
 
+---Set world rotation of EffectSet
+---@param worldRotation Quat
 function EffectSet:setRotation(worldRotation)
 
     self.worldRotation = worldRotation
 
-    for _, effectData in pairs(self.effectData) do
+    self:updateEffectTransforms()
+end
 
-        effectData.effect:setRotation(worldRotation)
+
+---Set world position and world rotation of EffectSet
+---@param worldPosition Vec3
+---@param worldRotation Quat
+function EffectSet:setPositionAndRotation(worldPosition, worldRotation)
+
+    self.worldPosition = worldPosition
+
+    self.worldRotation = worldRotation
+
+    self:updateEffectTransforms()
+end
+
+
+---Set scale of EffectSet
+---@param scale Vec3
+function EffectSet:setScale(scale)
+
+    self.scale = scale
+
+    self:updateEffectTransforms()
+end
+
+
+---Update position, rotation, scale of the effects passed as arguments
+---@param table table | nil (Optional) The passed effectData (Defaults to all effects)
+function EffectSet:updateEffectTransforms(table)
+    
+    if table == nil then
+        
+        table = self.effectData
+    end
+
+    for _, effectData in pairs(table) do
+
+        local offsetTransforms = effectData["offsetTransforms"]
+        
+        effectData["effect"]:setPosition(self.worldPosition + self.worldRotation * (offsetTransforms[1] * self.scale))
+
+        effectData["effect"]:setRotation(self.worldRotation * offsetTransforms[2])
+
+        effectData["effect"]:setScale(self.scale * offsetTransforms[3])
+    end
+end
+
+
+---Set the local transforms of some of the effects
+---@param transforms table {[key] = {position, rotation, scale}}; Parameters which are nil are not edited.
+function EffectSet:setOffsetTransforms(transforms)
+    
+    for key, transform in pairs(transforms) do
+
+        if self.effectData[key] == nil then
+            
+            goto continue
+        end
+
+        PlacementUtils.copyExcludingNil(transform, self.effectData[key]["offsetTransforms"])
+
+        self:updateEffectTransforms({self.effectData[key]})
+
+        ::continue::
     end
 end
 

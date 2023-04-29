@@ -21,6 +21,18 @@ function PlacementUtils.contains(object, table)
 end
 
 
+---Copies the contents of table1 to table2, not modifying nil values
+---@param table1 table the table to be copied from
+---@param table2 table the table to be copied to
+function PlacementUtils.copyExcludingNil(table1, table2)
+    
+    for key, value in pairs(table1) do
+
+        table2[key] = value
+    end
+end
+
+
 ---@param container Container
 ---@return table
 function PlacementUtils.containerToTable(container)
