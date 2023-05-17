@@ -117,6 +117,25 @@ function EffectSet:setPositionAndRotation(worldPosition, worldRotation)
 end
 
 
+function EffectSet:setParameter(effectKey, parameterKey, parameter, reload)
+    
+    if reload == nil then
+        reload = false
+    end
+
+    if reload then
+
+        self:getEffect(effectKey):stop()
+        self:getEffect(effectKey):setParameter(parameterKey, parameter)
+        self:getEffect(effectKey):start()
+
+    else
+
+        self:getEffect(effectKey):setParameter(parameterKey, parameter)
+    end
+end
+
+
 ---Set scale of EffectSet
 ---@param scale Vec3
 function EffectSet:setScale(scale)
@@ -166,6 +185,19 @@ function EffectSet:setOffsetTransforms(transforms)
 
         ::continue::
     end
+end
+
+
+--Compatibility
+function EffectSet:start()
+    
+    EffectSet:show(self.allEffectKeys)
+end
+
+
+function EffectSet:stop()
+    
+    EffectSet:stop()
 end
 
 
