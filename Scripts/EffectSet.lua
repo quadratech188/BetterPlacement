@@ -1,6 +1,96 @@
 
 ---@diagnostic disable: need-check-nil
 
+---@class SmartEffect
+
+SmartEffect = class()
+
+
+function SmartEffect.new(effectData)
+    
+    local returnClass = class(SmartEffect)
+
+    returnClass:initialize(effectData)
+
+    return returnClass
+end
+
+
+function SmartEffect:initialize(effectData)
+    
+    -- Supported: 'Effect' userdata, Custom Effect class with sufficient callbacks, uuids for ShapeRenderable effect
+
+    if type(effectData) == "Effect" or type(effectData) == "table" then
+        
+        self.effect = effectData
+    
+    else
+
+        self.effect = sm.effect.createEffect("ShapeRenderable")
+
+        self.effect:setParameter("uuid", effectData)
+    end
+
+    self.isPlaying = false
+
+    self.offsetPosition = sm.vec3.zero()
+
+    self.offsetRotation = sm.quat.identity()
+
+    self.offsetScale = sm.vec3.one()
+end
+
+
+function SmartEffect:start()
+    
+    if self.isPlaying == false then
+        
+        self.effect:start()
+    end
+    self.isPlaying = true
+end
+
+function SmartEffect:stop()
+
+    if self.isPlaying == true then
+        
+        self.effect:stop()
+    end
+    self.isPlaying = false
+end
+
+
+function SmartEffect:updateTransforms()
+
+    self.effect:setPosition(self.worldPosition + self.worldRotation * (self.offsetTransforms[1] * self.worldScale))
+
+    self.effect:setRotation(self.worldRotation * self.offsetTransforms[2])
+
+    self.effect:setScale(self.worldScale * self.offsetTransforms[3])
+end
+
+
+---Set offset transforms of SmartEffect (nil values are ignored)
+---@param transforms table {position, rotation, scale}
+function SmartEffect:setOffsetTransforms(transforms)
+
+    if transforms[1] ~= nil then
+        self.offsetPosition = transforms[1]
+    end
+
+    if transforms[2] ~= nil then
+        self.offsetRotation = transforms[2]
+    end
+
+    if transforms[3] ~= nil then
+        self.offsetScale = transforms[3]
+    end
+
+    self:updateTransforms()
+end
+
+
+
 ---@class EffectSet
 
 EffectSet = class()
@@ -19,11 +109,11 @@ function EffectSet:initialize(effects)
 
     self.scale = sm.vec3.one()
 
-    for key, uuid in pairs(effects) do
+    for key, data in pairs(effects) do    
 
         local effect = sm.effect.createEffect("ShapeRenderable")
 
-        effect:setParameter("uuid", sm.uuid.new(uuid))
+        effect:setParameter("uuid", sm.uuid.new(data))
         effect:setScale(sm.vec3.new(1,1,1) * sm.construction.constants.subdivideRatio)
         
         self.effectData[key] = {["effect"] = effect, ["isPlaying"] = false, ["offsetTransforms"] = {sm.vec3.zero(), sm.quat.identity(), sm.vec3.one()}}
@@ -123,7 +213,7 @@ function EffectSet:setParameter(effectKey, parameterKey, parameter, reload)
         reload = false
     end
 
-    if reload then
+    if reload and self.effectData[effectKey].isPlaying == true then
 
         self:getEffect(effectKey):stop()
         self:getEffect(effectKey):setParameter(parameterKey, parameter)
@@ -169,7 +259,7 @@ end
 
 
 ---Set the local transforms of some of the effects
----@param transforms table {[key] = {position, rotation, scale}}; Parameters which are nil are not edited.
+---@param transforms table {[key] = {position, rotation, scale}}; Parameters that are nil are not edited.
 function EffectSet:setOffsetTransforms(transforms)
     
     for key, transform in pairs(transforms) do

@@ -162,6 +162,8 @@ function AdvancedPlacementCore:initializeMod()
 
     -- Visualization effect
 
+    VisualizationEffect = EffectSet.new()
+
     VisualizationEffect = sm.effect.createEffect("ShapeRenderable")
     VisualizationEffect:setScale(BlockSize)
     VisualizationEffect:setParameter("visualization", true)
