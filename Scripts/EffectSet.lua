@@ -38,6 +38,12 @@ function SmartEffect:initialize(effectData)
     self.offsetRotation = sm.quat.identity()
 
     self.offsetScale = sm.vec3.one()
+    
+    self.worldPosition = sm.vec3.zero()
+
+    self.worldRotation = sm.quat.identity()
+
+    self.worldScale = 1
 end
 
 
@@ -90,6 +96,61 @@ function SmartEffect:setOffsetTransforms(transforms)
 end
 
 
+---Set world transforms of SmartEffect (nil values are ignored)
+---@param transforms table {position, rotation, scale}
+function SmartEffect:setTransforms(transforms)
+    
+    if transforms[1] ~= nil then
+        self.worldPosition = transforms[1]
+    end
+
+    if transforms[2] ~= nil then
+        self.worldRotation = transforms[2]
+    end
+
+    if transforms[3] ~= nil then
+        self.worldScale = transforms[3]
+    end
+
+    self:updateTransforms()
+end
+
+
+---Set origin position
+---@param position Vec3
+function SmartEffect:setPosition(position)
+    
+    self.worldPosition = position
+end
+
+
+---Set origin rotation
+---@param rotation Quat
+function SmartEffect:setRotation(rotation)
+    
+    self.worldRotation = rotation
+end
+
+
+---Set origin scale
+---@param scale number
+function SmartEffect:setScale(scale)
+    
+    self.worldScale = scale
+end
+
+
+---*Client only*  
+---Sets a named parameter value on the effect.  
+---@param name string The name.
+---@param value any The effect parameter value.
+function SmartEffect:setParameter(name, value)
+    
+    self.effect:setParameter(name, value)
+end
+
+
+--------------------------------------------------------------------------------------------
 
 ---@class EffectSet
 
@@ -99,7 +160,7 @@ EffectSet = class()
 ---@param effects table
 function EffectSet:initialize(effects)
 
-    self.effectData = {}
+    self.smartEffects = {}
 
     self.allEffectKeys = {}
 
@@ -107,21 +168,16 @@ function EffectSet:initialize(effects)
 
     self.worldRotation = sm.quat.identity()
 
-    self.scale = sm.vec3.one()
+    self.worldScale = 1
 
-    for key, data in pairs(effects) do    
+    for key, data in pairs(effects) do
 
-        local effect = sm.effect.createEffect("ShapeRenderable")
-
-        effect:setParameter("uuid", sm.uuid.new(data))
-        effect:setScale(sm.vec3.new(1,1,1) * sm.construction.constants.subdivideRatio)
-        
-        self.effectData[key] = {["effect"] = effect, ["isPlaying"] = false, ["offsetTransforms"] = {sm.vec3.zero(), sm.quat.identity(), sm.vec3.one()}}
+        self.smartEffects[key] = SmartEffect.new(data)
 
         table.insert(self.allEffectKeys, key)
     end
 
-    self:updateEffectTransforms()
+    self:updateTransforms()
 end
 
 
@@ -137,9 +193,9 @@ function EffectSet.new(effects)
 end
 
 
-function EffectSet:getAllEffectData()
+function EffectSet:getAllSmartEffects()
     
-    return self.effectData
+    return self.smartEffects
 end
 
 
@@ -149,28 +205,24 @@ function EffectSet:getAllEffectKeys()
 end
 
 
-function EffectSet:getEffect(key)
+function EffectSet:getSmartEffect(key)
     
-    return self.effectData[key].effect
+    return self.smartEffects[key]
 end
 
 
 function EffectSet:setEffect(key, effect)
     
-    if self.effectData[key] ~= nil then
+    if self.smartEffects[key] ~= nil then
         
-        self.effectData[key].effect:stop()
+        self.smartEffects[key].effect:stop()
     end
 
-    self.effectData[key] = {
-        ["effect"] = effect,
-        ["isPlaying"] = false,
-        ["offsetTransforms"] = {sm.vec3.zero(), sm.quat.identity(), sm.vec3.one()}
-    }
+    self.smartEffects[key] = SmartEffect.new(effect)
+
+    self.smartEffects[key]:setTransforms(self.worldPosition, self.worldRotation, self.worldScale)
 
     table.insert(self.allEffectKeys, key)
-
-    self:updateEffectTransforms()
 end
 
 
@@ -180,7 +232,7 @@ function EffectSet:setPosition(worldPosition)
 
     self.worldPosition = worldPosition
 
-    self:updateEffectTransforms()
+    self:updateTransforms()
 end
 
 
@@ -190,7 +242,7 @@ function EffectSet:setRotation(worldRotation)
 
     self.worldRotation = worldRotation
 
-    self:updateEffectTransforms()
+    self:updateTransforms()
 end
 
 
@@ -203,7 +255,7 @@ function EffectSet:setPositionAndRotation(worldPosition, worldRotation)
 
     self.worldRotation = worldRotation
 
-    self:updateEffectTransforms()
+    self:updateTransforms()
 end
 
 
@@ -213,7 +265,7 @@ function EffectSet:setParameter(effectKey, parameterKey, parameter, reload)
         reload = false
     end
 
-    if reload and self.effectData[effectKey].isPlaying == true then
+    if reload and self.smartEffects[effectKey].isPlaying == true then
 
         self:getEffect(effectKey):stop()
         self:getEffect(effectKey):setParameter(parameterKey, parameter)
@@ -226,34 +278,22 @@ function EffectSet:setParameter(effectKey, parameterKey, parameter, reload)
 end
 
 
----Set scale of EffectSet
----@param scale Vec3
+---Set scale of EffectSet (Vec3 is not possible)
+---@param scale number
 function EffectSet:setScale(scale)
 
-    self.scale = scale
+    self.worldScale = scale
 
-    self:updateEffectTransforms()
+    self:updateTransforms()
 end
 
 
----Update position, rotation, scale of the effects passed as arguments
----@param table table | nil (Optional) The passed effectData (Defaults to all effects)
-function EffectSet:updateEffectTransforms(table)
-    
-    if table == nil then
-        
-        table = self.effectData
-    end
+---Update position, rotation, scale of all effects
+function EffectSet:updateTransforms()
 
-    for _, effectData in pairs(table) do
+    for _, smartEffect in pairs(self.smartEffects) do
 
-        local offsetTransforms = effectData["offsetTransforms"]
-        
-        effectData["effect"]:setPosition(self.worldPosition + self.worldRotation * (offsetTransforms[1] * self.scale))
-
-        effectData["effect"]:setRotation(self.worldRotation * offsetTransforms[2])
-
-        effectData["effect"]:setScale(self.scale * offsetTransforms[3])
+        smartEffect:setTransforms({self.worldPosition, self.worldRotation, self.worldScale})
     end
 end
 
@@ -264,14 +304,14 @@ function EffectSet:setOffsetTransforms(transforms)
     
     for key, transform in pairs(transforms) do
 
-        if self.effectData[key] == nil then
+        if self.smartEffects[key] == nil then
             
+            -- Invalid key
+
             goto continue
         end
 
-        PlacementUtils.copyExcludingNil(transform, self.effectData[key]["offsetTransforms"])
-
-        self:updateEffectTransforms({self.effectData[key]})
+        self.smartEffects[key]:setOffsetTransforms(transform)
 
         ::continue::
     end
@@ -294,28 +334,9 @@ end
 ---Shows the given effects, hides all others
 function EffectSet:showOnly(keys)
 
-    if type(keys) ~= "table" then
-        keys = {keys}
-    end
+    EffectSet:hideAll()
 
-    EffectSet.hideAll(self)
-
-    for _, key in pairs(keys) do
-
-        if self.effectData[key] == nil then
-            
-            goto continue
-        end
-
-        if self.effectData[key].isPlaying == false then
-
-            self.effectData[key].effect:start()
-            self.effectData[key].isPlaying = true
-
-        end
-
-        ::continue::
-    end
+    EffectSet:show(keys)
 end
 
 
@@ -328,17 +349,12 @@ function EffectSet:show(keys)
 
     for _, key in pairs(keys) do
 
-        if self.effectData[key] == nil then
+        if self.smartEffects[key] == nil then
             
             goto continue
         end
         
-        if self.effectData[key].isPlaying == false then
-
-            self.effectData[key].effect:start()
-            self.effectData[key].isPlaying = true
-
-        end
+        self.smartEffects[key]:start()
 
         ::continue::
     end
@@ -355,8 +371,14 @@ function EffectSet:hide(keys)
 
     for _, key in pairs(keys) do
         
-        self.effectData[key].effect:stop()
-        self.effectData[key].isPlaying = false
+        if self.smartEffects[key] == nil then
+            
+            goto continue
+        end
+
+        self.smartEffects[key]:stop()
+
+        ::continue::
     end
 end
 
@@ -364,5 +386,5 @@ end
 ---Hides every effect
 function EffectSet:hideAll()
     
-    EffectSet.hide(self, self.allEffectKeys)
+    EffectSet:hide(self.allEffectKeys)
 end
