@@ -149,9 +149,9 @@ function AdvancedPlacementCore:initializeMod()
         ["Z"] = "3e3242e4-1791-4f70-8d1d-0ae9ba3ee94c" -- Aluminum Block
     })
 
-    TransformEffects:getEffect("X"):setParameter("color", sm.color.new(1,0,0,1))
-    TransformEffects:getEffect("Y"):setParameter("color", sm.color.new(0,1,0,1))
-    TransformEffects:getEffect("Z"):setParameter("color", sm.color.new(0,0,1,1))
+    TransformEffects:setParameter("X", "color", sm.color.new(1,0,0,1))
+    TransformEffects:setParameter("Y", "color", sm.color.new(0,1,0,1))
+    TransformEffects:setParameter("Z", "color", sm.color.new(0,0,1,1))
 
     TransformEffects:setOffsetTransforms({
 
@@ -161,8 +161,6 @@ function AdvancedPlacementCore:initializeMod()
     })
 
     -- Visualization effect
-
-    VisualizationEffect = EffectSet.new()
 
     VisualizationEffect = sm.effect.createEffect("ShapeRenderable")
     VisualizationEffect:setScale(BlockSize)
@@ -526,8 +524,6 @@ function AdvancedPlacementCore:doFrame()
     self.doingPlacement = self:calculateSurfacePosition() and self.isPart
 
     if self.doingPlacement then
-
-        VisualizationEffect:stop()
 
         VisualizationEffect:start()
 

@@ -6,6 +6,9 @@
 SmartEffect = class()
 
 
+---Create a new SmartEffect
+---@param effectData any Existing Effects, compatible custom effect classes, and uuids are supported
+---@return SmartEffect
 function SmartEffect.new(effectData)
     
     local returnClass = class(SmartEffect)
@@ -28,7 +31,9 @@ function SmartEffect:initialize(effectData)
 
         self.effect = sm.effect.createEffect("ShapeRenderable")
 
-        self.effect:setParameter("uuid", effectData)
+        print(effectData)
+
+        self.effect:setParameter("uuid", sm.uuid.new(effectData))
     end
 
     self.isPlaying = false
@@ -66,13 +71,14 @@ function SmartEffect:stop()
 end
 
 
+---Refresh Transforms of SmartEffect
 function SmartEffect:updateTransforms()
 
-    self.effect:setPosition(self.worldPosition + self.worldRotation * (self.offsetTransforms[1] * self.worldScale))
+    self.effect:setPosition(self.worldPosition + self.worldRotation * (self.offsetPosition * self.worldScale))
 
-    self.effect:setRotation(self.worldRotation * self.offsetTransforms[2])
+    self.effect:setRotation(self.worldRotation * self.offsetRotation)
 
-    self.effect:setScale(self.worldScale * self.offsetTransforms[3])
+    self.effect:setScale(self.offsetScale * self.worldScale)
 end
 
 
@@ -259,6 +265,11 @@ function EffectSet:setPositionAndRotation(worldPosition, worldRotation)
 end
 
 
+---Set a parameter of an effect
+---@param effectKey any The key of the desired effect
+---@param parameterKey string The name of the desired parameter
+---@param parameter any The parameter value
+---@param reload boolean|nil Whether to reload (turn off/on) the effect while changing the parameter (Required for ShapeRenderables etc.)
 function EffectSet:setParameter(effectKey, parameterKey, parameter, reload)
     
     if reload == nil then
@@ -267,13 +278,13 @@ function EffectSet:setParameter(effectKey, parameterKey, parameter, reload)
 
     if reload and self.smartEffects[effectKey].isPlaying == true then
 
-        self:getEffect(effectKey):stop()
-        self:getEffect(effectKey):setParameter(parameterKey, parameter)
-        self:getEffect(effectKey):start()
+        self.smartEffects[effectKey]:stop()
+        self.smartEffects[effectKey]:setParameter(parameterKey, parameter)
+        self.smartEffects[effectKey]:start()
 
     else
 
-        self:getEffect(effectKey):setParameter(parameterKey, parameter)
+        self.smartEffects[effectKey]:setParameter(parameterKey, parameter)
     end
 end
 
@@ -334,9 +345,9 @@ end
 ---Shows the given effects, hides all others
 function EffectSet:showOnly(keys)
 
-    EffectSet:hideAll()
+    self:hideAll()
 
-    EffectSet:show(keys)
+    self:show(keys)
 end
 
 
@@ -386,5 +397,5 @@ end
 ---Hides every effect
 function EffectSet:hideAll()
     
-    EffectSet:hide(self.allEffectKeys)
+    self:hide(self.allEffectKeys)
 end
