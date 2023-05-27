@@ -46,10 +46,10 @@ function AdvancedPlacementTool.client_onReload(self)
 
         if self.on then
 
-            sm.gui.displayAlertText("Use BetterPlacement:\n#00ff00True", DisplayDuration)
+            sm.gui.displayAlertText("Use Advanced Placement:\n#00ff00True", DisplayDuration)
         else
 
-            sm.gui.displayAlertText("Use BetterPlacement:\n#ff0000False", DisplayDuration)
+            sm.gui.displayAlertText("Use Advanced Placement:\n#ff0000False", DisplayDuration)
         end
     else
 

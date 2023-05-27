@@ -1,7 +1,7 @@
 {
    "toolList" : [
       {
-         "name" : "Better Placement Tool",
+         "name" : "Advanced Placement Tool",
          "previewRenderable" : "$GAME_DATA/Character/Char_Tools/Char_liftremote/char_liftremote.rend",
          "script" : {
             "class" : "AdvancedPlacementTool",
