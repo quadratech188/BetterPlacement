@@ -31,8 +31,6 @@ function SmartEffect:initialize(effectData)
 
         self.effect = sm.effect.createEffect("ShapeRenderable")
 
-        print(effectData)
-
         self.effect:setParameter("uuid", sm.uuid.new(effectData))
     end
 
