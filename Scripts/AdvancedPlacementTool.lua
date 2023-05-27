@@ -95,7 +95,7 @@ function AdvancedPlacementTool:client_onUpdate(dt)
 
     if Item == self.toolUuid then
         
-        sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Enable BetterPlacement")
+        sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Enable Advanced Placement")
     end
 
     if self.on then
