@@ -70,7 +70,7 @@ function AdvancedPlacementCore:onReload()
 end
 
 
-function AdvancedPlacementCore:initializeMod()
+function AdvancedPlacementCore:initialize()
 
     sm.gui.chatMessage("Initializing AdvancedPlacement Mod")
     print("Initializing AdvancedPlacement Mod")

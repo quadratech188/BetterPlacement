@@ -7,6 +7,10 @@ AdvancedPlacementTool = class()
 
 AdvancedPlacementTool.placementCore = AdvancedPlacementCore
 
+AdvancedPlacementTool.gui = PlacementSettingsGUI
+
+AdvancedPlacementTool.gui.placementCore = AdvancedPlacementCore
+
 function AdvancedPlacementTool:client_onCreate()
 
     self:initialize()
@@ -18,13 +22,14 @@ function AdvancedPlacementTool:client_onRefresh()
 end
 
 function AdvancedPlacementTool:client_onDestroy()
-    
-    self.placementCore:initializeMod()
+
 end
 
 function AdvancedPlacementTool:initialize()
     
-    self.placementCore:initializeMod()
+    self.placementCore:initialize()
+
+    self.gui:initialize()
 
     self.on = false
 
@@ -35,13 +40,20 @@ function AdvancedPlacementTool:initialize()
     DisplayDuration = 2
 end
 
+
+function AdvancedPlacementTool:sv_createPart(data)
+    
+    self.placementCore:sv_createPart(data)
+end
+
+
 -- On/Off
 
 function AdvancedPlacementTool.client_onReload(self)
     
     -- Is the tool selected
 
-    if Item == self.toolUuid then
+    if self.isEquipped then
         self.on = not self.on
 
         if self.on then
@@ -63,7 +75,13 @@ end
 
 function AdvancedPlacementTool.client_onToggle(self)
 
-    self.placementCore:onToggle()
+    if self.isEquipped then
+        
+        self.gui:onToggle()
+    else
+
+        self.placementCore:onToggle()
+    end
 
     return true
 end
@@ -83,6 +101,19 @@ function AdvancedPlacementTool:client_onUpdate(dt)
 
     Item = sm.localPlayer.getActiveItem()
 
+    if Item == self.toolUuid then
+        
+        sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Enable Advanced Placement")
+        sm.gui.setInteractionText("", sm.gui.getKeyBinding("NextCreateRotation", true), "Open Settings GUI") -- https://scrapmechanictools.com/modding_help/Keybind_Names
+
+        self.gui:doFrame()
+
+        self.isEquipped = true
+    else
+
+        self.isEquipped = false
+    end
+
     local forceTool = sm.item.isPart(Item) or Item == sm.uuid.getNil()-- or sm.item.isJoint(Item)
 
     if forceTool and self.on then
@@ -93,18 +124,8 @@ function AdvancedPlacementTool:client_onUpdate(dt)
         sm.tool.forceTool(nil)
     end
 
-    if Item == self.toolUuid then
-        
-        sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Enable Advanced Placement")
-    end
-
     if self.on then
 
         self.placementCore:doFrame()
     end
-end
-
-function AdvancedPlacementTool:sv_createPart(data)
-    
-    self.placementCore:sv_createPart(data)
 end
