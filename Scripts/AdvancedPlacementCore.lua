@@ -9,6 +9,8 @@ dofile("$CONTENT_DATA/Scripts/PlacementUtils.lua")
 
 dofile("$CONTENT_DATA/Scripts/EffectSet.lua")
 
+dofile("$CONTENT_DATA/Scripts/PlacementSettingsGUI.lua")
+
 
 AdvancedPlacementCore = class()
 
@@ -110,12 +112,13 @@ function AdvancedPlacementCore:initializeMod()
 
     -- Settings
 
-    UsePositionOnPhase1 = false
-    RoundToGridOnPhase1 = true
-    PositionSelectionTimer = 5 -- Ticks before advancing to position selection
-    PlacementRadii = 7.5 -- Reach distance
-    TransformUISize = sm.vec3.new(0.2, 0.2, 2) * SubdivideRatio -- Thickness and length of position selection UI
-
+    self.settings = {
+        UsePositionOnPhase1 = false,
+        RoundToGridOnPhase1 = true,
+        PositionSelectionTimer = 5, -- Ticks before advancing to position selection
+        PlacementRadii = 7.5, -- Reach distance
+        TransformUISize = sm.vec3.new(0.2, 0.2, 2) * SubdivideRatio -- Thickness and length of position selection UI
+    }
 
     RotationList = {
 
@@ -155,9 +158,9 @@ function AdvancedPlacementCore:initializeMod()
 
     TransformEffects:setOffsetTransforms({
 
-        ["X"] = {QuatPosX * (TransformUISize * PosZ / 2), QuatPosX, TransformUISize},
-        ["Y"] = {QuatPosY * (TransformUISize * PosZ / 2), QuatPosY, TransformUISize},
-        ["Z"] = {QuatPosZ * (TransformUISize * PosZ / 2), QuatPosZ, TransformUISize}
+        ["X"] = {QuatPosX * (self.settings.TransformUISize * PosZ / 2), QuatPosX, self.settings.TransformUISize},
+        ["Y"] = {QuatPosY * (self.settings.TransformUISize * PosZ / 2), QuatPosY, self.settings.TransformUISize},
+        ["Z"] = {QuatPosZ * (self.settings.TransformUISize * PosZ / 2), QuatPosZ, self.settings.TransformUISize}
     })
 
     -- Visualization effect
@@ -401,7 +404,7 @@ function AdvancedPlacementCore:doPhase0()
 
         local rawPlacementRot = self.placementAxis * RotationList[ItemRotationStorage[self.placementAxisAsString]]
 
-        self.localPlacementPos, self.localPlacementRot = self.calculatePlacementOnPlane(self.currentItem, rawPlacementRot, self.localSurfacePos, self.localSurfaceRot, clampedDeltaPlacement, UsePositionOnPhase1, RoundToGridOnPhase1)
+        self.localPlacementPos, self.localPlacementRot = self.calculatePlacementOnPlane(self.currentItem, rawPlacementRot, self.localSurfacePos, self.localSurfaceRot, clampedDeltaPlacement, self.settings.UsePositionOnPhase1, self.settings.RoundToGridOnPhase1)
 
         -- Show placement visualization
 
@@ -480,7 +483,7 @@ function AdvancedPlacementCore:managePhases()
     
     elseif self.primaryState == 2 then
         
-        if sm.game.getCurrentTick() >= self.positionSelectionTime + PositionSelectionTimer then 
+        if sm.game.getCurrentTick() >= self.positionSelectionTime + self.settings.PositionSelectionTimer then 
 
             self:doPhase1()
         end
@@ -494,7 +497,7 @@ end
 
 function AdvancedPlacementCore:doFrame()
     
-    RaycastSuccess, RaycastResult = sm.localPlayer.getRaycast(PlacementRadii)
+    RaycastSuccess, RaycastResult = sm.localPlayer.getRaycast(self.settings.PlacementRadii)
 
     local lastItem = self.currentItem
 
