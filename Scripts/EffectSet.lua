@@ -61,7 +61,7 @@ end
 
 function SmartEffect:stop()
 
-    if self.isPlaying == true then
+    if self.isPlaying then
         
         self.effect:stop()
     end
@@ -125,6 +125,8 @@ end
 function SmartEffect:setPosition(position)
     
     self.worldPosition = position
+
+    self:updateTransforms()
 end
 
 
@@ -133,6 +135,8 @@ end
 function SmartEffect:setRotation(rotation)
     
     self.worldRotation = rotation
+
+    self:updateTransforms()
 end
 
 
@@ -141,6 +145,8 @@ end
 function SmartEffect:setScale(scale)
     
     self.worldScale = scale
+
+    self:updateTransforms()
 end
 
 
@@ -336,7 +342,7 @@ end
 
 function EffectSet:stop()
     
-    EffectSet:stop()
+    EffectSet:hideAll()
 end
 
 
@@ -358,12 +364,17 @@ function EffectSet:show(keys)
 
     for _, key in pairs(keys) do
 
-        if self.smartEffects[key] == nil then
+        local smartEffect = self.smartEffects[key]
+
+        if smartEffect == nil then
             
             goto continue
         end
-        
-        self.smartEffects[key]:start()
+
+        if not smartEffect.isPlaying then
+            
+            smartEffect:start()
+        end
 
         ::continue::
     end
@@ -379,13 +390,18 @@ function EffectSet:hide(keys)
     end
 
     for _, key in pairs(keys) do
+
+        local smartEffect = self.smartEffects[key]
         
-        if self.smartEffects[key] == nil then
+        if smartEffect == nil then
             
             goto continue
         end
 
-        self.smartEffects[key]:stop()
+        if smartEffect.isPlaying then
+            
+            smartEffect:stop()
+        end
 
         ::continue::
     end

@@ -113,6 +113,8 @@ function AdvancedPlacementCore:initialize()
     -- Settings
 
     self.settings = {
+
+        RoundingSetting = "SnapCenterToGrid", -- SnapCenterToGrid, DynamicSnapCornerToGrid, FixedSnapCornerToGrid
         UsePositionOnPhase1 = false,
         RoundToGridOnPhase1 = true,
         PositionSelectionTimer = 5, -- Ticks before advancing to position selection
@@ -143,7 +145,7 @@ function AdvancedPlacementCore:initialize()
 
     RotationEffects = EffectSet.new(placementUuids)
 
-    RotationEffects:setScale(BlockSize)
+    RotationEffects:setScale(SubdivideRatio)
 
     TransformEffects = EffectSet.new({
 
@@ -165,8 +167,10 @@ function AdvancedPlacementCore:initialize()
 
     -- Visualization effect
 
-    VisualizationEffect = sm.effect.createEffect("ShapeRenderable")
-    VisualizationEffect:setScale(BlockSize)
+    VisualizationEffect = SmartEffect.new(sm.effect.createEffect("ShapeRenderable"))
+
+    VisualizationEffect:setScale(SubdivideRatio)
+
     VisualizationEffect:setParameter("visualization", true)
 
     -- Initialize placement
@@ -289,15 +293,14 @@ end
 ---@param planePosition Vec3
 ---@param planeRotation Quat
 ---@param relativePosition Vec3
----@param calculateHorizontalDelta boolean
----@param roundUncalculatedHorizontalDelta boolean
+---@param roundingSetting string|nil DynamicSnapCornerToGrid, FixedSnapCornerToGrid, SnapCenterToGrid
 ---@return Vec3
 ---@return Quat
-function AdvancedPlacementCore.calculatePlacementOnPlane(item, rawItemRotation, planePosition, planeRotation, relativePosition, calculateHorizontalDelta, roundUncalculatedHorizontalDelta)
+function AdvancedPlacementCore.calculatePlacementOnPlane(item, rawItemRotation, planePosition, planeRotation, relativePosition, roundingSetting)
 
-    if calculateHorizontalDelta == nil then
+    if roundingSetting == nil then
         
-        calculateHorizontalDelta = true
+        roundingSetting = "DynamicSnapCornerToGrid"
     end
 
     local localPlacementRot = planeRotation * rawItemRotation
@@ -308,16 +311,17 @@ function AdvancedPlacementCore.calculatePlacementOnPlane(item, rawItemRotation, 
 
     local roundedOffset = sm.vec3.zero()
     
-    if calculateHorizontalDelta then
+    if roundingSetting == "DynamicSnapCornerToGrid" then
 
         roundedOffset = PlacementUtils.roundVecToCenterGrid(relativePosition - rotatedShapeSize / 2) + rotatedShapeSize / 2
 
-    elseif roundUncalculatedHorizontalDelta then
+    elseif roundingSetting == "FixedSnapCornerToGrid" then
         
         local itemPivotPoint = PlacementUtils.roundVecToCenterGrid(shapeSize / 2) - shapeSize / 2
 
         roundedOffset = PlacementUtils.roundVecToGrid(relativePosition) + rawItemRotation * itemPivotPoint
-    else
+    
+    else -- SnapCenterToGrid
 
         roundedOffset = PlacementUtils.roundVecToGrid(relativePosition)
     end
@@ -404,7 +408,7 @@ function AdvancedPlacementCore:doPhase0()
 
         local rawPlacementRot = self.placementAxis * RotationList[ItemRotationStorage[self.placementAxisAsString]]
 
-        self.localPlacementPos, self.localPlacementRot = self.calculatePlacementOnPlane(self.currentItem, rawPlacementRot, self.localSurfacePos, self.localSurfaceRot, clampedDeltaPlacement, self.settings.UsePositionOnPhase1, self.settings.RoundToGridOnPhase1)
+        self.localPlacementPos, self.localPlacementRot = self.calculatePlacementOnPlane(self.currentItem, rawPlacementRot, self.localSurfacePos, self.localSurfaceRot, clampedDeltaPlacement, self.settings.RoundingSetting)
 
         -- Show placement visualization
 
@@ -412,7 +416,7 @@ function AdvancedPlacementCore:doPhase0()
 
         self.worldPlacementRot = self.transformBody.worldRotation * self.localPlacementRot
 
-        PlacementUtils.setTransforms(VisualizationEffect, self.worldPlacementPos, self.worldPlacementRot)
+        VisualizationEffect:setTransforms({self.worldPlacementPos, self.worldPlacementRot})
     end
 end
 
@@ -442,7 +446,7 @@ function AdvancedPlacementCore:doPhase1()
 
         local rawPlacementRot = self.placementAxis * RotationList[ItemRotationStorage[self.placementAxisAsString]]
 
-        self.localPlacementPos, self.localPlacementRot = self.calculatePlacementOnPlane(self.currentItem, rawPlacementRot, self.localSurfacePos, self.localSurfaceRot, self.localDeltaPlacement, true, false)
+        self.localPlacementPos, self.localPlacementRot = self.calculatePlacementOnPlane(self.currentItem, rawPlacementRot, self.localSurfacePos, self.localSurfaceRot, self.localDeltaPlacement)
     end
 
     self.worldPlacementPos = self.transformBody:transformPoint(self.localPlacementPos)
@@ -451,7 +455,7 @@ function AdvancedPlacementCore:doPhase1()
 
     TransformEffects:setPositionAndRotation(self.worldPlacementPos, self.worldSurfaceRot)
 
-    PlacementUtils.setTransforms(VisualizationEffect, self.worldPlacementPos, self.worldPlacementRot)
+    VisualizationEffect:setTransforms({self.worldPlacementPos, self.worldPlacementRot})
 end
 
 
@@ -534,10 +538,6 @@ function AdvancedPlacementCore:doFrame()
             
         self:managePhases()
     else
-
-        VisualizationEffect:stop()
-
-        -- Don't show the effect
 
         self:resetPlacement()
     end

@@ -1,18 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <MyGUI type="Layout" version="3.2.0">
-    <Widget type="Widget" skin="PanelEmpty" position_real="0.34375 0.1388888888888889 0.3125 0.72222222222222221" align="HCenter VCenter" name="BackPanel">
-        <Property key="NeedKey" value="false"/>
-        <Property key="NeedMouse" value="false"/>
-        <Property key="InheritsPick" value="true"/>
-        <Widget type="Widget" skin="BackgroundDarkRoundedUpperRight" position_real="0 0 1 0.083333333333333329">
-            <Property key="NeedKey" value="false"/>
-        </Widget>
-        <Widget type="Widget" skin="BackgroundLightRoundedLowerLeft" position_real="0 0.083333333333333329 1 0.91666666666666663">
-            <Property key="NeedKey" value="false"/>
-            <Widget type="Widget" skin="WhiteSkin" position_real="0.066666666666666666 0.083916083916083919 1.04 0">
-                <Property key="Alpha" value="0.05"/>
-            </Widget>
-        </Widget>
+    <Widget type="Widget" skin="PanelEmpty" position_real="0.318229 0.272222 0.363542 0.455556" align="HCenter VCenter" name="BackPanel">
     </Widget>
     <CodeGeneratorSettings/>
 </MyGUI>
