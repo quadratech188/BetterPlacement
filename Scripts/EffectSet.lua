@@ -51,8 +51,8 @@ end
 
 
 function SmartEffect:start()
-    
-    if self.isPlaying == false then
+
+    if not self.isPlaying then
         
         self.effect:start()
     end
