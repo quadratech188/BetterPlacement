@@ -115,11 +115,24 @@ function AdvancedPlacementCore:initialize()
     self.settings = {
 
         RoundingSetting = "SnapCenterToGrid", -- SnapCenterToGrid, DynamicSnapCornerToGrid, FixedSnapCornerToGrid
-        UsePositionOnPhase1 = false,
-        RoundToGridOnPhase1 = true,
         PositionSelectionTimer = 5, -- Ticks before advancing to position selection
         PlacementRadii = 7.5, -- Reach distance
         TransformUISize = sm.vec3.new(0.2, 0.2, 2) * SubdivideRatio -- Thickness and length of position selection UI
+    }
+
+    self.defaultSettings = {
+
+        RoundingSetting = "SnapCornerToGrid", -- SnapCenterToGrid, DynamicSnapCornerToGrid, FixedSnapCornerToGrid
+        PositionSelectionTimer = 5, -- Ticks before advancing to position selection
+        PlacementRadii = 7.5, -- Reach distance
+        TransformUISize = sm.vec3.new(0.2, 0.2, 2) * SubdivideRatio -- Thickness and length of position selection UI
+    }
+
+    self.settingsData = {
+
+        RoundingSettings = {"SnapCenterToGrid", "DynamicSnapCornerToGrid", "FixedSnapCornerToGrid"},
+        MaxPositionSelectionTimer = 40,
+        MaxPlacementRadii = 40
     }
 
     RotationList = {
@@ -345,10 +358,8 @@ function AdvancedPlacementCore:doPhase0()
 
         -- "placementAxis" is the axis the block is placed on
 
-        local clampedDeltaPlacement = PlacementUtils.clampVec(self.localDeltaPlacement, SubdivideRatio_2 * 0.99)
-
-        local x = clampedDeltaPlacement.x
-        local y = clampedDeltaPlacement.y
+        local x = self.localDeltaPlacement.x
+        local y = self.localDeltaPlacement.y
 
         local a = x + y
         local b = x - y
@@ -408,7 +419,7 @@ function AdvancedPlacementCore:doPhase0()
 
         local rawPlacementRot = self.placementAxis * RotationList[ItemRotationStorage[self.placementAxisAsString]]
 
-        self.localPlacementPos, self.localPlacementRot = self.calculatePlacementOnPlane(self.currentItem, rawPlacementRot, self.localSurfacePos, self.localSurfaceRot, clampedDeltaPlacement, self.settings.RoundingSetting)
+        self.localPlacementPos, self.localPlacementRot = self.calculatePlacementOnPlane(self.currentItem, rawPlacementRot, self.localSurfacePos, self.localSurfaceRot, PlacementUtils.clampVec(self.localDeltaPlacement, SubdivideRatio_2 * 0.99), self.settings.RoundingSetting)
 
         -- Show placement visualization
 

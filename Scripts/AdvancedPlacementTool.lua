@@ -7,19 +7,21 @@ AdvancedPlacementTool = class()
 
 AdvancedPlacementTool.placementCore = AdvancedPlacementCore
 
-AdvancedPlacementTool.gui = PlacementSettingsGUI
+AdvancedPlacementTool.guiClass = PlacementSettingsGUI
 
-AdvancedPlacementTool.gui.placementCore = AdvancedPlacementCore
+AdvancedPlacementTool.guiClass.placementCore = AdvancedPlacementCore
 
 function AdvancedPlacementTool:client_onCreate()
 
     self:initialize()
 end
 
+
 function AdvancedPlacementTool:client_onRefresh()
 
     self:initialize()
 end
+
 
 function AdvancedPlacementTool:client_onDestroy()
 
@@ -29,7 +31,7 @@ function AdvancedPlacementTool:initialize()
     
     self.placementCore:initialize()
 
-    self.gui:initialize()
+    self.guiClass:initialize()
 
     self.on = false
 
@@ -44,6 +46,20 @@ end
 function AdvancedPlacementTool:sv_createPart(data)
     
     self.placementCore:sv_createPart(data)
+end
+
+
+function AdvancedPlacementTool:onPlacementSettingsDropdownSelect(value)
+    
+    self.guiClass:onSelect("PlacementSettingsDropdown", value)
+end
+
+
+function AdvancedPlacementTool:onPositionSelectionTimerSliderSelect(value)
+
+    print(value)
+    
+    self.guiClass:onSelect("PositionSelectionTimerSlider", value)
 end
 
 
@@ -77,7 +93,7 @@ function AdvancedPlacementTool.client_onToggle(self)
 
     if self.isEquipped then
         
-        self.gui:onToggle()
+        self.guiClass:onToggle()
     else
 
         self.placementCore:onToggle()
@@ -106,7 +122,7 @@ function AdvancedPlacementTool:client_onUpdate(dt)
         sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Enable Advanced Placement")
         sm.gui.setInteractionText("", sm.gui.getKeyBinding("NextCreateRotation", true), "Open Settings GUI") -- https://scrapmechanictools.com/modding_help/Keybind_Names
 
-        self.gui:doFrame()
+        self.guiClass:doFrame()
 
         self.isEquipped = true
     else
