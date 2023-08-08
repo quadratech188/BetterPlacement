@@ -25,6 +25,8 @@ end
 
 function AdvancedPlacementTool:client_onDestroy()
 
+    
+
 end
 
 function AdvancedPlacementTool:initialize()
@@ -56,10 +58,13 @@ end
 
 
 function AdvancedPlacementTool:onPositionSelectionTimerSliderSelect(value)
-
-    print(value)
     
     self.guiClass:onSelect("PositionSelectionTimerSlider", value)
+end
+
+function AdvancedPlacementTool:onPlacementRadiiSelect(value)
+    
+    self.guiClass:onSelect("PlacementRadiiSlider", value)
 end
 
 

@@ -10,6 +10,10 @@ function PlacementSettingsGUI:initialize()
     self.gui:createHorizontalSlider("PositionSelectionTimerSlider", self.placementCore.settingsData.MaxPositionSelectionTimer, self.placementCore.settings.PositionSelectionTimer, "onPositionSelectionTimerSliderSelect", true)
 
     self.gui:setText("PositionSelectionTimerTextBox", tostring(self.placementCore.settings.PositionSelectionTimer))
+
+    self.gui:createHorizontalSlider("PlacementRadiiSlider", self.placementCore.settingsData.MaxPlacementRadii, self.placementCore.settings.PlacementRadii, "onPlacementRadiiSelect", true)
+
+    self.gui:setText("PlacementRadiiTextBox", tostring(self.placementCore.settings.PlacementRadii))
 end
 
 function PlacementSettingsGUI:doFrame()
@@ -28,22 +32,13 @@ function PlacementSettingsGUI:onSelect(widget, value)
         self.placementCore.settings.PositionSelectionTimer = value
 
         self.gui:setText("PositionSelectionTimerTextBox", tostring(value))
-
-    elseif widget == "PositionSelectionTimerEditBox" then
-
-        print(value)
-
-        local number = tonumber(value)
-
-        if number == nil then
-            
-            self.gui:setText("PositionSelectionTimerEditBox", tostring(self.placementCore.settings.PositionSelectionTimer))
         
-        else
-            self.placementCore.settings.PositionSelectionTimer = value
+    elseif widget == "PlacementRadiiSlider" then
 
-            self.gui:setSliderPosition("PositionSelectionTimerSlider", value)
-        end
+        self.placementCore.settings.PlacementRadii = value
+
+        self.gui:setText("PlacementRadiiTextBox", tostring(value))
+
     end
 end
 

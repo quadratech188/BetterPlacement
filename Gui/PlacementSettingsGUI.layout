@@ -16,11 +16,16 @@
                 <Property key="TextAlign" value="Left VCenter"/>
             </Widget>
             <Widget type="Widget" skin="PanelEmpty" position_real="0.59982638888888884 0.10000000000000001 0.3498263888888889 0.074999999999999997" name="PlacementSettingsDropdown"/>
+            
+
+
+
             <Widget type="TextBox" skin="TextBox" position_real="0.049479166666666664 0.25 0.44965277777777779 0.074999999999999997">
                 <Property key="Caption" value="Position Selection Timer (Ticks)"/>
                 <Property key="FontName" value="SM_TextLabel"/>
                 <Property key="TextAlign" value="Left VCenter"/>
             </Widget>
+
             <Widget type="TextBox" skin="SettingsButton" position_real="0.508 0.25 0.08 0.074999999999999997" name="PositionSelectionTimerTextBox">
                 <Property key="Caption" value=""/>
                 <Property key="FontName" value="SM_SearchText"/>
@@ -30,6 +35,30 @@
             </Widget>
             
             <Widget type="Widget" skin="PanelEmpty" position_real="0.59982638888888884 0.22500000000000001 0.3498263888888889 0.125" name="PositionSelectionTimerSlider"/>
+
+
+
+
+
+            <Widget type="TextBox" skin="TextBox" position_real="0.049479166666666664 0.4 0.44965277777777779 0.074999999999999997">
+                <Property key="Caption" value="PlacementRadii (Metres / 4 Blocks)"/>
+                <Property key="FontName" value="SM_TextLabel"/>
+                <Property key="TextAlign" value="Left VCenter"/>
+            </Widget>
+
+            <Widget type="TextBox" skin="SettingsButton" position_real="0.508 0.4 0.08 0.074999999999999997" name="PlacementRadiiTextBox">
+                <Property key="Caption" value=""/>
+                <Property key="FontName" value="SM_SearchText"/>
+                <Property key="TextColour" value="1 1 1"/>
+                <Property key="TextAlign" value="Center"/>
+                <Property key="ReadOnly" value="true"/>
+            </Widget>
+            
+            <Widget type="Widget" skin="PanelEmpty" position_real="0.59982638888888884 0.375 0.3498263888888889 0.125" name="PlacementRadiiSlider"/>
+
+
+
+
         </Widget>
     </Widget>
     <CodeGeneratorSettings/>
