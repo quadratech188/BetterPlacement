@@ -1,45 +1,53 @@
 
 PlacementSettingsGUI = class()
 
+-- The next 3 functions recieve AdvancedPlacementClass as self
+
+function PlacementSettingsGUI:onPlacementSettingsSelect(value)
+    
+    self.settings.RoundingSetting = value
+
+    sm.json.save(self.settings, "$CONTENT_DATA/Scripts/settings.json")
+end
+
+function PlacementSettingsGUI:onPositionSelectionTimerSelect(value)
+    self.settings.PositionSelectionTimer = value
+
+    sm.json.save(self.settings, "$CONTENT_DATA/Scripts/settings.json")
+
+    self.guiClass.gui:setText("PositionSelectionTimerTextBox", tostring(self.settings.PositionSelectionTimer))
+end
+
+function PlacementSettingsGUI:onPlacementRadiiSelect(value)
+
+    self.settings.PlacementRadii = value
+
+    sm.json.save(self.settings, "$CONTENT_DATA/Scripts/settings.json")
+
+    self.guiClass.gui:setText("PlacementRadiiTextBox", tostring(self.settings.PlacementRadii))
+end
+
 function PlacementSettingsGUI:initialize()
+
+    self.main = AdvancedPlacementClass
 
     self.gui = sm.gui.createGuiFromLayout("$CONTENT_DATA/Gui/PlacementSettingsGUI.layout")
 
-    self.gui:createDropDown("PlacementSettingsDropdown", "onPlacementSettingsDropdownSelect", self.placementCore.settingsData.RoundingSettings)
+    self.gui:createDropDown("PlacementSettingsDropdown", "onPlacementSettingsSelect", self.main.settingsData.RoundingSettings)
 
-    self.gui:createHorizontalSlider("PositionSelectionTimerSlider", self.placementCore.settingsData.MaxPositionSelectionTimer, self.placementCore.settings.PositionSelectionTimer, "onPositionSelectionTimerSliderSelect", true)
+    self.main:linkCallback("onPlacementSettingsSelect", self.onPlacementSettingsSelect)
 
-    self.gui:setText("PositionSelectionTimerTextBox", tostring(self.placementCore.settings.PositionSelectionTimer))
+    self.gui:createHorizontalSlider("PositionSelectionTimerSlider", self.main.settingsData.MaxPositionSelectionTimer, self.main.settings.PositionSelectionTimer, "onPositionSelectionTimerSelect", true)
 
-    self.gui:createHorizontalSlider("PlacementRadiiSlider", self.placementCore.settingsData.MaxPlacementRadii, self.placementCore.settings.PlacementRadii, "onPlacementRadiiSelect", true)
+    self.main:linkCallback("onPositionSelectionTimerSelect", self.onPositionSelectionTimerSelect)
 
-    self.gui:setText("PlacementRadiiTextBox", tostring(self.placementCore.settings.PlacementRadii))
-end
+    self.gui:setText("PositionSelectionTimerTextBox", tostring(self.main.settings.PositionSelectionTimer))
 
-function PlacementSettingsGUI:doFrame()
-    
+    self.gui:createHorizontalSlider("PlacementRadiiSlider", self.main.settingsData.MaxPlacementRadii, self.main.settings.PlacementRadii, "onPlacementRadiiSelect", true)
 
-end
+    self.main:linkCallback("onPlacementRadiiSelect", self.onPlacementRadiiSelect)
 
-function PlacementSettingsGUI:onSelect(widget, value)
-
-    if widget == "PlacementSettingsDropdown" then
-        
-        self.placementCore.settings.RoundingSetting = value
-
-    elseif widget == "PositionSelectionTimerSlider" then
-
-        self.placementCore.settings.PositionSelectionTimer = value
-
-        self.gui:setText("PositionSelectionTimerTextBox", tostring(value))
-        
-    elseif widget == "PlacementRadiiSlider" then
-
-        self.placementCore.settings.PlacementRadii = value
-
-        self.gui:setText("PlacementRadiiTextBox", tostring(value))
-
-    end
+    self.gui:setText("PlacementRadiiTextBox", tostring(self.main.settings.PlacementRadii))
 end
 
 

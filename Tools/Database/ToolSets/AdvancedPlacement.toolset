@@ -4,9 +4,9 @@
          "name" : "Advanced Placement Tool",
          "previewRenderable" : "$GAME_DATA/Character/Char_Tools/Char_liftremote/char_liftremote.rend",
          "script" : {
-            "class" : "AdvancedPlacementTool",
+            "class" : "AdvancedPlacementTemplateClass",
             "data" : {},
-            "file" : "$CONTENT_DATA/Scripts/AdvancedPlacementTool.lua"
+            "file" : "$CONTENT_DATA/Scripts/AdvancedPlacementMain.lua"
          },
          "uuid" : "74febb3f-cc08-4e02-89c8-9fd0d0a1aa3c"
       }

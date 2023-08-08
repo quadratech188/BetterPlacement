@@ -3,14 +3,6 @@
 
 ---@class AdvancedPlacementCore:ToolClass
 
-dofile("$SURVIVAL_DATA/Scripts/game/survival_shapes.lua")
-
-dofile("$CONTENT_DATA/Scripts/PlacementUtils.lua")
-
-dofile("$CONTENT_DATA/Scripts/EffectSet.lua")
-
-dofile("$CONTENT_DATA/Scripts/PlacementSettingsGUI.lua")
-
 
 AdvancedPlacementCore = class()
 
@@ -83,6 +75,8 @@ function AdvancedPlacementCore:initialize()
 
     self.placementRotationStorage = {}
 
+    self.main = AdvancedPlacementClass
+
     -- Constants
 
     ---@type number
@@ -90,6 +84,8 @@ function AdvancedPlacementCore:initialize()
 
     ---@type number
     SubdivideRatio = sm.construction.constants.subdivideRatio
+
+    TransformUISize = sm.vec3.new(0.2, 0.2, 2) * sm.construction.constants.subdivideRatio -- Thickness and length of position selection UI
     
     BlockSize = sm.vec3.new(1, 1, 1) * SubdivideRatio
     CenterSize = 0.46875
@@ -110,31 +106,6 @@ function AdvancedPlacementCore:initialize()
 
     Quat90 = sm.quat.angleAxis(- math.pi / 2, PosZ)
 
-    -- Settings
-
-    self.settings = {
-
-        RoundingSetting = "SnapCenterToGrid", -- SnapCenterToGrid, DynamicSnapCornerToGrid, FixedSnapCornerToGrid
-        PositionSelectionTimer = 5, -- Ticks before advancing to position selection
-        PlacementRadii = 7.5, -- Reach distance
-        TransformUISize = sm.vec3.new(0.2, 0.2, 2) * SubdivideRatio -- Thickness and length of position selection UI
-    }
-
-    self.defaultSettings = {
-
-        RoundingSetting = "SnapCornerToGrid", -- SnapCenterToGrid, DynamicSnapCornerToGrid, FixedSnapCornerToGrid
-        PositionSelectionTimer = 5, -- Ticks before advancing to position selection
-        PlacementRadii = 7.5, -- Reach distance
-        TransformUISize = sm.vec3.new(0.2, 0.2, 2) * SubdivideRatio -- Thickness and length of position selection UI
-    }
-
-    self.settingsData = {
-
-        RoundingSettings = {"SnapCenterToGrid", "DynamicSnapCornerToGrid", "FixedSnapCornerToGrid"},
-        MaxPositionSelectionTimer = 40,
-        MaxPlacementRadii = 40
-    }
-
     RotationList = {
 
         [0] = sm.quat.identity(),
@@ -145,7 +116,7 @@ function AdvancedPlacementCore:initialize()
 
     SupportedSurfaces = {"body", "joint"}
 
-    -- Initialize placement selection effects
+    -- uuids of UI mesh
 
     local placementUuids = {
 
@@ -156,28 +127,35 @@ function AdvancedPlacementCore:initialize()
         ["-Y"] = "01e9830e-4b80-47b5-9cbb-736024f12d53"
     }
 
+    -- Create effects
+
     RotationEffects = EffectSet.new(placementUuids)
 
     RotationEffects:setScale(SubdivideRatio)
+
+    -- Aluminum Block
 
     TransformEffects = EffectSet.new({
 
         ["X"] = "3e3242e4-1791-4f70-8d1d-0ae9ba3ee94c",
         ["Y"] = "3e3242e4-1791-4f70-8d1d-0ae9ba3ee94c",
-        ["Z"] = "3e3242e4-1791-4f70-8d1d-0ae9ba3ee94c" -- Aluminum Block
+        ["Z"] = "3e3242e4-1791-4f70-8d1d-0ae9ba3ee94c"
     })
+    -- Set colour
 
     TransformEffects:setParameter("X", "color", sm.color.new(1,0,0,1))
     TransformEffects:setParameter("Y", "color", sm.color.new(0,1,0,1))
     TransformEffects:setParameter("Z", "color", sm.color.new(0,0,1,1))
 
+    -- Create the axis shape
+
     TransformEffects:setOffsetTransforms({
 
-        ["X"] = {QuatPosX * (self.settings.TransformUISize * PosZ / 2), QuatPosX, self.settings.TransformUISize},
-        ["Y"] = {QuatPosY * (self.settings.TransformUISize * PosZ / 2), QuatPosY, self.settings.TransformUISize},
-        ["Z"] = {QuatPosZ * (self.settings.TransformUISize * PosZ / 2), QuatPosZ, self.settings.TransformUISize}
+        ["X"] = {QuatPosX * (TransformUISize * PosZ / 2), QuatPosX, TransformUISize},
+        ["Y"] = {QuatPosY * (TransformUISize * PosZ / 2), QuatPosY, TransformUISize},
+        ["Z"] = {QuatPosZ * (TransformUISize * PosZ / 2), QuatPosZ, TransformUISize}
     })
-
+    
     -- Visualization effect
 
     VisualizationEffect = SmartEffect.new(sm.effect.createEffect("ShapeRenderable"))
@@ -186,9 +164,13 @@ function AdvancedPlacementCore:initialize()
 
     VisualizationEffect:setParameter("visualization", true)
 
-    -- Initialize placement
+    -- Set variables
 
     AdvancedPlacementCore:resetPlacement()
+
+    -- Hook functions
+
+    self.main:linkCallback("sv_createPart", AdvancedPlacementCore.sv_createPart)
 
     sm.gui.chatMessage("Initialized AdvancedPlacement Mod")
     print("Initialized AdvancedPlacement Mod")
@@ -224,7 +206,7 @@ function AdvancedPlacementCore:calculateSurfacePosition()
             
             -- Don't process unsupported types
 
-            if not PlacementUtils.contains(RaycastResult.type, SupportedSurfaces) then
+            if not UsefulUtils.contains(RaycastResult.type, SupportedSurfaces) then
                 return false
             end
 
@@ -236,7 +218,7 @@ function AdvancedPlacementCore:calculateSurfacePosition()
 
             -- Get root body
 
-            self.transformBody = PlacementUtils.getTransformBody(RaycastResult)
+            self.transformBody = UsefulUtils.getTransformBody(RaycastResult)
 
             -- Update some variables
 
@@ -248,15 +230,15 @@ function AdvancedPlacementCore:calculateSurfacePosition()
 
             -- Can you build there?
             
-            if PlacementUtils.isPlaceableFace(RaycastResult, self.localNormal) == 1 then
+            if UsefulUtils.isPlaceableFace(RaycastResult, self.localNormal) == 1 then
 
                 -- Get attached object(Shape, joint etc)
 
-                self.attachedObject = PlacementUtils.getAttachedObject(RaycastResult)
+                self.attachedObject = UsefulUtils.getAttachedObject(RaycastResult)
 
                 -- Calculate the placement position and rotation
 
-                self.localSurfacePos = PlacementUtils.roundVecToCenterGrid(self.localHitPos + self.localNormal * SubdivideRatio_2) - self.localNormal * SubdivideRatio_2
+                self.localSurfacePos = UsefulUtils.roundVecToCenterGrid(self.localHitPos + self.localNormal * SubdivideRatio_2) - self.localNormal * SubdivideRatio_2
 
                 self.localSurfaceRot = sm.vec3.getRotation(sm.vec3.new(0,0,1), self.localNormal)
 
@@ -293,7 +275,7 @@ function AdvancedPlacementCore:updateValues()
 
     self.worldSurfaceRot = self.transformBody.worldRotation * self.localSurfaceRot
 
-    local raycastToPlane = PlacementUtils.raycastToPlane(sm.localPlayer.getRaycastStart(), RaycastResult.directionWorld, self.worldSurfacePos, self.worldNormal)
+    local raycastToPlane = UsefulUtils.raycastToPlane(sm.localPlayer.getRaycastStart(), RaycastResult.directionWorld, self.worldSurfacePos, self.worldNormal)
 
     self.worldDeltaPlacement = raycastToPlane + sm.localPlayer.getRaycastStart() - self.worldSurfacePos
 
@@ -326,17 +308,17 @@ function AdvancedPlacementCore.calculatePlacementOnPlane(item, rawItemRotation, 
     
     if roundingSetting == "DynamicSnapCornerToGrid" then
 
-        roundedOffset = PlacementUtils.roundVecToCenterGrid(relativePosition - rotatedShapeSize / 2) + rotatedShapeSize / 2
+        roundedOffset = UsefulUtils.roundVecToCenterGrid(relativePosition - rotatedShapeSize / 2) + rotatedShapeSize / 2
 
     elseif roundingSetting == "FixedSnapCornerToGrid" then
         
-        local itemPivotPoint = PlacementUtils.roundVecToCenterGrid(shapeSize / 2) - shapeSize / 2
+        local itemPivotPoint = UsefulUtils.roundVecToCenterGrid(shapeSize / 2) - shapeSize / 2
 
-        roundedOffset = PlacementUtils.roundVecToGrid(relativePosition) + rawItemRotation * itemPivotPoint
+        roundedOffset = UsefulUtils.roundVecToGrid(relativePosition) + rawItemRotation * itemPivotPoint
     
     else -- SnapCenterToGrid
 
-        roundedOffset = PlacementUtils.roundVecToGrid(relativePosition)
+        roundedOffset = UsefulUtils.roundVecToGrid(relativePosition)
     end
 
     roundedOffset.z = math.abs(rotatedShapeSize.z / 2)
@@ -349,7 +331,7 @@ end
 
 function AdvancedPlacementCore:doPhase0()
     
-    if PlacementUtils.is6Way(self.currentItem) then
+    if UsefulUtils.is6Way(self.currentItem) then
 
         -- Use 6-Way Interface
     else
@@ -419,7 +401,7 @@ function AdvancedPlacementCore:doPhase0()
 
         local rawPlacementRot = self.placementAxis * RotationList[ItemRotationStorage[self.placementAxisAsString]]
 
-        self.localPlacementPos, self.localPlacementRot = self.calculatePlacementOnPlane(self.currentItem, rawPlacementRot, self.localSurfacePos, self.localSurfaceRot, PlacementUtils.clampVec(self.localDeltaPlacement, SubdivideRatio_2 * 0.99), self.settings.RoundingSetting)
+        self.localPlacementPos, self.localPlacementRot = self.calculatePlacementOnPlane(self.currentItem, rawPlacementRot, self.localSurfacePos, self.localSurfaceRot, UsefulUtils.clampVec(self.localDeltaPlacement, SubdivideRatio_2 * 0.99), self.main.settings.RoundingSetting)
 
         -- Show placement visualization
 
@@ -446,7 +428,7 @@ function AdvancedPlacementCore:doPhase1()
 
         TransformEffects:showOnly("Z")
         
-        local delta = PlacementUtils.roundToGrid(PlacementUtils.raycastToLine(sm.localPlayer.getRaycastStart(), RaycastResult.directionWorld, self.worldPlacementPos, self.worldNormal))
+        local delta = UsefulUtils.roundToGrid(UsefulUtils.raycastToLine(sm.localPlayer.getRaycastStart(), RaycastResult.directionWorld, self.worldPlacementPos, self.worldNormal))
 
         self.localSurfacePos = self.localSurfacePos + self.localNormal * delta
 
@@ -475,10 +457,10 @@ function AdvancedPlacementCore:doPhase2()
     TransformEffects:hideAll()
 
     if self.raycastStorage.type == "body" then
-        self.network:sendToServer("sv_createPart", {self.raycastStorage:getShape(), self.currentItem, self.localPlacementPos, self.localPlacementRot, true})
+        self.main.network:sendToServer("sv_createPart", {self.raycastStorage:getShape(), self.currentItem, self.localPlacementPos, self.localPlacementRot, true})
     
     elseif self.raycastStorage.type == "joint" then
-        self.network:sendToServer("sv_createPart", {self.raycastStorage:getJoint(), self.currentItem, self.localPlacementPos, self.localPlacementPos, true})
+        self.main.network:sendToServer("sv_createPart", {self.raycastStorage:getJoint(), self.currentItem, self.localPlacementPos, self.localPlacementPos, true})
     end
 
     self:resetPlacement()
@@ -498,7 +480,7 @@ function AdvancedPlacementCore:managePhases()
     
     elseif self.primaryState == 2 then
         
-        if sm.game.getCurrentTick() >= self.positionSelectionTime + self.settings.PositionSelectionTimer then 
+        if sm.game.getCurrentTick() >= self.positionSelectionTime + self.main.settings.PositionSelectionTimer then 
 
             self:doPhase1()
         end
@@ -512,7 +494,7 @@ end
 
 function AdvancedPlacementCore:doFrame()
     
-    RaycastSuccess, RaycastResult = sm.localPlayer.getRaycast(self.settings.PlacementRadii)
+    RaycastSuccess, RaycastResult = sm.localPlayer.getRaycast(self.main.settings.PlacementRadii)
 
     local lastItem = self.currentItem
 

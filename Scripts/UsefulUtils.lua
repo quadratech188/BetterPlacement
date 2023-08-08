@@ -1,13 +1,35 @@
 
 dofile("$CONTENT_DATA/Scripts/DefaultBody.lua")
 
-PlacementUtils = class()
+UsefulUtils = class()
+
+
+--- Makes the given function get called when a callback is called
+---@param callbackName string
+---@param func function
+function UsefulUtils:linkCallback(callbackName, func)
+
+    if self.callbacks[callbackName] == nil then
+        self.callbacks[callbackName] = {}
+    end
+
+    table.insert(self.callbacks[callbackName], func)
+        
+    self[callbackName] = function (...)
+            
+        for _, func in pairs(self.callbacks[callbackName]) do
+                
+            func(...)
+        end
+    end
+end
+
 
 
 ---@param object any
 ---@param table table
 ---@return boolean
-function PlacementUtils.contains(object, table)
+function UsefulUtils.contains(object, table)
     
     for _, value in pairs(table) do
         
@@ -24,7 +46,7 @@ end
 ---Copies the contents of table1 to table2, not modifying nil values
 ---@param table1 table the table to be copied from
 ---@param table2 table the table to be copied to
-function PlacementUtils.copyExcludingNil(table1, table2)
+function UsefulUtils.copyExcludingNil(table1, table2)
     
     for key, value in pairs(table1) do
 
@@ -35,7 +57,7 @@ end
 
 ---@param container Container
 ---@return table
-function PlacementUtils.containerToTable(container)
+function UsefulUtils.containerToTable(container)
     
     local size = container:getSize()
 
@@ -52,7 +74,7 @@ end
 
 ---@param container Container
 ---@return table
-function PlacementUtils.containerToStringTable(container)
+function UsefulUtils.containerToStringTable(container)
     
     local size = container:getSize()
 
@@ -74,14 +96,14 @@ end
 ---@param effect Effect
 ---@param pos Vec3
 ---@param rot Quat
-function PlacementUtils.setTransforms(effect, pos, rot)
+function UsefulUtils.setTransforms(effect, pos, rot)
     
     effect:setPosition(pos)
     effect:setRotation(rot)
 end
 
 
-function PlacementUtils.is6Way(item)
+function UsefulUtils.is6Way(item)
     
     -- WIP
 
@@ -91,7 +113,7 @@ end
 
 ---@param num number
 ---@return number
-function PlacementUtils.roundToCenterGrid(num)
+function UsefulUtils.roundToCenterGrid(num)
 
     return SubdivideRatio * (math.floor(num / SubdivideRatio) + 1/2)
 end
@@ -99,15 +121,15 @@ end
 
 ---@param vec Vec3
 ---@return Vec3
-function PlacementUtils.roundVecToCenterGrid(vec)
+function UsefulUtils.roundVecToCenterGrid(vec)
 
-    return sm.vec3.new(PlacementUtils.roundToCenterGrid(vec.x), PlacementUtils.roundToCenterGrid(vec.y), PlacementUtils.roundToCenterGrid(vec.z))
+    return sm.vec3.new(UsefulUtils.roundToCenterGrid(vec.x), UsefulUtils.roundToCenterGrid(vec.y), UsefulUtils.roundToCenterGrid(vec.z))
 end
 
 
 ---@param num number
 ---@return number
-function PlacementUtils.roundToGrid(num)
+function UsefulUtils.roundToGrid(num)
     
     return SubdivideRatio * math.floor(num / SubdivideRatio + 1/2)
 end
@@ -115,16 +137,16 @@ end
 
 ---@param vec Vec3
 ---@return Vec3
-function PlacementUtils.roundVecToGrid(vec)
+function UsefulUtils.roundVecToGrid(vec)
     
-    return sm.vec3.new(PlacementUtils.roundToGrid(vec.x), PlacementUtils.roundToGrid(vec.y), PlacementUtils.roundToGrid(vec.z))
+    return sm.vec3.new(UsefulUtils.roundToGrid(vec.x), UsefulUtils.roundToGrid(vec.y), UsefulUtils.roundToGrid(vec.z))
 end
 
 
 ---@param vec Vec3
 ---@param range number
 ---@return Vec3
-function PlacementUtils.clampVec(vec, range)
+function UsefulUtils.clampVec(vec, range)
 
     return sm.vec3.new(sm.util.clamp(vec.x, - range, range), sm.util.clamp(vec.y, - range, range), sm.util.clamp(vec.z, - range, range))
 end
@@ -135,7 +157,7 @@ end
 ---@param planePos Vec3
 ---@param planeNormal Vec3
 ---@return Vec3
-function PlacementUtils.raycastToPlane(raycastPos, raycastDirection, planePos, planeNormal)
+function UsefulUtils.raycastToPlane(raycastPos, raycastDirection, planePos, planeNormal)
     
     local distance = planePos - raycastPos
 
@@ -152,13 +174,13 @@ end
 ---@param linePos Vec3
 ---@param lineDirection Vec3
 ---@return number
-function PlacementUtils.raycastToLine(raycastPos, raycastDirection, linePos, lineDirection)
+function UsefulUtils.raycastToLine(raycastPos, raycastDirection, linePos, lineDirection)
 
     local distance = raycastPos - linePos
 
     local planeNormal = (distance - lineDirection * distance:dot(lineDirection))
 
-    local delta = PlacementUtils.raycastToPlane(raycastPos, raycastDirection, linePos, planeNormal) + raycastPos - linePos
+    local delta = UsefulUtils.raycastToPlane(raycastPos, raycastDirection, linePos, planeNormal) + raycastPos - linePos
 
     return delta:dot(lineDirection)
 end
@@ -166,7 +188,7 @@ end
 
 ---@param raycastResult RaycastResult
 ---@return Body
-function PlacementUtils.getTransformBody(raycastResult)
+function UsefulUtils.getTransformBody(raycastResult)
 
     if raycastResult.type == "body" then
 
@@ -184,7 +206,7 @@ end
 
 
 ---@param raycastResult RaycastResult
-function PlacementUtils.getAttachedObject(raycastResult)
+function UsefulUtils.getAttachedObject(raycastResult)
     
     if raycastResult.type == "body" then
 
@@ -203,7 +225,7 @@ end
 ---@param raycastResult RaycastResult
 ---@param normalVector Vec3
 ---@return number 1 is true, 0 is false
-function PlacementUtils.isPlaceableFace(raycastResult, normalVector)
+function UsefulUtils.isPlaceableFace(raycastResult, normalVector)
     
     if raycastResult.type == "body" then
 
