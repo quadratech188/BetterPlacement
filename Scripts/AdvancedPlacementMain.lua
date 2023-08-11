@@ -15,6 +15,9 @@ AdvancedPlacementTemplateClass = class()
 
 function AdvancedPlacementTemplateClass:client_onCreate()
 
+    sm.gui.chatMessage("Initializing AdvancedPlacement Mod")
+    print("Initializing AdvancedPlacement Mod")
+
     -- References
 
     self.placementCore = AdvancedPlacementCore
@@ -56,15 +59,12 @@ function AdvancedPlacementTemplateClass:client_onCreate()
 
      self.settings = sm.json.open("$CONTENT_DATA/Scripts/settings.json")
 
-     print(self)
-
     self.placementCore:initialize()
 
     self.guiClass:initialize()
 
-    print(self)
-
-    self.onPlacementRadiiSelect(self, 1)
+    sm.gui.chatMessage("Initialized AdvancedPlacement Mod")
+    print("Initialized AdvancedPlacement Mod")
 end
 
 
@@ -143,7 +143,7 @@ function AdvancedPlacementTemplateClass:client_onUpdate(dt)
         self.isEquipped = false
     end
 
-    local forceTool = sm.item.isPart(Item) or Item == sm.uuid.getNil()-- or sm.item.isJoint(Item)
+    local forceTool = sm.item.isPart(Item) or Item == sm.uuid.getNil() or sm.item.isJoint(Item)
 
     if forceTool and self.on then
         

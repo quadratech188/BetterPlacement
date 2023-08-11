@@ -31,7 +31,17 @@ function AdvancedPlacementCore:sv_createPart(data)
             
         elseif sm.item.isJoint(uuid) then
 
-            parent:createJoint(uuid, localPlacementPosition / SubdivideRatio, zAxis)
+            print(localPosition / SubdivideRatio)
+
+            local localSurfacePosition = UsefulUtils.roundVecToGrid(localPosition) / SubdivideRatio
+
+            print(localSurfacePosition)
+
+            -- sm.shape.getShapeTitle( uuid )
+
+            -- sm.shape.getShapeDescription( uuid )
+
+            parent:createJoint(uuid, localSurfacePosition, zAxis)
         end
     end
 end
@@ -63,9 +73,6 @@ end
 
 
 function AdvancedPlacementCore:initialize()
-
-    sm.gui.chatMessage("Initializing AdvancedPlacement Mod")
-    print("Initializing AdvancedPlacement Mod")
     
     -- Set initial variables
 
@@ -171,9 +178,6 @@ function AdvancedPlacementCore:initialize()
     -- Hook functions
 
     self.main:linkCallback("sv_createPart", AdvancedPlacementCore.sv_createPart)
-
-    sm.gui.chatMessage("Initialized AdvancedPlacement Mod")
-    print("Initialized AdvancedPlacement Mod")
 end
 
 
@@ -415,6 +419,8 @@ end
 
 
 function AdvancedPlacementCore:startPhase1()
+
+
     
     self.lockedSelection = true
 
@@ -446,7 +452,7 @@ function AdvancedPlacementCore:doPhase1()
 
     self.worldPlacementRot = self.transformBody.worldRotation * self.localPlacementRot
 
-    TransformEffects:setPositionAndRotation(self.worldPlacementPos, self.worldSurfaceRot)
+    TransformEffects:setPositionAndRotation(self.worldPlacementPos, self.worldPlacementRot)
 
     VisualizationEffect:setTransforms({self.worldPlacementPos, self.worldPlacementRot})
 end
@@ -509,7 +515,7 @@ function AdvancedPlacementCore:doFrame()
         ItemRotationStorage = self.placementRotationStorage[self.currentItemAsString]
         
         self.itemHasChanged = true
-        self.isPart = sm.item.isPart(self.currentItem)-- or sm.item.isJoint(self.currentItem)
+        self.usable = sm.item.isPart(self.currentItem) or sm.item.isJoint(self.currentItem)
 
         self:resetPlacement()
 
@@ -521,7 +527,7 @@ function AdvancedPlacementCore:doFrame()
     end
 
     
-    self.doingPlacement = self:calculateSurfacePosition() and self.isPart
+    self.doingPlacement = self:calculateSurfacePosition() and self.usable
 
     if self.doingPlacement then
 

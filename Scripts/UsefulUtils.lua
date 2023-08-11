@@ -131,7 +131,7 @@ end
 ---@return number
 function UsefulUtils.roundToGrid(num)
     
-    return SubdivideRatio * math.floor(num / SubdivideRatio + 1/2)
+    return SubdivideRatio * math.ceil(num / SubdivideRatio - 1/2)
 end
 
 
