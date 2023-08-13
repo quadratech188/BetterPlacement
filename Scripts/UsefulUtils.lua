@@ -4,26 +4,94 @@ dofile("$CONTENT_DATA/Scripts/DefaultBody.lua")
 UsefulUtils = class()
 
 
---- Makes the given function get called when a callback is called
----@param callbackName string
----@param func function
-function UsefulUtils:linkCallback(callbackName, func)
+---@type number
+SubdivideRatio_2 = sm.construction.constants.subdivideRatio_2
 
-    if self.callbacks[callbackName] == nil then
-        self.callbacks[callbackName] = {}
+---@type number
+SubdivideRatio = sm.construction.constants.subdivideRatio
+
+BlockSize = sm.vec3.new(1, 1, 1) * SubdivideRatio
+
+PosX = sm.vec3.new(1,0,0)
+PosY = sm.vec3.new(0,1,0)
+PosZ = sm.vec3.new(0,0,1)
+NegX = sm.vec3.new(-1,0,0)
+NegY = sm.vec3.new(0,-1,0)
+NegZ = sm.vec3.new(0,0,-1)
+
+QuatPosX = sm.vec3.getRotation(PosZ, PosX)
+QuatPosY = sm.vec3.getRotation(PosZ, PosY)
+QuatPosZ = sm.quat.identity()
+QuatNegX = sm.vec3.getRotation(PosZ, NegX)
+QuatNegY = sm.vec3.getRotation(PosZ, NegY)
+QuatNegZ = sm.vec3.getRotation(PosZ, NegZ)
+
+Quat90 = sm.quat.angleAxis(- math.pi / 2, PosZ)
+
+UsefulUtils.callbacks = {}
+
+--- Makes the given function get called when a callback is sent to the class (with all the arguments given to the callback)
+---@param class table The class to which the callback is sent.
+---@param callbackName string The name of the callback
+---@param func function The function that is called
+---@param order integer -1: function is called before the original function, 1: function is called after the original function
+function UsefulUtils.linkCallback(class, callbackName, func, order)
+
+    if UsefulUtils.callbacks[class] == nil then
+        UsefulUtils.callbacks[class] = {}
     end
 
-    table.insert(self.callbacks[callbackName], func)
-        
-    self[callbackName] = function (...)
+    if UsefulUtils.callbacks[class][callbackName] == nil then
+
+        -- This is the first time hooking the callback
+
+        UsefulUtils.callbacks[class][callbackName] = {
+            [-1] = {},
+            [1] = {}
+        }
+
+        local originalFunction = class[callbackName]
+
+        class[callbackName] = function (...)
             
-        for _, func in pairs(self.callbacks[callbackName]) do
-                
-            func(...)
+            for _, func in pairs(UsefulUtils.callbacks[class][callbackName][-1]) do
+                    
+                func(...)
+            end
+
+            if originalFunction ~= ni then
+                originalFunction(...)
+            end
+
+            for _, func in pairs(UsefulUtils.callbacks[class][callbackName][1]) do
+                    
+                func(...)
+            end
         end
     end
+
+    table.insert(UsefulUtils.callbacks[class][callbackName][order], func)
 end
 
+---Highlight the given shape using a SmartEffect
+---@param smartEffect SmartEffect The effect
+---@param shape ShapeClass The shape
+function UsefulUtils.highlightShape(smartEffect, shape)
+
+    smartEffect:stop()
+        
+    smartEffect:setParameter("uuid", shape.uuid)
+
+    smartEffect:start()
+
+    if shape.isBlock then
+        smartEffect:setOffsetTransforms({nil, nil, shape:getBoundingBox() / SubdivideRatio})
+    else
+        smartEffect:setOffsetTransforms({nil, nil, sm.vec3.one()})
+    end
+        
+    smartEffect:setTransforms({shape.worldPosition, shape.worldRotation, SubdivideRatio})
+end
 
 
 ---@param object any

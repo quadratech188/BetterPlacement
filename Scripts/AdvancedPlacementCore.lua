@@ -184,7 +184,7 @@ function AdvancedPlacementCore:initialize()
 
     -- Hook functions
 
-    self.main:linkCallback("sv_createPart", AdvancedPlacementCore.sv_createPart)
+    self.main:linkCallback("sv_createPart", AdvancedPlacementCore.sv_createPart, 1)
 end
 
 
@@ -213,39 +213,39 @@ function AdvancedPlacementCore:calculateSurfacePosition()
     
     if self.lockedSelection == false then
         
-        if RaycastSuccess then
+        if self.raycastSuccess then
             
             -- Don't process unsupported types
 
-            if not UsefulUtils.contains(RaycastResult.type, SupportedSurfaces) then
+            if not UsefulUtils.contains(self.raycastResult.type, SupportedSurfaces) then
                 return false
             end
 
             -- Don't show joint on top of another joint
 
-            if RaycastResult.type == "joint" and sm.item.isJoint(self.currentItem) then
+            if self.raycastResult.type == "joint" and sm.item.isJoint(self.currentItem) then
                 return false
             end
 
             -- Get root body
 
-            self.transformBody = UsefulUtils.getTransformBody(RaycastResult)
+            self.transformBody = UsefulUtils.getTransformBody(self.raycastResult)
 
             -- Update some variables
 
-            self.raycastStorage = RaycastResult
+            self.raycastStorage = self.raycastResult
 
-            self.localHitPos = RaycastResult.pointLocal
+            self.localHitPos = self.raycastResult.pointLocal
 
-            self.localNormal = sm.vec3.closestAxis(RaycastResult.normalLocal)
+            self.localNormal = sm.vec3.closestAxis(self.raycastResult.normalLocal)
 
             -- Can you build there?
             
-            if UsefulUtils.isPlaceableFace(RaycastResult, self.localNormal) == 1 then
+            if UsefulUtils.isPlaceableFace(self.raycastResult, self.localNormal) == 1 then
 
                 -- Get attached object(Shape, joint etc)
 
-                self.attachedObject = UsefulUtils.getAttachedObject(RaycastResult)
+                self.attachedObject = UsefulUtils.getAttachedObject(self.raycastResult)
 
                 -- Calculate the placement position and rotation
 
@@ -286,7 +286,7 @@ function AdvancedPlacementCore:updateValues()
 
     self.worldSurfaceRot = self.transformBody.worldRotation * self.localSurfaceRot
 
-    local raycastToPlane = UsefulUtils.raycastToPlane(sm.localPlayer.getRaycastStart(), RaycastResult.directionWorld, self.worldSurfacePos, self.worldNormal)
+    local raycastToPlane = UsefulUtils.raycastToPlane(sm.localPlayer.getRaycastStart(), self.raycastResult.directionWorld, self.worldSurfacePos, self.worldNormal)
 
     self.worldDeltaPlacement = raycastToPlane + sm.localPlayer.getRaycastStart() - self.worldSurfacePos
 
@@ -441,7 +441,7 @@ function AdvancedPlacementCore:doPhase1()
 
         TransformEffects:showOnly("Z")
         
-        local delta = UsefulUtils.roundToGrid(UsefulUtils.raycastToLine(sm.localPlayer.getRaycastStart(), RaycastResult.directionWorld, self.worldPlacementPos, self.worldNormal))
+        local delta = UsefulUtils.roundToGrid(UsefulUtils.raycastToLine(sm.localPlayer.getRaycastStart(), self.raycastResult.directionWorld, self.worldPlacementPos, self.worldNormal))
 
         self.localSurfacePos = self.localSurfacePos + self.localNormal * delta
 
@@ -507,7 +507,7 @@ end
 
 function AdvancedPlacementCore:doFrame()
     
-    RaycastSuccess, RaycastResult = sm.localPlayer.getRaycast(self.main.settings.PlacementRadii)
+    self.raycastSuccess, self.raycastResult = sm.localPlayer.getRaycast(self.main.settings.PlacementRadii)
 
     local lastItem = self.currentItem
 

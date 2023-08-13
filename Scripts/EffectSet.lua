@@ -225,7 +225,7 @@ function EffectSet:setEffect(key, effect)
     
     if self.smartEffects[key] ~= nil then
         
-        self.smartEffects[key].effect:stop()
+        self.smartEffects[key].effect:destroy()
     end
 
     self.smartEffects[key] = SmartEffect.new(effect)

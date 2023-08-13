@@ -35,17 +35,17 @@ function PlacementSettingsGUI:initialize()
 
     self.gui:createDropDown("PlacementSettingsDropdown", "onPlacementSettingsSelect", self.main.settingsData.RoundingSettings)
 
-    self.main:linkCallback("onPlacementSettingsSelect", self.onPlacementSettingsSelect)
+    self.main:linkCallback("onPlacementSettingsSelect", self.onPlacementSettingsSelect, 1)
 
     self.gui:createHorizontalSlider("PositionSelectionTimerSlider", self.main.settingsData.MaxPositionSelectionTimer, self.main.settings.PositionSelectionTimer, "onPositionSelectionTimerSelect", true)
 
-    self.main:linkCallback("onPositionSelectionTimerSelect", self.onPositionSelectionTimerSelect)
+    self.main:linkCallback("onPositionSelectionTimerSelect", self.onPositionSelectionTimerSelect, 1)
 
     self.gui:setText("PositionSelectionTimerTextBox", tostring(self.main.settings.PositionSelectionTimer))
 
     self.gui:createHorizontalSlider("PlacementRadiiSlider", self.main.settingsData.MaxPlacementRadii, self.main.settings.PlacementRadii, "onPlacementRadiiSelect", true)
 
-    self.main:linkCallback("onPlacementRadiiSelect", self.onPlacementRadiiSelect)
+    self.main:linkCallback("onPlacementRadiiSelect", self.onPlacementRadiiSelect, 1)
 
     self.gui:setText("PlacementRadiiTextBox", tostring(self.main.settings.PlacementRadii))
 end

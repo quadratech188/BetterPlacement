@@ -42,8 +42,6 @@ function AdvancedPlacementTemplateClass:client_onCreate()
 
     -- Setup callback system
 
-    self.callbacks = {{}}
-
     self.linkCallback = UsefulUtils.linkCallback
 
     -- Other
@@ -92,14 +90,14 @@ function AdvancedPlacementTemplateClass.client_onReload(self)
             sm.gui.displayAlertText("Use Advanced Placement:\n#00ff00True", 2)
         else
 
-            sm.gui.displayAlertText("Use Advanced Placement:\n#ff0000False", 22)
+            sm.gui.displayAlertText("Use Advanced Placement:\n#ff0000False", 2)
         end
     else
 
         self.placementCore:onReload()
     end
 
-    return false
+    return true
 end
 
 -- Rotation
@@ -126,9 +124,7 @@ function AdvancedPlacementTemplateClass.client_onEquippedUpdate(self, primarySta
     return false, false
 end
 
-function AdvancedPlacementTemplateClass:client_onUpdate(dt)
-
-    DeltaTime = dt
+function AdvancedPlacementTemplateClass:client_onUpdate()
 
     Item = sm.localPlayer.getActiveItem()
 
