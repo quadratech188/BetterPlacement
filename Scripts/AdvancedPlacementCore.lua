@@ -95,7 +95,7 @@ function AdvancedPlacementCore:initialize()
     TransformUISize = sm.vec3.new(0.2, 0.2, 2) * sm.construction.constants.subdivideRatio -- Thickness and length of position selection UI
     
     BlockSize = sm.vec3.new(1, 1, 1) * SubdivideRatio
-    CenterSize = 0.46875
+    CenterSize = 0.45
 
     PosX = sm.vec3.new(1,0,0)
     PosY = sm.vec3.new(0,1,0)
@@ -127,6 +127,7 @@ function AdvancedPlacementCore:initialize()
 
     local placementUuids = {
 
+        ["Base"] = "07ef9dbe-cf0d-4c18-a828-0092c1f50422",
         ["+X"] = "03422fac-1103-4f93-9206-5324c1406a86",
         ["+Y"] = "728e9744-9b40-45e7-9c0a-0e386f01e592",
         ["+Z"] = "d8fc440b-ad25-45db-b72b-36a99414435b",
@@ -137,6 +138,12 @@ function AdvancedPlacementCore:initialize()
     -- Create effects
 
     RotationEffects = EffectSet.new(placementUuids)
+
+    RotationEffects:setParameter("+X", "color", sm.color.new(0,0,1,1))
+    RotationEffects:setParameter("+Y", "color", sm.color.new(0,0,1,1))
+    RotationEffects:setParameter("+Z", "color", sm.color.new(0,0,1,1))
+    RotationEffects:setParameter("-X", "color", sm.color.new(0,0,1,1))
+    RotationEffects:setParameter("-Y", "color", sm.color.new(0,0,1,1))
 
     RotationEffects:setScale(SubdivideRatio)
 
@@ -395,7 +402,7 @@ function AdvancedPlacementCore:doPhase0()
 
         -- Show selection effect
 
-        RotationEffects:showOnly(self.placementAxisAsString)
+        RotationEffects:showOnly({self.placementAxisAsString, "Base"})
 
         RotationEffects:setPosition(self.worldSurfacePos)
 
@@ -452,7 +459,7 @@ function AdvancedPlacementCore:doPhase1()
 
     self.worldPlacementRot = self.transformBody.worldRotation * self.localPlacementRot
 
-    TransformEffects:setPositionAndRotation(self.worldPlacementPos, self.worldPlacementRot)
+    TransformEffects:setPositionAndRotation(self.worldPlacementPos, self.worldSurfaceRot)
 
     VisualizationEffect:setTransforms({self.worldPlacementPos, self.worldPlacementRot})
 end

@@ -1,0 +1,3 @@
+
+SelectionToolTemplateClass = class()
+

@@ -1,20 +1,17 @@
 {
-	"lodList": [
-		{
-			"minViewSize": 12,
-			"subMeshList": [
-				{
-						"textureList": [
-							"$CONTENT_DATA/Objects/Textures/interface5way/interface5way_+Z.tga",
-							"$GAME_DATA/Textures/Default/default_asg.tga",
-							"$GAME_DATA/Textures/Default/default_nor.tga"
-						],
-						"material": "Glass"
-						
-				}
-			],
-			"mesh": "$CONTENT_DATA/Objects/Mesh/interface-5way.fbx"
-			
-		}
-	]
+    "lodList": [
+        {
+            "minViewSize": 12,
+            "subMeshList": [
+                {
+                        "textureList": [
+                        ],
+                        "material": "ConnectJoint"
+
+                }
+            ],
+            "mesh": "$CONTENT_DATA/Objects/Mesh/interface-mesh-PosZ.fbx"
+
+        }
+    ]
 }

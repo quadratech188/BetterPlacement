@@ -1,5 +1,18 @@
 {
    "partList" : [
+        {
+         "box" : {
+            "x" : 1,
+            "y" : 1,
+            "z" : 1
+         },
+         "name" : "Interface-5 Way +Z",
+         "physicsMaterial" : "Default",
+         "renderable" : "$CONTENT_DATA/Objects/Renderables/interface-5way_base.rend",
+         "rotationSet" : "Default",
+         "sticky" : "All",
+         "uuid" : "07ef9dbe-cf0d-4c18-a828-0092c1f50422"
+      },
       {
          "box" : {
             "x" : 1,
@@ -13,7 +26,7 @@
          "sticky" : "All",
          "uuid" : "d8fc440b-ad25-45db-b72b-36a99414435b"
       },
-	  {
+      {
          "box" : {
             "x" : 1,
             "y" : 1,
@@ -26,7 +39,7 @@
          "sticky" : "All",
          "uuid" : "03422fac-1103-4f93-9206-5324c1406a86"
       },
-	  {
+      {
          "box" : {
             "x" : 1,
             "y" : 1,
@@ -39,7 +52,7 @@
          "sticky" : "All",
          "uuid" : "728e9744-9b40-45e7-9c0a-0e386f01e592"
       },
-	  {
+      {
          "box" : {
             "x" : 1,
             "y" : 1,
@@ -52,7 +65,7 @@
          "sticky" : "All",
          "uuid" : "8cbaa03b-90f2-42fc-888b-1626650325c5"
       },
-	  {
+      {
          "box" : {
             "x" : 1,
             "y" : 1,
