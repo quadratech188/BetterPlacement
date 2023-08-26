@@ -130,7 +130,13 @@ function BetterPlacementTemplateClass:client_onUpdate()
 
     if Item == self.toolUuid then
 
-        sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Enable Advanced Placement")
+        if self.on then
+            sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Disable Better Placement")
+        
+        else
+            sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Enable Better Placement")
+        end
+        
         sm.gui.setInteractionText("", sm.gui.getKeyBinding("NextCreateRotation", true), "Open Settings GUI") -- https://scrapmechanictools.com/modding_help/Keybind_Names
 
         self.isEquipped = true

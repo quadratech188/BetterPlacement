@@ -12,7 +12,8 @@
         <Widget type="Widget" skin="BackgroundLightRoundedLowerLeft" position_real="0 0.099206349206349201 1 0.89947089947089942">
             <Widget type="TextBox" skin="TextBox" position_real="0.049479166666666664 0.10000000000000001 0.44965277777777779 0.074999999999999997">
                 <Property key="Caption" value="Placement Snapping Mode"/>
-                <Property key="FontName" value="SM_TextLabel"/>
+                <Property key="FontName" value="SM_SubHeader"/>
+                <Property key="TextColour" value="1 0.803922 0.247059" />
                 <Property key="TextAlign" value="Left VCenter"/>
             </Widget>
             <Widget type="Widget" skin="PanelEmpty" position_real="0.59982638888888884 0.10000000000000001 0.3498263888888889 0.074999999999999997" name="PlacementSettingsDropdown"/>
@@ -21,9 +22,16 @@
 
 
             <Widget type="TextBox" skin="TextBox" position_real="0.049479166666666664 0.25 0.44965277777777779 0.074999999999999997">
-                <Property key="Caption" value="Time you have to hold the primary button before you can select the position of your placement ( Ticks / 1/40 seconds)"/>
-                <Property key="FontName" value="SM_TextLabel"/>
+                <Property key="Caption" value="Position Selection Time"/>
+                <Property key="FontName" value="SM_SubHeader"/>
+                <Property key="TextColour" value="1 0.803922 0.247059" />
                 <Property key="TextAlign" value="Left VCenter"/>
+            </Widget>
+            
+            <Widget type="TextBox" skin="TextBox" position_real="0.049479166666666664 0.32 1 0.074999999999999997">
+                <Property key="Caption" value="Position selection starts when you hold the primary button \n for more than this time ( Ticks / 1/40 seconds)"/>
+                <Property key="FontName" value="SM_TextLabel"/>
+                <Property key="TextAlign" value="Left Top"/>
             </Widget>
 
             <Widget type="TextBox" skin="SettingsButton" position_real="0.508 0.25 0.08 0.074999999999999997" name="PositionSelectionTimerTextBox">
@@ -41,9 +49,16 @@
 
 
             <Widget type="TextBox" skin="TextBox" position_real="0.049479166666666664 0.4 0.44965277777777779 0.074999999999999997">
+                <Property key="Caption" value="Placement Radii"/>
+                <Property key="FontName" value="SM_SubHeader"/>
+                <Property key="TextColour" value="1 0.803922 0.247059" />
+                <Property key="TextAlign" value="Left VCenter"/>
+            </Widget>
+
+            <Widget type="TextBox" skin="TextBox" position_real="0.049479166666666664 0.47 1 0.074999999999999997">
                 <Property key="Caption" value="The max distance you can place a block (Metres / 4 Blocks)"/>
                 <Property key="FontName" value="SM_TextLabel"/>
-                <Property key="TextAlign" value="Left VCenter"/>
+                <Property key="TextAlign" value="Left Top"/>
             </Widget>
 
             <Widget type="TextBox" skin="SettingsButton" position_real="0.508 0.4 0.08 0.074999999999999997" name="PlacementRadiiTextBox">

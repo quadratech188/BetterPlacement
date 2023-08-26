@@ -96,6 +96,8 @@ function BetterPlacementCore:initialize()
     
     BlockSize = sm.vec3.new(1, 1, 1) * SubdivideRatio
     CenterSize = 0.45
+    InterfaceColorHighlight = sm.color.new(0,0,0.8, 1)
+    InterfaceColorBase = sm.color.new(0.8, 0.8, 0.8, 1)
 
     PosX = sm.vec3.new(1,0,0)
     PosY = sm.vec3.new(0,1,0)
@@ -139,11 +141,12 @@ function BetterPlacementCore:initialize()
 
     RotationEffects = EffectSet.new(placementUuids)
 
-    RotationEffects:setParameter("+X", "color", sm.color.new(0,0,1,1))
-    RotationEffects:setParameter("+Y", "color", sm.color.new(0,0,1,1))
-    RotationEffects:setParameter("+Z", "color", sm.color.new(0,0,1,1))
-    RotationEffects:setParameter("-X", "color", sm.color.new(0,0,1,1))
-    RotationEffects:setParameter("-Y", "color", sm.color.new(0,0,1,1))
+    RotationEffects:setParameter("Base", "color", InterfaceColorBase)
+    RotationEffects:setParameter("+X", "color", InterfaceColorHighlight)
+    RotationEffects:setParameter("+Y", "color", InterfaceColorHighlight)
+    RotationEffects:setParameter("+Z", "color", InterfaceColorHighlight)
+    RotationEffects:setParameter("-X", "color", InterfaceColorHighlight)
+    RotationEffects:setParameter("-Y", "color", InterfaceColorHighlight)
 
     RotationEffects:setScale(SubdivideRatio)
 
