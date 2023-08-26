@@ -145,7 +145,7 @@ function BetterPlacementTemplateClass:client_onUpdate()
         self.isEquipped = false
     end
 
-    local forceTool = sm.item.isPart(Item) or Item == sm.uuid.getNil() or sm.item.isJoint(Item)
+    local forceTool = sm.item.isPart(Item) or Item == sm.uuid.getNil()-- or sm.item.isJoint(Item)
 
     if forceTool and self.on then
 
