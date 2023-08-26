@@ -1,6 +1,6 @@
 
 
-dofile("$CONTENT_DATA/Scripts/AdvancedPlacementCore.lua")
+dofile("$CONTENT_DATA/Scripts/BetterPlacementCore.lua")
 
 dofile("$SURVIVAL_DATA/Scripts/game/survival_shapes.lua")
 
@@ -10,24 +10,24 @@ dofile("$CONTENT_DATA/Scripts/EffectSet.lua")
 
 dofile("$CONTENT_DATA/Scripts/PlacementSettingsGUI.lua")
 
-AdvancedPlacementTemplateClass = class()
+BetterPlacementTemplateClass = class()
 
 
-function AdvancedPlacementTemplateClass:client_onCreate()
+function BetterPlacementTemplateClass:client_onCreate()
 
-    sm.gui.chatMessage("Initializing AdvancedPlacement Mod")
-    print("Initializing AdvancedPlacement Mod")
+    sm.gui.chatMessage("Initializing BetterPlacement Mod")
+    print("Initializing BetterPlacement Mod")
 
     -- References
 
-    self.placementCore = AdvancedPlacementCore
+    self.placementCore = BetterPlacementCore
 
     self.guiClass = PlacementSettingsGUI
 
     -- Constants
 
     self.defaultSettings = {
-        
+
         RoundingSetting = "SnapCornerToGrid", -- SnapCenterToGrid, DynamicSnapCornerToGrid, FixedSnapCornerToGrid
         PositionSelectionTimer = 5, -- Ticks before advancing to position selection
         PlacementRadii = 7.5, -- Reach distance
@@ -50,10 +50,10 @@ function AdvancedPlacementTemplateClass:client_onCreate()
 
     self.toolUuid = sm.uuid.new("74febb3f-cc08-4e02-89c8-9fd0d0a1aa3c")
 
-    -- 'self' is actually not AdvancedPlacementTemplateClass, it's another object created by duplicating it and adding some extra parameters.
+    -- 'self' is actually not BetterPlacementTemplateClass, it's another object created by duplicating it and adding some extra parameters.
     -- We write the following line so that other classes can also refer to 'self'.
 
-    AdvancedPlacementClass = self
+    BetterPlacementClass = self
 
      self.settings = sm.json.open("$CONTENT_DATA/Scripts/settings.json")
 
@@ -61,25 +61,25 @@ function AdvancedPlacementTemplateClass:client_onCreate()
 
     self.guiClass:initialize()
 
-    sm.gui.chatMessage("Initialized AdvancedPlacement Mod")
-    print("Initialized AdvancedPlacement Mod")
+    sm.gui.chatMessage("Initialized BetterPlacement Mod")
+    print("Initialized BetterPlacement Mod")
 end
 
 
-function AdvancedPlacementTemplateClass:client_onRefresh()
+function BetterPlacementTemplateClass:client_onRefresh()
 
     self:client_onCreate()
 end
 
 
-function AdvancedPlacementTemplateClass:client_onDestroy()
+function BetterPlacementTemplateClass:client_onDestroy()
 
 end
 
 -- On/Off
 
-function AdvancedPlacementTemplateClass.client_onReload(self)
-    
+function BetterPlacementTemplateClass.client_onReload(self)
+
     -- Is the tool selected
 
     if self.isEquipped then
@@ -87,10 +87,10 @@ function AdvancedPlacementTemplateClass.client_onReload(self)
 
         if self.on then
 
-            sm.gui.displayAlertText("Use Advanced Placement:\n#00ff00True", 2)
+            sm.gui.displayAlertText("Use Better Placement:\n#00ff00True", 2)
         else
 
-            sm.gui.displayAlertText("Use Advanced Placement:\n#ff0000False", 2)
+            sm.gui.displayAlertText("Use Better Placement:\n#ff0000False", 2)
         end
     else
 
@@ -102,10 +102,10 @@ end
 
 -- Rotation
 
-function AdvancedPlacementTemplateClass.client_onToggle(self)
+function BetterPlacementTemplateClass.client_onToggle(self)
 
     if self.isEquipped then
-        
+
         self.guiClass:onToggle()
     else
 
@@ -115,7 +115,7 @@ function AdvancedPlacementTemplateClass.client_onToggle(self)
     return true
 end
 
-function AdvancedPlacementTemplateClass.client_onEquippedUpdate(self, primaryState, secondaryState, forceBuild)
+function BetterPlacementTemplateClass.client_onEquippedUpdate(self, primaryState, secondaryState, forceBuild)
 
     self.placementCore.primaryState = primaryState
 
@@ -124,12 +124,12 @@ function AdvancedPlacementTemplateClass.client_onEquippedUpdate(self, primarySta
     return false, false
 end
 
-function AdvancedPlacementTemplateClass:client_onUpdate()
+function BetterPlacementTemplateClass:client_onUpdate()
 
     Item = sm.localPlayer.getActiveItem()
 
     if Item == self.toolUuid then
-        
+
         sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Enable Advanced Placement")
         sm.gui.setInteractionText("", sm.gui.getKeyBinding("NextCreateRotation", true), "Open Settings GUI") -- https://scrapmechanictools.com/modding_help/Keybind_Names
 
@@ -142,7 +142,7 @@ function AdvancedPlacementTemplateClass:client_onUpdate()
     local forceTool = sm.item.isPart(Item) or Item == sm.uuid.getNil() or sm.item.isJoint(Item)
 
     if forceTool and self.on then
-        
+
         sm.tool.forceTool(self.tool)
     else
 

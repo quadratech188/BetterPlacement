@@ -1,5 +1,5 @@
 {
 	"toolSetList" : [
-		"$CONTENT_DATA/Tools/Database/ToolSets/AdvancedPlacement.toolset"
+		"$CONTENT_DATA/Tools/Database/ToolSets/BetterPlacement.toolset"
 	]
 }

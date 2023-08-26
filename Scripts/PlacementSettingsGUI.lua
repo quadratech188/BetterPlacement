@@ -1,7 +1,7 @@
 
 PlacementSettingsGUI = class()
 
--- The next 3 functions recieve AdvancedPlacementClass as self
+-- The next 3 functions recieve BetterPlacementClass as self
 
 function PlacementSettingsGUI:onPlacementSettingsSelect(value)
     
@@ -29,7 +29,7 @@ end
 
 function PlacementSettingsGUI:initialize()
 
-    self.main = AdvancedPlacementClass
+    self.main = BetterPlacementClass
 
     self.gui = sm.gui.createGuiFromLayout("$CONTENT_DATA/Gui/PlacementSettingsGUI.layout")
 

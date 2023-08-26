@@ -1,14 +1,14 @@
 
 ---@diagnostic disable: need-check-nil
 
----@class AdvancedPlacementCore:ToolClass
+---@class BetterPlacementCore:ToolClass
 
 
-AdvancedPlacementCore = class()
+BetterPlacementCore = class()
 
 
 --- @param data table The table of data for the placement; {raycastResult, uuid, localPosition, localRotation, forceAccept}
-function AdvancedPlacementCore:sv_createPart(data)
+function BetterPlacementCore:sv_createPart(data)
 
     local parent = data[1]
     local uuid = data[2]
@@ -31,22 +31,22 @@ function AdvancedPlacementCore:sv_createPart(data)
             
         elseif sm.item.isJoint(uuid) then
 
-            print(localPosition / SubdivideRatio)
+            --print(localPosition / SubdivideRatio)
 
-            local localSurfacePosition = UsefulUtils.roundVecToGrid(localPosition) / SubdivideRatio
+            --local localSurfacePosition = UsefulUtils.roundVecToGrid(localPosition) / SubdivideRatio
 
-            print(localSurfacePosition)
+            --print(localSurfacePosition)
 
             -- sm.shape.getShapeTitle( uuid )
 
             -- sm.shape.getShapeDescription( uuid )
 
-            parent:createJoint(uuid, localSurfacePosition, zAxis)
+            --parent:createJoint(uuid, localSurfacePosition, zAxis)
         end
     end
 end
 
-function AdvancedPlacementCore:onToggle()
+function BetterPlacementCore:onToggle()
     
     if self.primaryState == 0 then
 
@@ -63,7 +63,7 @@ function AdvancedPlacementCore:onToggle()
 end
 
 
-function AdvancedPlacementCore:onReload()
+function BetterPlacementCore:onReload()
     
     if self.primaryState == 0 then
         
@@ -72,7 +72,7 @@ function AdvancedPlacementCore:onReload()
 end
 
 
-function AdvancedPlacementCore:initialize()
+function BetterPlacementCore:initialize()
     
     -- Set initial variables
 
@@ -82,7 +82,7 @@ function AdvancedPlacementCore:initialize()
 
     self.placementRotationStorage = {}
 
-    self.main = AdvancedPlacementClass
+    self.main = BetterPlacementClass
 
     -- Constants
 
@@ -180,15 +180,15 @@ function AdvancedPlacementCore:initialize()
 
     -- Set variables
 
-    AdvancedPlacementCore:resetPlacement()
+    BetterPlacementCore:resetPlacement()
 
     -- Hook functions
 
-    self.main:linkCallback("sv_createPart", AdvancedPlacementCore.sv_createPart, 1)
+    self.main:linkCallback("sv_createPart", BetterPlacementCore.sv_createPart, 1)
 end
 
 
-function AdvancedPlacementCore:resetPlacement()
+function BetterPlacementCore:resetPlacement()
 
     self.lockedSelection = false
             -- Whether selection is locked to a face
@@ -209,7 +209,7 @@ function AdvancedPlacementCore:resetPlacement()
 end
 
 
-function AdvancedPlacementCore:calculateSurfacePosition()
+function BetterPlacementCore:calculateSurfacePosition()
     
     if self.lockedSelection == false then
         
@@ -278,7 +278,7 @@ function AdvancedPlacementCore:calculateSurfacePosition()
 end
 
 
-function AdvancedPlacementCore:updateValues()
+function BetterPlacementCore:updateValues()
 
     self.worldNormal = self.transformBody.worldRotation * self.localNormal
 
@@ -302,7 +302,7 @@ end
 ---@param roundingSetting string|nil DynamicSnapCornerToGrid, FixedSnapCornerToGrid, SnapCenterToGrid
 ---@return Vec3
 ---@return Quat
-function AdvancedPlacementCore.calculatePlacementOnPlane(item, rawItemRotation, planePosition, planeRotation, relativePosition, roundingSetting)
+function BetterPlacementCore.calculatePlacementOnPlane(item, rawItemRotation, planePosition, planeRotation, relativePosition, roundingSetting)
 
     if roundingSetting == nil then
         
@@ -340,7 +340,7 @@ function AdvancedPlacementCore.calculatePlacementOnPlane(item, rawItemRotation, 
 end
 
 
-function AdvancedPlacementCore:doPhase0()
+function BetterPlacementCore:doPhase0()
     
     if UsefulUtils.is6Way(self.currentItem) then
 
@@ -425,7 +425,7 @@ function AdvancedPlacementCore:doPhase0()
 end
 
 
-function AdvancedPlacementCore:startPhase1()
+function BetterPlacementCore:startPhase1()
 
 
     
@@ -435,7 +435,7 @@ function AdvancedPlacementCore:startPhase1()
 end
 
 
-function AdvancedPlacementCore:doPhase1()
+function BetterPlacementCore:doPhase1()
     
     if self.verticalPositioning == true then
 
@@ -465,7 +465,7 @@ function AdvancedPlacementCore:doPhase1()
 end
 
 
-function AdvancedPlacementCore:doPhase2()
+function BetterPlacementCore:doPhase2()
 
     TransformEffects:hideAll()
 
@@ -479,7 +479,7 @@ function AdvancedPlacementCore:doPhase2()
     self:resetPlacement()
 end
 
-function AdvancedPlacementCore:managePhases()
+function BetterPlacementCore:managePhases()
     
     if self.primaryState == 0 then
         
@@ -505,7 +505,7 @@ function AdvancedPlacementCore:managePhases()
 end
 
 
-function AdvancedPlacementCore:doFrame()
+function BetterPlacementCore:doFrame()
     
     self.raycastSuccess, self.raycastResult = sm.localPlayer.getRaycast(self.main.settings.PlacementRadii)
 

@@ -21,7 +21,7 @@
 
 
             <Widget type="TextBox" skin="TextBox" position_real="0.049479166666666664 0.25 0.44965277777777779 0.074999999999999997">
-                <Property key="Caption" value="Position Selection Timer (Ticks)"/>
+                <Property key="Caption" value="Time you have to hold the primary button before you can select the position of your placement ( Ticks / 1/40 seconds)"/>
                 <Property key="FontName" value="SM_TextLabel"/>
                 <Property key="TextAlign" value="Left VCenter"/>
             </Widget>
@@ -41,7 +41,7 @@
 
 
             <Widget type="TextBox" skin="TextBox" position_real="0.049479166666666664 0.4 0.44965277777777779 0.074999999999999997">
-                <Property key="Caption" value="PlacementRadii (Metres / 4 Blocks)"/>
+                <Property key="Caption" value="The max distance you can place a block (Metres / 4 Blocks)"/>
                 <Property key="FontName" value="SM_TextLabel"/>
                 <Property key="TextAlign" value="Left VCenter"/>
             </Widget>
