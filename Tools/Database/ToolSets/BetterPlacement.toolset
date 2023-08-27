@@ -9,16 +9,6 @@
             "file" : "$CONTENT_DATA/Scripts/BetterPlacementMain.lua"
          },
          "uuid" : "74febb3f-cc08-4e02-89c8-9fd0d0a1aa3c"
-      },
-      {
-         "name" : "Selection Tool",
-         "previewRenderable" : "$GAME_DATA/Character/Char_Tools/Char_liftremote/char_liftremote.rend",
-         "script" : {
-            "class" : "SelectionToolTemplateClass",
-            "data" : {},
-            "file" : "$CONTENT_DATA/Scripts/SelectionToolMain.lua"
-         },
-         "uuid" : "74febb3f-cc08-4e02-89c8-9fd0d0a1aa3d"
       }
    ]
 }
