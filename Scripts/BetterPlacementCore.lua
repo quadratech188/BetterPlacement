@@ -344,6 +344,10 @@ end
 
 
 function BetterPlacementCore:doPhase0()
+
+    sm.gui.setInteractionText("", sm.gui.getKeyBinding("NextCreateRotation", true), "Rotate")
+    sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Lock to Surface")
+
     
     if UsefulUtils.is6Way(self.currentItem) then
 
@@ -439,6 +443,8 @@ end
 
 
 function BetterPlacementCore:doPhase1()
+
+    sm.gui.setInteractionText("", sm.gui.getKeyBinding("NextCreateRotation", true), "Vertical Positioning")
     
     if self.verticalPositioning == true then
 

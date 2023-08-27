@@ -6,7 +6,7 @@
             "y" : 1,
             "z" : 1
          },
-         "name" : "Interface-5 Way +Z",
+         "name" : "Interface-5 Way base",
          "physicsMaterial" : "Default",
          "renderable" : "$CONTENT_DATA/Objects/Renderables/interface-5way_base.rend",
          "rotationSet" : "Default",
