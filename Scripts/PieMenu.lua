@@ -1,4 +1,6 @@
 
+dofile("$CONTENT_DATA/Scripts/FakeCursor.lua")
+
 PieMenu = class()
 
 
@@ -21,6 +23,8 @@ function PieMenu:initialize(gui, numberOfSegments, startAngle, highlightActions,
     self.gui:createHorizontalSlider("cursor", 1, 1, "")
     
     self.opened = false
+
+    self.cursor = FakeCursor.new()
 end
 
 
@@ -50,10 +54,8 @@ end
 
 function PieMenu:doFrame()
     if self.opened then
-        
-        local mousePosition = sm.localPlayer.getMouseDelta()
 
-        print(mousePosition)
+        self.cursor:doFrame()
     end
 end
 

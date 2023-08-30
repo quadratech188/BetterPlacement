@@ -1,6 +1,7 @@
 
 dofile("$CONTENT_DATA/Scripts/UsefulUtils.lua")
 dofile("$CONTENT_DATA/Scripts/PieMenu.lua")
+dofile("$CONTENT_DATA/Scripts/FakeCursor.lua")
 
 SelectionToolTemplateClass = class()
 
@@ -36,7 +37,7 @@ end
 
 function SelectionToolTemplateClass:doPhase0(isRisingEdge)
 
-    print("start")
+    -- print("start")
 
     sm.gui.setInteractionText("", sm.gui.getKeyBinding("Create", true), "Select")
     sm.gui.setInteractionText("", sm.gui.getKeyBinding("ForceBuild", true), "Actions...")
@@ -57,7 +58,7 @@ end
 
 function SelectionToolTemplateClass:doPhase1(isRisingEdge)
 
-    print("select")
+    -- print("select")
     
     sm.gui.setInteractionText("", sm.gui.getKeyBinding("Create", true), "Release")
     sm.gui.setInteractionText("", sm.gui.getKeyBinding("ForceBuild", true), "Actions...")
@@ -72,7 +73,7 @@ function SelectionToolTemplateClass:doActionSelect(isRisingEdge)
         ActionSelectionPieMenu:open()
     end
 
-    print("actionSelect")
+    -- print("actionSelect")
 end
 
 function SelectionToolTemplateClass:executeAction(isRisingEdge)
@@ -82,7 +83,7 @@ function SelectionToolTemplateClass:executeAction(isRisingEdge)
         ActionSelectionPieMenu:close()
     end
     
-    print("execute")
+    -- print("execute")
 
     self.currentPhase = "start"
 end
@@ -122,4 +123,5 @@ function SelectionToolTemplateClass.client_onEquippedUpdate(self, primaryState, 
     -- The first parameter doesn't work for some reason
 
     return false, false
+    
 end
