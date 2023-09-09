@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MyGUI type="Layout" version="3.2.0">>
+    <Widget type="TextBox" skin="TextBox" position_real="0.5 0.10000000000000001 0.5 0.074999999999999997">
+        <Property key="Caption" value="Placement Snapping Mode"/>
+        <Property key="FontName" value="SM_TextLabel"/>
+        <Property key="TextAlign" value="Left VCenter"/>
+    </Widget>
+    <CodeGeneratorSettings/>
+</MyGUI>

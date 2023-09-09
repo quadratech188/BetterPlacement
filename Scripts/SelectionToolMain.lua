@@ -22,7 +22,7 @@ function SelectionToolTemplateClass:client_onCreate()
 
     HighLightEffect:setParameter("visualization", true)
 
-    ActionSelectionPieMenu = PieMenu.new(sm.gui.createGuiFromLayout("$CONTENT_DATA/Gui/PieMenuGUI4.layout", false, {isHud = true, isInteractive = false}), 3, 0, {}, {}, 0)
+    ActionSelectionPieMenu = SelectionToolPieMenu.new("$CONTENT_DATA/Gui/PieMenuGUI4.layout", 4, 0, 0.1, nil)
 end
 
 function SelectionToolTemplateClass:client_onRefresh()
@@ -40,7 +40,11 @@ function SelectionToolTemplateClass:doPhase0(isRisingEdge)
     -- print("start")
 
     sm.gui.setInteractionText("", sm.gui.getKeyBinding("Create", true), "Select")
-    sm.gui.setInteractionText("", sm.gui.getKeyBinding("ForceBuild", true), "Actions...")
+
+    if self.raycastSuccess then
+
+        sm.gui.setInteractionText("", sm.gui.getKeyBinding("ForceBuild", true), "Actions...")
+    end
     
     if self.raycastResult.type == "body" then
 
