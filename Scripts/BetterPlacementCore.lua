@@ -84,13 +84,7 @@ function BetterPlacementCore:initialize()
 
     self.main = BetterPlacementClass
 
-    -- Constants
-
-    ---@type number
-    SubdivideRatio_2 = sm.construction.constants.subdivideRatio_2
-
-    ---@type number
-    SubdivideRatio = sm.construction.constants.subdivideRatio
+    -- Settings
 
     TransformUISize = sm.vec3.new(0.2, 0.2, 2) * sm.construction.constants.subdivideRatio -- Thickness and length of position selection UI
     
@@ -98,22 +92,6 @@ function BetterPlacementCore:initialize()
     CenterSize = 0.45
     InterfaceColorHighlight = sm.color.new(0,0,0.8, 1)
     InterfaceColorBase = sm.color.new(0.8, 0.8, 0.8, 1)
-
-    PosX = sm.vec3.new(1,0,0)
-    PosY = sm.vec3.new(0,1,0)
-    PosZ = sm.vec3.new(0,0,1)
-    NegX = sm.vec3.new(-1,0,0)
-    NegY = sm.vec3.new(0,-1,0)
-    NegZ = sm.vec3.new(0,0,-1)
-
-    QuatPosX = sm.vec3.getRotation(PosZ, PosX)
-    QuatPosY = sm.vec3.getRotation(PosZ, PosY)
-    QuatPosZ = sm.quat.identity()
-    QuatNegX = sm.vec3.getRotation(PosZ, NegX)
-    QuatNegY = sm.vec3.getRotation(PosZ, NegY)
-    QuatNegZ = sm.vec3.getRotation(PosZ, NegZ)
-
-    Quat90 = sm.quat.angleAxis(- math.pi / 2, PosZ)
 
     RotationList = {
 
