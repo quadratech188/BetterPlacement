@@ -1,18 +1,24 @@
 
 FakeCursor = class()
 
-function FakeCursor:initialize()
+
+---See FakeCursor.new
+function FakeCursor:initialize(cursorGui)
     self.position = {
         x = 0,
         y = 0
     }
+
+    self.gui = cursorGui
 end
 
-function FakeCursor.new()
+---Creates a new FakeCursor
+---@param cursorGui GuiInterface GUI for the cursor (requires isHud = true)
+function FakeCursor.new(cursorGui)
     
     local returnClass = class(FakeCursor)
 
-    returnClass:initialize()
+    returnClass:initialize(cursorGui)
 
     return returnClass
 end
@@ -34,4 +40,5 @@ end
 
 function FakeCursor:getPosition()
     
+    return self.position
 end
