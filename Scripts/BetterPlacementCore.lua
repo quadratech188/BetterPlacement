@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-field
 
 ---@diagnostic disable: need-check-nil
 
@@ -117,16 +118,16 @@ function BetterPlacementCore:initialize()
 
     -- Create effects
 
-    RotationEffects = EffectSet.new(placementUuids)
+    self.rotationGizmo = EffectSet.new(placementUuids)
 
-    RotationEffects:setParameter("Base", "color", InterfaceColorBase)
-    RotationEffects:setParameter("+X", "color", InterfaceColorHighlight)
-    RotationEffects:setParameter("+Y", "color", InterfaceColorHighlight)
-    RotationEffects:setParameter("+Z", "color", InterfaceColorHighlight)
-    RotationEffects:setParameter("-X", "color", InterfaceColorHighlight)
-    RotationEffects:setParameter("-Y", "color", InterfaceColorHighlight)
+    self.rotationGizmo:setParameter("Base", "color", InterfaceColorBase)
+    self.rotationGizmo:setParameter("+X", "color", InterfaceColorHighlight)
+    self.rotationGizmo:setParameter("+Y", "color", InterfaceColorHighlight)
+    self.rotationGizmo:setParameter("+Z", "color", InterfaceColorHighlight)
+    self.rotationGizmo:setParameter("-X", "color", InterfaceColorHighlight)
+    self.rotationGizmo:setParameter("-Y", "color", InterfaceColorHighlight)
 
-    RotationEffects:setScale(SubdivideRatio)
+    self.rotationGizmo:setScale(SubdivideRatio)
 
     -- Aluminum Block
 
@@ -174,7 +175,7 @@ function BetterPlacementCore:resetPlacement()
     self.lockedSelection = false
             -- Whether selection is locked to a face
         
-    RotationEffects:hideAll()
+    self.rotationGizmo:hideAll()
 
     TransformEffects:hideAll()
 
@@ -267,7 +268,7 @@ function BetterPlacementCore:updateValues()
 
     self.worldSurfaceRot = self.transformBody.worldRotation * self.localSurfaceRot
 
-    local raycastToPlane = UsefulUtils.raycastToPlane(sm.localPlayer.getRaycastStart(), self.raycastResult.directionWorld, self.worldSurfacePos, self.worldNormal)
+    local raycastToPlane = UsefulUtils.raycastToPlaneDeprecated(sm.localPlayer.getRaycastStart(), self.raycastResult.directionWorld, self.worldSurfacePos, self.worldNormal)
 
     self.worldDeltaPlacement = raycastToPlane + sm.localPlayer.getRaycastStart() - self.worldSurfacePos
 
@@ -387,11 +388,11 @@ function BetterPlacementCore:doPhase0()
 
         -- Show selection effect
 
-        RotationEffects:showOnly({self.placementAxisAsString, "Base"})
+        self.rotationGizmo:showOnly({self.placementAxisAsString, "Base"})
 
-        RotationEffects:setPosition(self.worldSurfacePos)
+        self.rotationGizmo:setPosition(self.worldSurfacePos)
 
-        RotationEffects:setRotation(self.worldSurfaceRot)
+        self.rotationGizmo:setRotation(self.worldSurfaceRot)
 
         -- Calculate Visualization position
 
@@ -416,7 +417,7 @@ function BetterPlacementCore:startPhase1()
     
     self.lockedSelection = true
 
-    RotationEffects:hideAll()
+    self.rotationGizmo:hideAll()
 end
 
 

@@ -111,6 +111,36 @@ function UsefulUtils.contains(object, table)
 end
 
 
+---@param effect SmartEffect|Effect
+---@param state "None"|"Solid"|"Blue"|"Red"
+function UsefulUtils.setShapeRenderableState(effect, state)
+
+    if effect:isPlaying() then
+
+        effect:stop()
+    end
+
+    if state == "None" then
+        
+
+    elseif state == "Solid" then
+
+        effect:setParameter("visualization", false)
+        effect:start()
+    elseif state == "Blue" then
+
+        effect:setParameter("visualization", true)
+        effect:setParameter("valid", true)
+        effect:start()
+    elseif state == "Red" then
+
+        effect:setParameter("visualization", true)
+        effect:setParameter("valid", false)
+        effect:start()
+    end
+end
+
+
 ---Copies the contents of table1 to table2, not modifying nil values
 ---@param table1 table the table to be copied from
 ---@param table2 table the table to be copied to
@@ -179,6 +209,12 @@ function UsefulUtils.is6Way(item)
 end
 
 
+function UsefulUtils.getCenterOffset(dimensions)
+    
+    return dimensions - UsefulUtils.roundToGrid(dimensions)
+end
+
+
 ---@param num number
 ---@return number
 function UsefulUtils.roundToCenterGrid(num)
@@ -225,7 +261,7 @@ end
 ---@param planePos Vec3
 ---@param planeNormal Vec3
 ---@return Vec3
-function UsefulUtils.raycastToPlane(raycastPos, raycastDirection, planePos, planeNormal)
+function UsefulUtils.raycastToPlaneDeprecated(raycastPos, raycastDirection, planePos, planeNormal)
     
     local distance = planePos - raycastPos
 
@@ -234,6 +270,34 @@ function UsefulUtils.raycastToPlane(raycastPos, raycastDirection, planePos, plan
     local perpendicularComponentOfRaycast = raycastDirection:dot(planeNormal)
 
     return raycastDirection * perpendicularDistance / perpendicularComponentOfRaycast
+end
+
+
+---@param raycastPos Vec3
+---@param raycastDirection Vec3
+---@param planePos Vec3
+---@param planeRotation Quat
+---@return table
+function UsefulUtils.raycastToPlane(raycastPos, raycastDirection, planePos, planeRotation)
+
+    local planeNormal = sm.quat.getUp(planeRotation)
+    
+    local distance = planePos - raycastPos
+
+    local perpendicularDistance = distance:dot(planeNormal)
+
+    local perpendicularComponentOfRaycast = raycastDirection:dot(planeNormal)
+
+    local worldPos = raycastDirection * perpendicularDistance / perpendicularComponentOfRaycast + raycastPos
+
+    local worldDeltaPos = worldPos - planePos
+
+    local localPos = sm.quat.inverse(planeRotation) * worldDeltaPos
+
+    return {
+        pointLocal = localPos,
+        pointWorld = worldPos
+    }
 end
 
 
@@ -248,7 +312,7 @@ function UsefulUtils.raycastToLine(raycastPos, raycastDirection, linePos, lineDi
 
     local planeNormal = (distance - lineDirection * distance:dot(lineDirection))
 
-    local delta = UsefulUtils.raycastToPlane(raycastPos, raycastDirection, linePos, planeNormal) + raycastPos - linePos
+    local delta = UsefulUtils.raycastToPlaneDeprecated(raycastPos, raycastDirection, linePos, planeNormal) + raycastPos - linePos
 
     return delta:dot(lineDirection)
 end

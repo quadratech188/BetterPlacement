@@ -27,14 +27,20 @@ function SmartEffect:initialize(effectData)
         
         self.effect = effectData
     
-    else
+    elseif type(effectData) == "string" then
 
         self.effect = sm.effect.createEffect("ShapeRenderable")
 
         self.effect:setParameter("uuid", sm.uuid.new(effectData))
+
+    elseif type(effectData) == "Uuid" then
+
+        self.effect = sm.effect.createEffect("ShapeRenderable")
+
+        self.effect:setParameter("uuid", effectData)
     end
 
-    self.isPlaying = false
+    self.on = false
 
     self.offsetPosition = sm.vec3.zero()
 
@@ -52,20 +58,20 @@ end
 
 function SmartEffect:start()
 
-    if not self.isPlaying then
+    if not self.on then
         
         self.effect:start()
     end
-    self.isPlaying = true
+    self.on = true
 end
 
 function SmartEffect:stop()
 
-    if self.isPlaying then
+    if self.on then
         
         self.effect:stop()
     end
-    self.isPlaying = false
+    self.on = false
 end
 
 
@@ -157,6 +163,12 @@ end
 function SmartEffect:setParameter(name, value)
     
     self.effect:setParameter(name, value)
+end
+
+
+function SmartEffect:isPlaying()
+    
+    return self.on
 end
 
 

@@ -2,6 +2,8 @@
 
 dofile("$CONTENT_DATA/Scripts/BetterPlacementCore.lua")
 
+dofile("$CONTENT_DATA/Scripts/BetterPlacementCoreV2.lua")
+
 dofile("$SURVIVAL_DATA/Scripts/game/survival_shapes.lua")
 
 dofile("$CONTENT_DATA/Scripts/UsefulUtils.lua")
@@ -20,7 +22,7 @@ function BetterPlacementTemplateClass:client_onCreate()
 
     -- References
 
-    self.placementCore = BetterPlacementCore
+    self.placementCore = BetterPlacementCoreV2
 
     self.guiClass = PlacementSettingsGUI
 
