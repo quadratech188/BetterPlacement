@@ -4,6 +4,8 @@ dofile("$CONTENT_DATA/Scripts/DefaultBody.lua")
 
 dofile("$CONTENT_DATA/Scripts/UsefulUtils.lua")
 
+---@class PartVisualization
+
 PartVisualization = class()
 
 

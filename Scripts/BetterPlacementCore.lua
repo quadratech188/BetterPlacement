@@ -1,4 +1,3 @@
----@diagnostic disable: undefined-field
 
 ---@diagnostic disable: need-check-nil
 

@@ -21,7 +21,8 @@ function BetterPlacementCoreV2:initialize()
         supportedSurfaces = {
             "body",
             "joint"
-        }
+        },
+        centerSize = 0.45
     }
 
     self:createEffects()
@@ -41,7 +42,7 @@ end
 
 function BetterPlacementCoreV2:createEffects()
     
-    local placementUuids = {
+    local rotationGizmoUuids = {
 
         ["Base"] = "07ef9dbe-cf0d-4c18-a828-0092c1f50422",
         ["+X"] = "03422fac-1103-4f93-9206-5324c1406a86",
@@ -53,7 +54,8 @@ function BetterPlacementCoreV2:createEffects()
 
     -- Create effects
 
-    self.rotationGizmo = EffectSet.new(placementUuids)
+    ---@type EffectSet
+    self.rotationGizmo = EffectSet.new(rotationGizmoUuids)
 
     self.rotationGizmo:setParameter("Base", "color", InterfaceColorBase)
     self.rotationGizmo:setParameter("+X", "color", InterfaceColorHighlight)
@@ -115,20 +117,6 @@ function BetterPlacementCoreV2:evaluateRaycast(raycastSuccess, raycastResult)
 end
 
 
-function BetterPlacementCoreV2:updateValues()
-
-    self.phase0.localNormal = sm.vec3.closestAxis(self.phase0.raycastStorage.normalLocal)
-
-    self.phase0.parent = UsefulUtils.getTransformBody(self.phase0.raycastStorage)
-
-    -- Find the center of the block face
-    
-    self.phase0.localSurfacePos = UsefulUtils.roundVecToCenterGrid(self.phase0.raycastStorage.pointLocal + self.phase0.localNormal * SubdivideRatio_2) - self.phase0.localNormal * SubdivideRatio_2
-
-    self.phase0.localSurfaceRot = sm.vec3.getRotation(sm.vec3.new(0,0,1), self.phase0.localNormal)
-end
-
-
 function BetterPlacementCoreV2:calculatePartPosition()
     
 
@@ -144,8 +132,6 @@ function BetterPlacementCoreV2:doPhase0()
         if self.phase0.placementIsValid then
 
             self.phase0.raycastStorage = self.raycastResult
-
-            self:updateValues()
         end
     end
 
@@ -156,19 +142,18 @@ function BetterPlacementCoreV2:doPhase0()
 
     else
 
-        self.phase0.worldSurfacePos = self.phase0.parent:transformPoint(self.phase0.localSurfacePos)
+        self.phase0.faceData = UsefulUtils.getFaceDataFromRaycast(self.phase0.raycastStorage)
 
-        self.phase0.worldSurfaceRot = self.phase0.parent.worldRotation * self.phase0.localSurfaceRot
+        local faceData = self.phase0.faceData
 
-        self.cursorDelta = UsefulUtils.raycastToPlane(self.raycastResult.originWorld, self.raycastResult.directionWorld, self.phase0.worldSurfacePos, self.phase0.worldSurfaceRot).pointLocal
-
-        local x = self.cursorDelta.x
-        local y = self.cursorDelta.y
+        local delta = self.phase0.faceData.surfaceDelta
+        local x = delta.x
+        local y = delta.y
 
         local a = x + y
         local b = x - y
 
-        if math.max(math.abs(x), math.abs(y)) < SubdivideRatio_2 * CenterSize then
+        if math.max(math.abs(x), math.abs(y)) < SubdivideRatio_2 * self.constants.centerSize then
             
             -- Center
             self.placementAxis = "+Z"
@@ -198,11 +183,11 @@ function BetterPlacementCoreV2:doPhase0()
 
         self.rotationGizmo:showOnly({self.placementAxis, "Base"})
 
-        self.rotationGizmo:setPosition(self.worldSurfacePos)
+        self.rotationGizmo:setPosition(faceData.localFaceCenterPos)
 
-        self.rotationGizmo:setRotation(self.worldSurfaceRot)
+        self.rotationGizmo:setRotation(faceData.localFaceRot)
 
-        --
+        -- Show Part preview
 
         self.partVisualization:visualize("Blue")
 

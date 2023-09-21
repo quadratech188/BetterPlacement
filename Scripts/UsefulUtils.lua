@@ -75,7 +75,7 @@ end
 
 ---Highlight the given shape using a SmartEffect
 ---@param smartEffect SmartEffect The effect
----@param shape ShapeClass The shape
+---@param shape Shape The shape
 function UsefulUtils.highlightShape(smartEffect, shape)
 
     smartEffect:stop()
@@ -91,6 +91,32 @@ function UsefulUtils.highlightShape(smartEffect, shape)
     end
         
     smartEffect:setTransforms({shape.worldPosition, shape.worldRotation, SubdivideRatio})
+end
+
+
+---comment
+---@param raycastResult RaycastResult
+function UsefulUtils.getFaceDataFromRaycast(raycastResult)
+    
+    local returnTable = {}
+
+    returnTable.parentBody = UsefulUtils.getTransformBody(raycastResult)
+    returnTable.parentObject = UsefulUtils.getAttachedObject(raycastResult)
+
+    returnTable.localRawPos = raycastResult.pointLocal
+    returnTable.localNormal = sm.vec3.closestAxis(raycastResult.normalLocal)
+
+    returnTable.localFaceCenterPos = UsefulUtils.roundVecToCenterGrid(raycastResult.pointLocal + returnTable.localNormal * SubdivideRatio_2) - returnTable.localNormal * SubdivideRatio_2
+    returnTable.localFaceRot = sm.vec3.getRotation(sm.vec3.new(0,0,1), returnTable.localNormal)
+
+    returnTable.worldRawPos = raycastResult.pointWorld
+    returnTable.worldNormal = raycastResult.normalWorld
+    returnTable.worldFaceCenterPos = returnTable.parentBody:transformPoint(returnTable.localFaceCenterPos)
+    returnTable.worldFaceRot = returnTable.parentBody.worldRotation * returnTable.localFaceRot
+
+    returnTable.surfaceDelta = UsefulUtils.raycastToPlane(raycastResult.originWorld, raycastResult.directionWorld, returnTable.worldFaceCenterPos, returnTable.worldFaceRot).pointLocal
+
+    return returnTable
 end
 
 
