@@ -118,16 +118,16 @@ function BetterPlacementCore:initialize()
 
     -- Create effects
 
-    self.rotationGizmo = EffectSet.new(placementUuids)
+    RotationEffects = EffectSet.new(placementUuids)
 
-    self.rotationGizmo:setParameter("Base", "color", InterfaceColorBase)
-    self.rotationGizmo:setParameter("+X", "color", InterfaceColorHighlight)
-    self.rotationGizmo:setParameter("+Y", "color", InterfaceColorHighlight)
-    self.rotationGizmo:setParameter("+Z", "color", InterfaceColorHighlight)
-    self.rotationGizmo:setParameter("-X", "color", InterfaceColorHighlight)
-    self.rotationGizmo:setParameter("-Y", "color", InterfaceColorHighlight)
+    RotationEffects:setParameter("Base", "color", InterfaceColorBase)
+    RotationEffects:setParameter("+X", "color", InterfaceColorHighlight)
+    RotationEffects:setParameter("+Y", "color", InterfaceColorHighlight)
+    RotationEffects:setParameter("+Z", "color", InterfaceColorHighlight)
+    RotationEffects:setParameter("-X", "color", InterfaceColorHighlight)
+    RotationEffects:setParameter("-Y", "color", InterfaceColorHighlight)
 
-    self.rotationGizmo:setScale(SubdivideRatio)
+    RotationEffects:setScale(SubdivideRatio)
 
     -- Aluminum Block
 
@@ -175,7 +175,7 @@ function BetterPlacementCore:resetPlacement()
     self.lockedSelection = false
             -- Whether selection is locked to a face
         
-    self.rotationGizmo:hideAll()
+    RotationEffects:hideAll()
 
     TransformEffects:hideAll()
 
@@ -388,11 +388,11 @@ function BetterPlacementCore:doPhase0()
 
         -- Show selection effect
 
-        self.rotationGizmo:showOnly({self.placementAxisAsString, "Base"})
+        RotationEffects:showOnly({self.placementAxisAsString, "Base"})
 
-        self.rotationGizmo:setPosition(self.worldSurfacePos)
+        RotationEffects:setPosition(self.worldSurfacePos)
 
-        self.rotationGizmo:setRotation(self.worldSurfaceRot)
+        RotationEffects:setRotation(self.worldSurfaceRot)
 
         -- Calculate Visualization position
 
@@ -417,7 +417,7 @@ function BetterPlacementCore:startPhase1()
     
     self.lockedSelection = true
 
-    self.rotationGizmo:hideAll()
+    RotationEffects:hideAll()
 end
 
 
