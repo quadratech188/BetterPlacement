@@ -20,6 +20,8 @@ end
 
 
 function SmartEffect:initialize(effectData)
+
+    print(effectData)
     
     -- Supported: 'Effect' userdata, Custom Effect class with sufficient callbacks, uuids for ShapeRenderable effect
 
@@ -383,7 +385,7 @@ function EffectSet:show(keys)
             goto continue
         end
 
-        if not smartEffect.isPlaying then
+        if not smartEffect:isPlaying() then
             
             smartEffect:start()
         end
@@ -410,7 +412,7 @@ function EffectSet:hide(keys)
             goto continue
         end
 
-        if smartEffect.isPlaying then
+        if smartEffect:isPlaying() then
             
             smartEffect:stop()
         end

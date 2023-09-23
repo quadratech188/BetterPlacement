@@ -3,6 +3,8 @@ dofile("$CONTENT_DATA/Scripts/UsefulUtils.lua")
 
 dofile("$CONTENT_DATA/Scripts/PartVisualization.lua")
 
+dofile("$CONTENT_DATA/Scripts/EffectSet.lua")
+
 BetterPlacementCoreV2 = class()
 
 
@@ -22,7 +24,9 @@ function BetterPlacementCoreV2:initialize()
             "body",
             "joint"
         },
-        centerSize = 0.45
+        centerSize = 0.45,
+        interfaceColorHighlight = sm.color.new(0, 0, 0.8, 1),
+        interfaceColorBase = sm.color.new(0.8, 0.8, 0.8, 1)
     }
 
     self:createEffects()
@@ -57,12 +61,12 @@ function BetterPlacementCoreV2:createEffects()
     ---@type EffectSet
     self.rotationGizmo = EffectSet.new(rotationGizmoUuids)
 
-    self.rotationGizmo:setParameter("Base", "color", InterfaceColorBase)
-    self.rotationGizmo:setParameter("+X", "color", InterfaceColorHighlight)
-    self.rotationGizmo:setParameter("+Y", "color", InterfaceColorHighlight)
-    self.rotationGizmo:setParameter("+Z", "color", InterfaceColorHighlight)
-    self.rotationGizmo:setParameter("-X", "color", InterfaceColorHighlight)
-    self.rotationGizmo:setParameter("-Y", "color", InterfaceColorHighlight)
+    self.rotationGizmo:setParameter("Base", "color", self.constants.interfaceColorBase)
+    self.rotationGizmo:setParameter("+X", "color", self.constants.interfaceColorHighlight)
+    self.rotationGizmo:setParameter("+Y", "color", self.constants.interfaceColorHighlight)
+    self.rotationGizmo:setParameter("+Z", "color", self.constants.interfaceColorHighlight)
+    self.rotationGizmo:setParameter("-X", "color", self.constants.interfaceColorHighlight)
+    self.rotationGizmo:setParameter("-Y", "color", self.constants.interfaceColorHighlight)
 
     self.rotationGizmo:setScale(SubdivideRatio)
 end
@@ -109,7 +113,7 @@ function BetterPlacementCoreV2:evaluateRaycast(raycastSuccess, raycastResult)
         return false
     end
 
-    if not UsefulUtils.isPlaceableFace(raycastResult, sm.vec3.closestAxis(raycastResult.normalLocal)) then
+    if UsefulUtils.isPlaceableFace(raycastResult, sm.vec3.closestAxis(raycastResult.normalLocal)) == 0 then
         return false
     end
 
@@ -132,6 +136,8 @@ function BetterPlacementCoreV2:doPhase0()
         if self.phase0.placementIsValid then
 
             self.phase0.raycastStorage = self.raycastResult
+
+            self.phase0.faceData = UsefulUtils.getFaceDataFromRaycast(self.phase0.raycastStorage)
         end
     end
 
@@ -142,13 +148,14 @@ function BetterPlacementCoreV2:doPhase0()
 
     else
 
-        self.phase0.faceData = UsefulUtils.getFaceDataFromRaycast(self.phase0.raycastStorage)
-
         local faceData = self.phase0.faceData
 
-        local delta = self.phase0.faceData.surfaceDelta
-        local x = delta.x
-        local y = delta.y
+        self.phase0.surfaceDelta = UsefulUtils.raycastToPlane(self.raycastResult.originWorld, self.raycastResult.directionWorld, faceData.parentBody:transformPoint(faceData.localFaceCenterPos), faceData.parentBody.worldRotation * faceData.localFaceRot).pointLocal
+
+        print(self.phase0.surfaceDelta)
+
+        local x = self.phase0.surfaceDelta.x
+        local y = self.phase0.surfaceDelta.y
 
         local a = x + y
         local b = x - y
@@ -183,17 +190,17 @@ function BetterPlacementCoreV2:doPhase0()
 
         self.rotationGizmo:showOnly({self.placementAxis, "Base"})
 
-        self.rotationGizmo:setPosition(faceData.localFaceCenterPos)
+        self.rotationGizmo:setPosition(faceData.parentBody:transformPoint(faceData.localFaceCenterPos))
 
-        self.rotationGizmo:setRotation(faceData.localFaceRot)
+        self.rotationGizmo:setRotation(faceData.parentBody.worldRotation * faceData.localFaceRot)
 
         -- Show Part preview
 
         self.partVisualization:visualize("Blue")
 
-        self.partVisualization:setParent(UsefulUtils.getTransformBody(self.phase0.raycastStorage))
+        self.partVisualization:setParent(faceData.parentBody)
 
-        self.partVisualization:setTransforms(self.phase0.localSurfacePos, self.phase0.localSurfaceRot)
+        self.partVisualization:setTransforms(faceData.localFaceCenterPos, faceData.localFaceRot)
     end
 end
 

@@ -94,7 +94,7 @@ function UsefulUtils.highlightShape(smartEffect, shape)
 end
 
 
----comment
+---Returns face data about the raycast
 ---@param raycastResult RaycastResult
 function UsefulUtils.getFaceDataFromRaycast(raycastResult)
     
@@ -106,15 +106,9 @@ function UsefulUtils.getFaceDataFromRaycast(raycastResult)
     returnTable.localRawPos = raycastResult.pointLocal
     returnTable.localNormal = sm.vec3.closestAxis(raycastResult.normalLocal)
 
+    ---@type Vec3
     returnTable.localFaceCenterPos = UsefulUtils.roundVecToCenterGrid(raycastResult.pointLocal + returnTable.localNormal * SubdivideRatio_2) - returnTable.localNormal * SubdivideRatio_2
     returnTable.localFaceRot = sm.vec3.getRotation(sm.vec3.new(0,0,1), returnTable.localNormal)
-
-    returnTable.worldRawPos = raycastResult.pointWorld
-    returnTable.worldNormal = raycastResult.normalWorld
-    returnTable.worldFaceCenterPos = returnTable.parentBody:transformPoint(returnTable.localFaceCenterPos)
-    returnTable.worldFaceRot = returnTable.parentBody.worldRotation * returnTable.localFaceRot
-
-    returnTable.surfaceDelta = UsefulUtils.raycastToPlane(raycastResult.originWorld, raycastResult.directionWorld, returnTable.worldFaceCenterPos, returnTable.worldFaceRot).pointLocal
 
     return returnTable
 end
@@ -306,7 +300,7 @@ end
 ---@return table
 function UsefulUtils.raycastToPlane(raycastPos, raycastDirection, planePos, planeRotation)
 
-    local planeNormal = sm.quat.getUp(planeRotation)
+    local planeNormal = sm.quat.getAt(planeRotation)
     
     local distance = planePos - raycastPos
 
