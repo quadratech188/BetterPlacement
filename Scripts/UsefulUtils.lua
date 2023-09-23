@@ -19,6 +19,15 @@ NegX = sm.vec3.new(-1,0,0)
 NegY = sm.vec3.new(0,-1,0)
 NegZ = sm.vec3.new(0,0,-1)
 
+Axes = {
+    ["+X"] = QuatPosX,
+    ["+Y"] = QuatPosY,
+    ["+Z"] = QuatPosZ,
+    ["-X"] = QuatNegX,
+    ["-Y"] = QuatNegY,
+    ["-Z"] = QuatNegZ
+}
+
 QuatPosX = sm.vec3.getRotation(PosZ, PosX)
 QuatPosY = sm.vec3.getRotation(PosZ, PosY)
 QuatPosZ = sm.quat.identity()
@@ -108,7 +117,7 @@ function UsefulUtils.getFaceDataFromRaycast(raycastResult)
 
     ---@type Vec3
     returnTable.localFaceCenterPos = UsefulUtils.roundVecToCenterGrid(raycastResult.pointLocal + returnTable.localNormal * SubdivideRatio_2) - returnTable.localNormal * SubdivideRatio_2
-    returnTable.localFaceRot = sm.vec3.getRotation(sm.vec3.new(0,0,1), returnTable.localNormal)
+    returnTable.localFaceRot = sm.vec3.getRotation(PosZ, returnTable.localNormal)
 
     return returnTable
 end
@@ -231,7 +240,7 @@ end
 
 function UsefulUtils.getCenterOffset(dimensions)
     
-    return dimensions - UsefulUtils.roundToGrid(dimensions)
+    return dimensions / 2 - UsefulUtils.roundVecToGrid(dimensions / 2)
 end
 
 
@@ -264,6 +273,12 @@ end
 function UsefulUtils.roundVecToGrid(vec)
     
     return sm.vec3.new(UsefulUtils.roundToGrid(vec.x), UsefulUtils.roundToGrid(vec.y), UsefulUtils.roundToGrid(vec.z))
+end
+
+
+function UsefulUtils.absVec(vec)
+    
+    return sm.vec3.new(math.abs(vec.x), math.abs(vec.y), math.abs(vec.z))
 end
 
 
@@ -318,6 +333,39 @@ function UsefulUtils.raycastToPlane(raycastPos, raycastDirection, planePos, plan
         pointLocal = localPos,
         pointWorld = worldPos
     }
+end
+
+
+---Snaps a volume to a cursor on a surface
+---@param size Vec3 Size of the volume to be snapped
+---@param cursorPos Vec3 Position of the cursor relative to the surface
+---@param surfacePos Vec3 Position of the surface
+---@param surfaceNormal Vec3 Normal vector of the surface
+---@param snappingMode "Center"|"Fixed"|"Dynamic" Snapping mode.
+---@return Vec3
+function UsefulUtils.snapVolumeToSurface(size, cursorPos, surfacePos, surfaceNormal, snappingMode)
+
+    local localSize = UsefulUtils.absVec(sm.quat.inverse(sm.vec3.getRotation(PosZ, surfaceNormal)) * size)
+
+    local roundedOffset
+    
+    if snappingMode == "Center" then
+
+        roundedOffset = sm.vec3.zero()
+    
+    elseif snappingMode == "Fixed" then
+
+        roundedOffset = UsefulUtils.getCenterOffset(localSize) - BlockSize / 2
+        
+    elseif snappingMode == "Dynamic" then
+
+        roundedOffset = UsefulUtils.roundVecToCenterGrid(cursorPos + UsefulUtils.getCenterOffset(localSize)) - UsefulUtils.getCenterOffset(localSize)
+
+    end
+
+    roundedOffset.z = localSize.z / 2
+
+    return sm.vec3.getRotation(PosZ, surfaceNormal) * roundedOffset + surfacePos
 end
 
 

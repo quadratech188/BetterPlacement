@@ -19,6 +19,8 @@ function BetterPlacementCoreV2:initialize()
     self.phase0 = {}
     self.phase1 = {}
 
+    self.phase0.rotationStorage = {}
+
     self.constants = {
         supportedSurfaces = {
             "body",
@@ -121,9 +123,27 @@ function BetterPlacementCoreV2:evaluateRaycast(raycastSuccess, raycastResult)
 end
 
 
-function BetterPlacementCoreV2:calculatePartPosition()
+function BetterPlacementCoreV2:onToggle()
     
+    if self.status.phase == 0 then
+        
+        self.phase0.rotationStorage[tostring(self.currentItem)][self.placementAxis] = (self.phase0.rotationStorage[tostring(self.currentItem)][self.placementAxis] + 1) % 4
+    end
+end
 
+
+function BetterPlacementCoreV2:generateRotationStorage(item)
+    
+    if self.phase0.rotationStorage[tostring(self.currentItem)] == nil then
+        
+        self.phase0.rotationStorage[tostring(self.currentItem)] = {
+            ["+X"] = 0,
+            ["+Y"] = 0,
+            ["+Z"] = 0,
+            ["-X"] = 0,
+            ["-Y"] = 0
+        }
+    end
 end
 
 
@@ -194,13 +214,19 @@ function BetterPlacementCoreV2:doPhase0()
 
         self.rotationGizmo:setRotation(faceData.parentBody.worldRotation * faceData.localFaceRot)
 
+        -- Calculate final position and rotation
+
+        self.phase0.localPlacementRot = faceData.localFaceRot * Axes[self.placementAxis] * RotationList[self.phase0.rotationStorage[tostring(self.currentItem)][self.placementAxis]]
+
+        self.phase0.localPlacementPos = UsefulUtils.snapVolumeToSurface(self.phase0.localPlacementRot * sm.item.getShapeSize(self.currentItem) * SubdivideRatio, self.phase0.surfaceDelta, faceData.localFaceCenterPos, faceData.localNormal, "Fixed")
+
         -- Show Part preview
 
         self.partVisualization:visualize("Blue")
 
         self.partVisualization:setParent(faceData.parentBody)
 
-        self.partVisualization:setTransforms(faceData.localFaceCenterPos, faceData.localFaceRot)
+        self.partVisualization:setTransforms(self.phase0.localPlacementPos, self.phase0.localPlacementRot)
     end
 end
 
@@ -220,6 +246,8 @@ function BetterPlacementCoreV2:doFrame()
         self.partVisualization:setPart(self.currentItem)
         
         self:reset()
+
+        self:generateRotationStorage(self.currentItem)
     end
     
     self.phases[self.status.phase](self)
