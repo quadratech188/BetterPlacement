@@ -11,7 +11,8 @@ BetterPlacementCoreV2 = class()
 function BetterPlacementCoreV2:initialize()
     
     self.phases = {
-        [0] = self.doPhase0
+        [0] = self.doPhase0,
+        [1] = self.doPhase1
     }
 
     self.partVisualization = PartVisualization.new(sm.uuid.getNil(), nil)
@@ -39,7 +40,7 @@ function BetterPlacementCoreV2:initialize()
 
     self.settings = {
 
-        roundingSetting = "SnapCornerToGrid", -- SnapCenterToGrid, DynamicSnapCornerToGrid, FixedSnapCornerToGrid
+        roundingSetting = "Dynamic", -- Center, Fixed, Dynamic
         positionSelectionTimer = 5, -- Ticks before advancing to position selection
         placementRadii = 7.5, -- Reach distance
     }
@@ -132,6 +133,15 @@ function BetterPlacementCoreV2:onToggle()
 end
 
 
+function BetterPlacementCoreV2:onReload()
+    
+    if self.status.phase == 0 then
+        
+        self.status.lockedSelection = not self.status.lockedSelection
+    end
+end
+
+
 function BetterPlacementCoreV2:generateRotationStorage(item)
     
     if self.phase0.rotationStorage[tostring(self.currentItem)] == nil then
@@ -148,8 +158,13 @@ end
 
 
 function BetterPlacementCoreV2:doPhase0()
+    
+    sm.gui.setInteractionText("", sm.gui.getKeyBinding("NextCreateRotation", true), "Rotate")
+    sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Lock to Face")
 
     if not self.status.lockedSelection then
+
+        sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Lock to Face")
 
         self.phase0.placementIsValid = self:evaluateRaycast(self.raycastSuccess, self.raycastResult) and sm.item.isPart(self.currentItem)
 
@@ -159,6 +174,8 @@ function BetterPlacementCoreV2:doPhase0()
 
             self.phase0.faceData = UsefulUtils.getFaceDataFromRaycast(self.phase0.raycastStorage)
         end
+    else
+        sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Unlock Face")
     end
 
     if not self.phase0.placementIsValid then
@@ -171,8 +188,6 @@ function BetterPlacementCoreV2:doPhase0()
         local faceData = self.phase0.faceData
 
         self.phase0.surfaceDelta = UsefulUtils.raycastToPlane(self.raycastResult.originWorld, self.raycastResult.directionWorld, faceData.parentBody:transformPoint(faceData.localFaceCenterPos), faceData.parentBody.worldRotation * faceData.localFaceRot).pointLocal
-
-        print(self.phase0.surfaceDelta)
 
         local x = self.phase0.surfaceDelta.x
         local y = self.phase0.surfaceDelta.y
@@ -218,7 +233,7 @@ function BetterPlacementCoreV2:doPhase0()
 
         self.phase0.localPlacementRot = faceData.localFaceRot * Axes[self.placementAxis] * RotationList[self.phase0.rotationStorage[tostring(self.currentItem)][self.placementAxis]]
 
-        self.phase0.localPlacementPos = UsefulUtils.snapVolumeToSurface(self.phase0.localPlacementRot * sm.item.getShapeSize(self.currentItem) * SubdivideRatio, self.phase0.surfaceDelta, faceData.localFaceCenterPos, faceData.localNormal, "Fixed")
+        self.phase0.localPlacementPos = UsefulUtils.snapVolumeToSurface(self.phase0.localPlacementRot * sm.item.getShapeSize(self.currentItem) * SubdivideRatio, UsefulUtils.clampVec(self.phase0.surfaceDelta, SubdivideRatio_2), faceData.localFaceCenterPos, faceData.localNormal, self.settings.roundingSetting)
 
         -- Show Part preview
 
@@ -228,6 +243,30 @@ function BetterPlacementCoreV2:doPhase0()
 
         self.partVisualization:setTransforms(self.phase0.localPlacementPos, self.phase0.localPlacementRot)
     end
+
+    if self.primaryState == 1 then
+        
+        self.status.phase = 1
+    end
+end
+
+
+function BetterPlacementCoreV2:preparePhase1()
+    
+    self.phase1.parentBody = self.phase0.faceData.parentBody
+    self.phase1.parentObject = self.phase0.faceData.parentObject
+
+    self.phase1.localNormal = self.phase0.faceData.localNormal
+
+    self.phase1.surfacePos = self.phase0.faceData.localFaceCenterPos
+
+    self.phase1.localRot = self.phase0.localPlacementRot
+end
+
+
+function BetterPlacementCoreV2:doPhase1()
+    
+    
 end
 
 

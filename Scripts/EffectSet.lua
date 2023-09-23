@@ -20,8 +20,6 @@ end
 
 
 function SmartEffect:initialize(effectData)
-
-    print(effectData)
     
     -- Supported: 'Effect' userdata, Custom Effect class with sufficient callbacks, uuids for ShapeRenderable effect
 
