@@ -5,10 +5,20 @@ dofile("$CONTENT_DATA/Scripts/PartVisualization.lua")
 
 dofile("$CONTENT_DATA/Scripts/EffectSet.lua")
 
+---@class BetterPlacementCoreV2
+
 BetterPlacementCoreV2 = class()
 
 
 function BetterPlacementCoreV2:initialize()
+
+    RotationList = {
+
+        [0] = sm.quat.identity(),
+        [1] = Quat90,
+        [2] = Quat90 * Quat90,
+        [3] = Quat90 * Quat90 * Quat90
+    }
     
     self.phases = {
         [0] = self.doPhase0,
@@ -129,6 +139,10 @@ function BetterPlacementCoreV2:onToggle()
     if self.status.phase == 0 then
         
         self.phase0.rotationStorage[tostring(self.currentItem)][self.placementAxis] = (self.phase0.rotationStorage[tostring(self.currentItem)][self.placementAxis] + 1) % 4
+    
+    elseif self.status.phase == 1 then
+
+        self.status.verticalPositioning = not self.status.verticalPositioning
     end
 end
 
@@ -142,11 +156,12 @@ function BetterPlacementCoreV2:onReload()
 end
 
 
+---@param item Uuid
 function BetterPlacementCoreV2:generateRotationStorage(item)
     
-    if self.phase0.rotationStorage[tostring(self.currentItem)] == nil then
+    if self.phase0.rotationStorage[tostring(item)] == nil then
         
-        self.phase0.rotationStorage[tostring(self.currentItem)] = {
+        self.phase0.rotationStorage[tostring(item)] = {
             ["+X"] = 0,
             ["+Y"] = 0,
             ["+Z"] = 0,
@@ -187,10 +202,10 @@ function BetterPlacementCoreV2:doPhase0()
 
         local faceData = self.phase0.faceData
 
-        self.phase0.surfaceDelta = UsefulUtils.raycastToPlane(self.raycastResult.originWorld, self.raycastResult.directionWorld, faceData.parentBody:transformPoint(faceData.localFaceCenterPos), faceData.parentBody.worldRotation * faceData.localFaceRot).pointLocal
+        local surfaceDelta = UsefulUtils.raycastToPlane(self.raycastResult.originWorld, self.raycastResult.directionWorld, faceData.parentBody:transformPoint(faceData.localFaceCenterPos), faceData.parentBody.worldRotation * faceData.localFaceRot).pointLocal
 
-        local x = self.phase0.surfaceDelta.x
-        local y = self.phase0.surfaceDelta.y
+        local x = surfaceDelta.x
+        local y = surfaceDelta.y
 
         local a = x + y
         local b = x - y
@@ -231,9 +246,11 @@ function BetterPlacementCoreV2:doPhase0()
 
         -- Calculate final position and rotation
 
+        print(self.phase0.rotationStorage[tostring(self.currentItem)][self.placementAxis])
+
         self.phase0.localPlacementRot = faceData.localFaceRot * Axes[self.placementAxis] * RotationList[self.phase0.rotationStorage[tostring(self.currentItem)][self.placementAxis]]
 
-        self.phase0.localPlacementPos = UsefulUtils.snapVolumeToSurface(self.phase0.localPlacementRot * sm.item.getShapeSize(self.currentItem) * SubdivideRatio, UsefulUtils.clampVec(self.phase0.surfaceDelta, SubdivideRatio_2), faceData.localFaceCenterPos, faceData.localNormal, self.settings.roundingSetting)
+        self.phase0.localPlacementPos = UsefulUtils.snapVolumeToSurface(UsefulUtils.absVec(self.phase0.localPlacementRot * sm.item.getShapeSize(self.currentItem) * SubdivideRatio), UsefulUtils.clampVec(surfaceDelta, SubdivideRatio_2), faceData.localFaceCenterPos, faceData.localNormal, self.settings.roundingSetting)
 
         -- Show Part preview
 
@@ -252,21 +269,41 @@ end
 
 
 function BetterPlacementCoreV2:preparePhase1()
+
+    local faceData = self.phase0.faceData
     
-    self.phase1.parentBody = self.phase0.faceData.parentBody
-    self.phase1.parentObject = self.phase0.faceData.parentObject
+    self.phase1.parentBody = faceData.parentBody
+    self.phase1.parentObject = faceData.parentObject
 
-    self.phase1.localNormal = self.phase0.faceData.localNormal
+    self.phase1.localNormal = faceData.localNormal
 
-    self.phase1.surfacePos = self.phase0.faceData.localFaceCenterPos
+    self.phase1.surfacePos = faceData.localFaceCenterPos
 
-    self.phase1.localRot = self.phase0.localPlacementRot
+    self.phase1.surfaceRot = faceData.localFaceRot
+
+    self.phase1.partPos = self.phase1.localPlacementPos
+
+    self.phase1.partRot = self.phase0.localPlacementRot
+
 end
 
 
 function BetterPlacementCoreV2:doPhase1()
+
+    local phase1 = self.phase1
     
-    
+    if not self.status.verticalPositioning then
+        
+        local surfaceDelta = UsefulUtils.raycastToPlane(self.raycastResult.originWorld, self.raycastResult.directionWorld, phase1.parentBody:transformPoint(phase1.surfacePos), phase1.parentBody.worldRotation * phase1.surfaceRot).pointLocal
+
+        phase1.partPos = UsefulUtils.snapVolumeToSurface(UsefulUtils.absVec(phase1.partRot * sm.item.getShapeSize(self.currentItem) * SubdivideRatio), surfaceDelta, phase1.surfacePos, phase1.localNormal)
+
+        -- Show part preview
+
+        self.partVisualization:visualize("Blue")
+
+        self.partVisualization:setTransforms(phase1.partPos, phase1.partRot)
+    end
 end
 
 
