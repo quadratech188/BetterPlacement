@@ -19,6 +19,15 @@ NegX = sm.vec3.new(-1,0,0)
 NegY = sm.vec3.new(0,-1,0)
 NegZ = sm.vec3.new(0,0,-1)
 
+
+
+QuatPosX = sm.vec3.getRotation(PosZ, PosX)
+QuatPosY = sm.vec3.getRotation(PosZ, PosY)
+QuatPosZ = sm.quat.identity()
+QuatNegX = sm.vec3.getRotation(PosZ, NegX)
+QuatNegY = sm.vec3.getRotation(PosZ, NegY)
+QuatNegZ = sm.vec3.getRotation(PosZ, NegZ)
+
 Axes = {
     ["+X"] = QuatPosX,
     ["+Y"] = QuatPosY,
@@ -28,18 +37,11 @@ Axes = {
     ["-Z"] = QuatNegZ
 }
 
-QuatPosX = sm.vec3.getRotation(PosZ, PosX)
-QuatPosY = sm.vec3.getRotation(PosZ, PosY)
-QuatPosZ = sm.quat.identity()
-QuatNegX = sm.vec3.getRotation(PosZ, NegX)
-QuatNegY = sm.vec3.getRotation(PosZ, NegY)
-QuatNegZ = sm.vec3.getRotation(PosZ, NegZ)
-
 Quat90 = sm.quat.angleAxis(- math.pi / 2, PosZ)
 
 UsefulUtils.callbacks = {}
 
---- Makes the given function get called when a callback is sent to the class (with all the arguments given to the callback)
+--- Set up the given function to be called(with all the arguments) when a callback is sent to the given class
 ---@param class table The class to which the callback is sent.
 ---@param callbackName string The name of the callback
 ---@param func function The function that is called
@@ -68,7 +70,7 @@ function UsefulUtils.linkCallback(class, callbackName, func, order)
                 func(...)
             end
 
-            if originalFunction ~= ni then
+            if originalFunction ~= nil then
                 originalFunction(...)
             end
 

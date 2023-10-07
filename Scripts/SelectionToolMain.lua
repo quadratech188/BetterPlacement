@@ -1,7 +1,6 @@
 
 dofile("$CONTENT_DATA/Scripts/UsefulUtils.lua")
 dofile("$CONTENT_DATA/Scripts/PieMenu.lua")
-dofile("$CONTENT_DATA/Scripts/FakeCursor.lua")
 
 SelectionToolTemplateClass = class()
 

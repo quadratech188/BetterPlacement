@@ -22,7 +22,8 @@ function BetterPlacementCoreV2:initialize()
     
     self.phases = {
         [0] = self.doPhase0,
-        [1] = self.doPhase1
+        [1] = self.doPhase1,
+        [2] = self.doPhase2
     }
 
     self.partVisualization = PartVisualization.new(sm.uuid.getNil(), nil)
@@ -53,6 +54,7 @@ function BetterPlacementCoreV2:initialize()
         roundingSetting = "Dynamic", -- Center, Fixed, Dynamic
         positionSelectionTimer = 5, -- Ticks before advancing to position selection
         placementRadii = 7.5, -- Reach distance
+        doubleClick = false
     }
 end
 
@@ -246,8 +248,6 @@ function BetterPlacementCoreV2:doPhase0()
 
         -- Calculate final position and rotation
 
-        print(self.phase0.rotationStorage[tostring(self.currentItem)][self.placementAxis])
-
         self.phase0.localPlacementRot = faceData.localFaceRot * Axes[self.placementAxis] * RotationList[self.phase0.rotationStorage[tostring(self.currentItem)][self.placementAxis]]
 
         self.phase0.localPlacementPos = UsefulUtils.snapVolumeToSurface(UsefulUtils.absVec(self.phase0.localPlacementRot * sm.item.getShapeSize(self.currentItem) * SubdivideRatio), UsefulUtils.clampVec(surfaceDelta, SubdivideRatio_2), faceData.localFaceCenterPos, faceData.localNormal, self.settings.roundingSetting)
@@ -262,6 +262,8 @@ function BetterPlacementCoreV2:doPhase0()
     end
 
     if self.primaryState == 1 then
+
+        self:preparePhase1()
         
         self.status.phase = 1
     end
@@ -296,7 +298,7 @@ function BetterPlacementCoreV2:doPhase1()
         
         local surfaceDelta = UsefulUtils.raycastToPlane(self.raycastResult.originWorld, self.raycastResult.directionWorld, phase1.parentBody:transformPoint(phase1.surfacePos), phase1.parentBody.worldRotation * phase1.surfaceRot).pointLocal
 
-        phase1.partPos = UsefulUtils.snapVolumeToSurface(UsefulUtils.absVec(phase1.partRot * sm.item.getShapeSize(self.currentItem) * SubdivideRatio), surfaceDelta, phase1.surfacePos, phase1.localNormal)
+        phase1.partPos = UsefulUtils.snapVolumeToSurface(UsefulUtils.absVec(phase1.partRot * sm.item.getShapeSize(self.currentItem) * SubdivideRatio), surfaceDelta, phase1.surfacePos, phase1.localNormal, "Dynamic")
 
         -- Show part preview
 
@@ -304,6 +306,27 @@ function BetterPlacementCoreV2:doPhase1()
 
         self.partVisualization:setTransforms(phase1.partPos, phase1.partRot)
     end
+
+    if (self.settings.doubleClick and self.primaryState == 1) or (not self.settings.doubleClick and self.primaryState  == 3) then
+        
+        self:preparePhase2()
+
+        self.status.phase = 2
+    end
+end
+
+
+function BetterPlacementCoreV2:preparePhase2()
+    
+    -- Nothing here yet
+end
+
+
+function BetterPlacementCoreV2:doPhase2()
+    
+    self.partVisualization:createPart()
+
+    self:reset()
 end
 
 

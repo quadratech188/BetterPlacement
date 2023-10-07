@@ -118,6 +118,15 @@ function PartVisualization:visualize(state)
 end
 
 
+function PartVisualization:createPart()
+
+    print(NetworkRelay.network)
+    
+    NetworkRelay:sendToServer("sv_createPart", {}, self)
+end
+
+
 function PartVisualization:sv_createPart()
     
+    print("wow")
 end
