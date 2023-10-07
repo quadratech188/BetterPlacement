@@ -11,7 +11,7 @@ PartVisualization = class()
 
 ---Create a new PartVisualization
 ---@param part Uuid
----@param parent Body|DefaultBody|nil
+---@param parent Body|nil
 function PartVisualization.new(part, parent)
     
     local returnClass = class(PartVisualization)
@@ -24,7 +24,7 @@ end
 
 ---See PartVisualization.new
 ---@param part Uuid
----@param parent Body|DefaultBody|nil
+---@param parent Body|nil
 function PartVisualization:initialize(part, parent)
     
     self.part = part
@@ -36,7 +36,7 @@ function PartVisualization:initialize(part, parent)
     self.visualizationType = "None"
 
     if parent == nil then
-        self.parent = DefaultBody
+        self.parent = TerrainBody
     
     else
         self.parent = parent
@@ -82,7 +82,7 @@ end
 
 
 ---comment
----@param body Body|DefaultBody
+---@param body Body
 function PartVisualization:setParent(body)
     
     self.parent = body

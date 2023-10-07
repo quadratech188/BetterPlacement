@@ -395,7 +395,6 @@ end
 
 
 ---@param raycastResult RaycastResult
----@return Body
 function UsefulUtils.getTransformBody(raycastResult)
 
     if raycastResult.type == "body" then
@@ -408,7 +407,11 @@ function UsefulUtils.getTransformBody(raycastResult)
 
     elseif raycastResult.type == "terrainSurface" or raycastResult.type == "terrainAsset" then
 
-        return DefaultBody
+        return TerrainBody
+    
+    elseif raycastResult.type == "lift" then
+
+        return LiftBody
     end
 end
 
@@ -426,13 +429,17 @@ function UsefulUtils.getAttachedObject(raycastResult)
     
     elseif raycastResult.type == "terrainSurface" or raycastResult.type == "terrainAsset" then
 
-        return DefaultBody
+        return TerrainBody
+    
+    elseif raycastResult.type == "lift" then
+        
+        return LiftBody
     end
 end
 
 ---@param raycastResult RaycastResult
 ---@param normalVector Vec3
----@return number 1 is true, 0 is false
+---@return boolean
 function UsefulUtils.isPlaceableFace(raycastResult, normalVector)
     
     if raycastResult.type == "body" then
@@ -448,28 +455,35 @@ function UsefulUtils.isPlaceableFace(raycastResult, normalVector)
         if raycastResult:getJoint():getShapeB() ~= nil then
             return false
         end
+
+    elseif raycastResult.type == "lift" then
+        
+        return (normalVector.z == 1)
+
     else
-        return 1
+        
+        return UsefulUtils.contains(raycastResult.type, {"terrainSurface", "terrainAsset"})
     end
 
+    local t = {[0] = false, [1] = true}
 
     if normalVector.x == -1 then
-        return PositiveStick.x
+        return t[PositiveStick.x]
     
     elseif normalVector.x == 1 then
-        return NegativeStick.x
+        return t[NegativeStick.x]
 
     elseif normalVector.y == -1 then
-        return PositiveStick.y
+        return t[PositiveStick.y]
 
     elseif normalVector.y == 1 then
-        return NegativeStick.y
+        return t[NegativeStick.y]
 
     elseif normalVector.z == -1 then
-        return PositiveStick.z
+        return t[PositiveStick.z]
 
     else
-        return NegativeStick.z
+        return t[NegativeStick.z]
     end
 end
 
@@ -496,17 +510,21 @@ function UsefulUtils.sv_createPart(_, data)
     local zAxis = sm.vec3.closestAxis(sm.quat.getAt(localRot))
 
     if sm.item.isPart(part) then
-        
-        local shapeSize = localRot * sm.item.getShapeSize(part)
-
-        local localPlacementPos = localPos / SubdivideRatio - shapeSize * 0.5
 
         if type(parentObject) == "Shape" then
             
-            parentObject:getBody():createPart(part, localPlacementPos, zAxis, xAxis, forceAccept)
+            parentObject:getBody():createPart(part, localPos / SubdivideRatio - localRot * sm.item.getShapeSize(part) * 0.5, zAxis, xAxis, forceAccept)
         
-        else
-            parentObject:createPart(part, localPlacementPos, zAxis, xAxis, forceAccept)
+        elseif type(parentObject) == "Joint" then
+
+            -- parentObject:createPart(part, localPlacementPos - parentObject.localPosition / SubdivideRatio, zAxis, xAxis, forceAccept)
+        
+        elseif parentObject == "terrain" then
+
+            sm.shape.createPart(part, localPos - localRot * sm.item.getShapeOffset(part), localRot, false, forceAccept)
+        elseif parentObject == "lift" then
+
+
         end
     end
 end

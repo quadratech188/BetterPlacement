@@ -222,7 +222,7 @@ function BetterPlacementCore:calculateSurfacePosition()
 
             -- Can you build there?
             
-            if UsefulUtils.isPlaceableFace(self.raycastResult, self.localNormal) == 1 then
+            if UsefulUtils.isPlaceableFace(self.raycastResult, self.localNormal) then
 
                 -- Get attached object(Shape, joint etc)
 

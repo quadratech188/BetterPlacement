@@ -37,7 +37,8 @@ function BetterPlacementCoreV2:initialize()
     self.constants = {
         supportedSurfaces = {
             "body",
-            "joint"
+            "joint",
+			"terrainSurface"
         },
         centerSize = 0.45,
         interfaceColorHighlight = sm.color.new(0, 0, 0.8, 1),
@@ -117,25 +118,17 @@ function BetterPlacementCoreV2:stop()
 end
 
 
-function BetterPlacementCoreV2:evaluateRaycast(raycastSuccess, raycastResult)
-    
-    if not raycastSuccess then
-        return false
-    end
-
+function BetterPlacementCoreV2:evaluateRaycast(raycastResult)
+	--[[
     if not UsefulUtils.contains(raycastResult.type, self.constants.supportedSurfaces) then
         return false
     end
-
+	]]--
     if raycastResult.type == "joint" and sm.item.isJoint(self.currentItem) then
         return false
     end
 
-    if UsefulUtils.isPlaceableFace(raycastResult, sm.vec3.closestAxis(raycastResult.normalLocal)) == 0 then
-        return false
-    end
-
-    return true
+    return UsefulUtils.isPlaceableFace(raycastResult, sm.vec3.closestAxis(raycastResult.normalLocal))
 end
 
 
@@ -187,7 +180,7 @@ function BetterPlacementCoreV2:doPhase0()
 
         sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Lock to Face")
 
-        self.phase0.placementIsValid = self:evaluateRaycast(self.raycastSuccess, self.raycastResult) and sm.item.isPart(self.currentItem)
+        self.phase0.placementIsValid = self:evaluateRaycast(self.raycastResult) and sm.item.isPart(self.currentItem)
 
         if self.phase0.placementIsValid then
 
@@ -335,7 +328,15 @@ function BetterPlacementCoreV2:doPhase2()
 
 	local phase2 = self.phase2
 
-	print(phase2)
+	if phase2.parentObject == TerrainBody then
+		
+		phase2.parentObject = "terrain"
+	end
+
+	if phase2.parentObject == LiftBody then
+		
+		phase2.parentObject = "lift"
+	end
 
 	BetterPlacementClass.network:sendToServer("sv_createPart", {self.currentItem, phase2.parentObject, phase2.partPos, phase2.partRot})
 
@@ -346,7 +347,7 @@ end
 
 function BetterPlacementCoreV2:doFrame()
     
-    self.raycastSuccess, self.raycastResult = sm.localPlayer.getRaycast(self.settings.placementRadii)
+    _, self.raycastResult = sm.localPlayer.getRaycast(self.settings.placementRadii)
 
     local lastItem = self.currentItem
 
