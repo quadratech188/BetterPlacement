@@ -12,8 +12,6 @@ dofile("$CONTENT_DATA/Scripts/EffectSet.lua")
 
 dofile("$CONTENT_DATA/Scripts/PlacementSettingsGUI.lua")
 
-dofile("$CONTENT_DATA/Scripts/NetworkRelay.lua")
-
 ---@class BetterPlacementTemplateClass:ToolClass
 
 BetterPlacementTemplateClass = class()
@@ -49,10 +47,6 @@ function BetterPlacementTemplateClass:client_onCreate()
     -- Setup callback system
 
     self.linkCallback = UsefulUtils.linkCallback
-
-    -- Setup NetworkRelay
-
-    NetworkRelay:initialize(self)
 
     -- Other
 

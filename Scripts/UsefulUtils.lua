@@ -3,6 +3,7 @@ dofile("$CONTENT_DATA/Scripts/DefaultBody.lua")
 
 UsefulUtils = class()
 
+-- #region Constants
 
 ---@type number
 SubdivideRatio_2 = sm.construction.constants.subdivideRatio_2
@@ -40,6 +41,10 @@ Axes = {
 Quat90 = sm.quat.angleAxis(- math.pi / 2, PosZ)
 
 UsefulUtils.callbacks = {}
+
+-- #endregion
+
+-- #region Client
 
 --- Set up the given function to be called(with all the arguments) when a callback is sent to the given class
 ---@param class table The class to which the callback is sent.
@@ -83,6 +88,7 @@ function UsefulUtils.linkCallback(class, callbackName, func, order)
 
     table.insert(UsefulUtils.callbacks[class][callbackName][order], func)
 end
+
 
 ---Highlight the given shape using a SmartEffect
 ---@param smartEffect SmartEffect The effect
@@ -466,3 +472,43 @@ function UsefulUtils.isPlaceableFace(raycastResult, normalVector)
         return NegativeStick.z
     end
 end
+
+-- #endregion
+
+-- #region Server
+
+---Create a part.
+---Params: {uuid, parent, localPos, localRot, forceAccept}
+function UsefulUtils.sv_createPart(_, data)
+
+    local part = data[1]
+    local parentObject = data[2]
+    local localPos = data[3]
+    local localRot = data[4]
+    local forceAccept = data[5]
+
+    if forceAccept == nil then
+        forceAccept = true
+    end
+
+    local xAxis = sm.vec3.closestAxis(sm.quat.getRight(localRot))
+    local yAxis = sm.vec3.closestAxis(sm.quat.getUp(localRot))
+    local zAxis = sm.vec3.closestAxis(sm.quat.getAt(localRot))
+
+    if sm.item.isPart(part) then
+        
+        local shapeSize = localRot * sm.item.getShapeSize(part)
+
+        local localPlacementPos = localPos / SubdivideRatio - shapeSize * 0.5
+
+        if type(parentObject) == "Shape" then
+            
+            parentObject:getBody():createPart(part, localPlacementPos, zAxis, xAxis, forceAccept)
+        
+        else
+            parentObject:createPart(part, localPlacementPos, zAxis, xAxis, forceAccept)
+        end
+    end
+end
+
+-- #endregion

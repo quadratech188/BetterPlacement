@@ -30,6 +30,7 @@ function BetterPlacementCoreV2:initialize()
 
     self.phase0 = {}
     self.phase1 = {}
+	self.phase2 = {}
 
     self.phase0.rotationStorage = {}
 
@@ -44,6 +45,8 @@ function BetterPlacementCoreV2:initialize()
     }
 
     self:createEffects()
+
+	UsefulUtils.linkCallback(BetterPlacementClass, "sv_createPart", UsefulUtils.sv_createPart, -1)
 
     self:reset()
 
@@ -173,6 +176,7 @@ function BetterPlacementCoreV2:generateRotationStorage(item)
     end
 end
 
+-- #region Phases
 
 function BetterPlacementCoreV2:doPhase0()
     
@@ -261,7 +265,7 @@ function BetterPlacementCoreV2:doPhase0()
         self.partVisualization:setTransforms(self.phase0.localPlacementPos, self.phase0.localPlacementRot)
     end
 
-    if self.primaryState == 1 then
+    if self.primaryState == 1 and self.phase0.placementIsValid then
 
         self:preparePhase1()
         
@@ -275,7 +279,8 @@ function BetterPlacementCoreV2:preparePhase1()
     local faceData = self.phase0.faceData
     
     self.phase1.parentBody = faceData.parentBody
-    self.phase1.parentObject = faceData.parentObject
+
+	self.phase1.parentObject = faceData.parentObject
 
     self.phase1.localNormal = faceData.localNormal
 
@@ -318,17 +323,26 @@ end
 
 function BetterPlacementCoreV2:preparePhase2()
     
-    -- Nothing here yet
+    self.phase2.parentObject = self.phase1.parentObject
+
+	self.phase2.partPos = self.phase1.partPos
+
+	self.phase2.partRot = self.phase1.partRot
 end
 
 
 function BetterPlacementCoreV2:doPhase2()
-    
-    self.partVisualization:createPart()
+
+	local phase2 = self.phase2
+
+	print(phase2)
+
+	BetterPlacementClass.network:sendToServer("sv_createPart", {self.currentItem, phase2.parentObject, phase2.partPos, phase2.partRot})
 
     self:reset()
 end
 
+-- #endregion
 
 function BetterPlacementCoreV2:doFrame()
     
