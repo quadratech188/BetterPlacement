@@ -30,7 +30,7 @@ function BetterPlacementCoreV2:initialize()
 
     self.phase0 = {}
     self.phase1 = {}
-	self.phase2 = {}
+    self.phase2 = {}
 
     self.phase0.rotationStorage = {}
 
@@ -38,7 +38,7 @@ function BetterPlacementCoreV2:initialize()
         supportedSurfaces = {
             "body",
             "joint",
-			"terrainSurface"
+            "terrainSurface"
         },
         centerSize = 0.45,
         interfaceColorHighlight = sm.color.new(0, 0, 0.8, 1),
@@ -47,7 +47,7 @@ function BetterPlacementCoreV2:initialize()
 
     self:createEffects()
 
-	UsefulUtils.linkCallback(BetterPlacementClass, "sv_createPart", UsefulUtils.sv_createPart, -1)
+    UsefulUtils.linkCallback(BetterPlacementClass, "sv_createPart", UsefulUtils.sv_createPart, -1)
 
     self:reset()
 
@@ -119,11 +119,11 @@ end
 
 
 function BetterPlacementCoreV2:evaluateRaycast(raycastResult)
-	--[[
+    --[[
     if not UsefulUtils.contains(raycastResult.type, self.constants.supportedSurfaces) then
         return false
     end
-	]]--
+    ]]--
     if raycastResult.type == "joint" and sm.item.isJoint(self.currentItem) then
         return false
     end
@@ -273,7 +273,7 @@ function BetterPlacementCoreV2:preparePhase1()
     
     self.phase1.parentBody = faceData.parentBody
 
-	self.phase1.parentObject = faceData.parentObject
+    self.phase1.parentObject = faceData.parentObject
 
     self.phase1.localNormal = faceData.localNormal
 
@@ -285,6 +285,7 @@ function BetterPlacementCoreV2:preparePhase1()
 
     self.phase1.partRot = self.phase0.localPlacementRot
 
+    self.partVisualization:visualize("Blue")
 end
 
 
@@ -300,7 +301,19 @@ function BetterPlacementCoreV2:doPhase1()
 
         -- Show part preview
 
-        self.partVisualization:visualize("Blue")
+        self.partVisualization:setTransforms(phase1.partPos, phase1.partRot)
+    
+    else
+
+        local normalDelta = UsefulUtils.raycastToLine(self.raycastResult.originWorld, self.raycastResult.directionWorld, phase1.parentBody:transformPoint(phase1.partPos), phase1.parentBody.worldRotation * sm.quat.getAt(phase1.surfaceRot)).pointLocal
+
+        print(normalDelta)
+
+        local nextSurfacePos = UsefulUtils.roundVecToCenterGrid(phase1.surfacePos + phase1.localNormal * SubdivideRatio_2 + phase1.localNormal * normalDelta.z) - phase1.localNormal * SubdivideRatio_2
+
+        phase1.partPos = phase1.partPos + (nextSurfacePos - phase1.surfacePos)
+
+        phase1.surfacePos = nextSurfacePos
 
         self.partVisualization:setTransforms(phase1.partPos, phase1.partRot)
     end
@@ -318,27 +331,27 @@ function BetterPlacementCoreV2:preparePhase2()
     
     self.phase2.parentObject = self.phase1.parentObject
 
-	self.phase2.partPos = self.phase1.partPos
+    self.phase2.partPos = self.phase1.partPos
 
-	self.phase2.partRot = self.phase1.partRot
+    self.phase2.partRot = self.phase1.partRot
 end
 
 
 function BetterPlacementCoreV2:doPhase2()
 
-	local phase2 = self.phase2
+    local phase2 = self.phase2
 
-	if phase2.parentObject == TerrainBody then
-		
-		phase2.parentObject = "terrain"
-	end
+    if phase2.parentObject == TerrainBody then
+        
+        phase2.parentObject = "terrain"
+    end
 
-	if phase2.parentObject == LiftBody then
-		
-		phase2.parentObject = "lift"
-	end
+    if phase2.parentObject == LiftBody then
+        
+        phase2.parentObject = "lift"
+    end
 
-	BetterPlacementClass.network:sendToServer("sv_createPart", {self.currentItem, phase2.parentObject, phase2.partPos, phase2.partRot})
+    BetterPlacementClass.network:sendToServer("sv_createPart", {self.currentItem, phase2.parentObject, phase2.partPos, phase2.partRot})
 
     self:reset()
 end

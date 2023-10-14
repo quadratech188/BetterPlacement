@@ -344,6 +344,45 @@ function UsefulUtils.raycastToPlane(raycastPos, raycastDirection, planePos, plan
 end
 
 
+---@param raycastPos Vec3
+---@param raycastDirection Vec3
+---@param linePos Vec3
+---@param lineDirection Vec3
+---@return number
+function UsefulUtils.raycastToLineDeprecated(raycastPos, raycastDirection, linePos, lineDirection)
+
+    local distance = raycastPos - linePos
+
+    local planeNormal = (distance - lineDirection * distance:dot(lineDirection))
+
+    local delta = UsefulUtils.raycastToPlaneDeprecated(raycastPos, raycastDirection, linePos, planeNormal) + raycastPos - linePos
+
+    return delta:dot(lineDirection)
+end
+
+
+---@param raycastPos Vec3
+---@param raycastDirection Vec3
+---@param linePos Vec3
+---@param lineDirection Vec3
+---@return table
+function UsefulUtils.raycastToLine(raycastPos, raycastDirection, linePos, lineDirection)
+
+    local distance = raycastPos - linePos
+
+    local planeNormal = (distance - lineDirection * distance:dot(lineDirection))
+
+    local delta = UsefulUtils.raycastToPlaneDeprecated(raycastPos, raycastDirection, linePos, planeNormal) + raycastPos - linePos
+
+    local offset = delta:dot(lineDirection)
+
+    return {
+        pointLocal = sm.vec3.new(0, 0, offset),
+        pointWorld = linePos + lineDirection * offset
+    }
+end
+
+
 ---Snaps a volume to a cursor on a surface
 ---@param size Vec3 Size of the volume to be snapped
 ---@param cursorPos Vec3 Position of the cursor relative to the surface
@@ -374,23 +413,6 @@ function UsefulUtils.snapVolumeToSurface(size, cursorPos, surfacePos, surfaceNor
     roundedOffset.z = localSize.z / 2
 
     return sm.vec3.getRotation(PosZ, surfaceNormal) * roundedOffset + surfacePos
-end
-
-
----@param raycastPos Vec3
----@param raycastDirection Vec3
----@param linePos Vec3
----@param lineDirection Vec3
----@return number
-function UsefulUtils.raycastToLine(raycastPos, raycastDirection, linePos, lineDirection)
-
-    local distance = raycastPos - linePos
-
-    local planeNormal = (distance - lineDirection * distance:dot(lineDirection))
-
-    local delta = UsefulUtils.raycastToPlaneDeprecated(raycastPos, raycastDirection, linePos, planeNormal) + raycastPos - linePos
-
-    return delta:dot(lineDirection)
 end
 
 

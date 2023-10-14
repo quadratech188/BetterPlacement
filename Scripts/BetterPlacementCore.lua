@@ -428,7 +428,7 @@ function BetterPlacementCore:doPhase1()
 
         TransformEffects:showOnly("Z")
         
-        local delta = UsefulUtils.roundToGrid(UsefulUtils.raycastToLine(sm.localPlayer.getRaycastStart(), self.raycastResult.directionWorld, self.worldPlacementPos, self.worldNormal))
+        local delta = UsefulUtils.roundToGrid(UsefulUtils.raycastToLineDeprecated(sm.localPlayer.getRaycastStart(), self.raycastResult.directionWorld, self.worldPlacementPos, self.worldNormal))
 
         self.localSurfacePos = self.localSurfacePos + self.localNormal * delta
 
