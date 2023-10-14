@@ -281,56 +281,41 @@ function BetterPlacementCoreV2:preparePhase1()
 
 	self.phase1.localNormal = faceData.localNormal
 
-	self.phase1.surfacePos = faceData.localFaceCenterPos
-
 	self.phase1.surfaceRot = faceData.localFaceRot
 
-	self.phase1.partPos = self.phase1.localPlacementPos
+	self.phase1.partPos = self.phase0.localPlacementPos
+
+	self.phase1.cursorPos = self.phase0.localPlacementPos
 
 	self.phase1.partRot = self.phase0.localPlacementRot
 
+	self.phase1.shapeOffset = self.phase0.localPlacementRot * sm.item.getShapeOffset(self.currentItem)
+
 	self.partVisualization:visualize("Blue")
+
+	self.rotationGizmo:hideAll()
 end
 
 
 function BetterPlacementCoreV2:doPhase1()
 
+	local localRaycastOrigin = UsefulUtils.worldToLocalPos(self.raycastResult.originWorld, self.phase1.parentBody)
+
+	local localRaycastDirection = UsefulUtils.worldToLocalDir(self.raycastResult.directionWorld, self.phase1.parentBody)
+
 	local phase1 = self.phase1
 	
 	if not self.status.verticalPositioning then
-
-		if not self.status.cursorHasMoved and self.settings.onlyUpdateWhenMoved then
-			
-			
-		else
 		
-			local surfaceDelta = UsefulUtils.raycastToPlane(self.raycastResult.originWorld, self.raycastResult.directionWorld, phase1.parentBody:transformPoint(phase1.surfacePos), phase1.parentBody.worldRotation * phase1.surfaceRot).pointLocal
-
-			phase1.partPos = UsefulUtils.snapVolumeToSurface(UsefulUtils.absVec(phase1.partRot * sm.item.getShapeSize(self.currentItem) * SubdivideRatio), surfaceDelta, phase1.surfacePos, phase1.localNormal, "Dynamic")
-		end
-
-		-- Show part preview
-
-		self.partVisualization:setTransforms(phase1.partPos, phase1.partRot)
-	
+		phase1.cursorPos = UsefulUtils.raycastToPlane(localRaycastOrigin, localRaycastDirection, phase1.cursorPos, phase1.surfaceRot).pointWorld
 	else
 
-		if not self.status.cursorHasMoved and self.settings.onlyUpdateWhenMoved then
-			
-			
-		else
-
-			local normalDelta = UsefulUtils.raycastToLine(self.raycastResult.originWorld, self.raycastResult.directionWorld, phase1.parentBody:transformPoint(phase1.partPos), phase1.parentBody.worldRotation * sm.quat.getAt(phase1.surfaceRot)).pointLocal
-
-			local nextSurfacePos = UsefulUtils.roundVecToCenterGrid(phase1.surfacePos + phase1.localNormal * SubdivideRatio_2 + phase1.localNormal * normalDelta.z) - phase1.localNormal * SubdivideRatio_2
-
-			phase1.partPos = phase1.partPos + (nextSurfacePos - phase1.surfacePos)
-
-			phase1.surfacePos = nextSurfacePos
-		end
-
-		self.partVisualization:setTransforms(phase1.partPos, phase1.partRot)
+		phase1.cursorPos = UsefulUtils.raycastToLine(localRaycastOrigin, localRaycastDirection, phase1.cursorPos, sm.quat.getAt(phase1.surfaceRot)).pointWorld
 	end
+
+	phase1.partPos = UsefulUtils.roundVecToGrid(phase1.cursorPos - phase1.shapeOffset) + phase1.shapeOffset
+
+	self.partVisualization:setTransforms(phase1.partPos, phase1.partRot)
 
 	if (self.settings.doubleClick and self.primaryState == 1) or (not self.settings.doubleClick and self.primaryState  == 3) then
 		

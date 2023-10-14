@@ -44,7 +44,7 @@ UsefulUtils.callbacks = {}
 
 -- #endregion
 
--- #region Client
+-- #region Client/Server
 
 --- Set up the given function to be called(with all the arguments) when a callback is sent to the given class
 ---@param class table The class to which the callback is sent.
@@ -459,6 +459,7 @@ function UsefulUtils.getAttachedObject(raycastResult)
 	end
 end
 
+
 ---@param raycastResult RaycastResult
 ---@param normalVector Vec3
 ---@return boolean
@@ -507,6 +508,33 @@ function UsefulUtils.isPlaceableFace(raycastResult, normalVector)
 	else
 		return t[NegativeStick.z]
 	end
+end
+
+
+---Transforms a world direction to local space
+---@param dir Vec3
+---@param body Body
+function UsefulUtils.worldToLocalDir(dir, body)
+	
+	return sm.quat.inverse(body.worldRotation) * dir
+end
+
+
+---Transforms a world rotation to local space
+---@param rot Quat
+---@param body Body
+function UsefulUtils.worldToLocalRot(rot, body)
+	
+	return sm.quat.inverse(body.worldRotation) * rot
+end
+
+
+---Transforms a world position to local space
+---@param pos Vec3
+---@param body Body
+function UsefulUtils.worldToLocalPos(pos, body)
+	
+	return sm.quat.inverse(body.worldRotation) * (pos - body.worldPosition)
 end
 
 -- #endregion
