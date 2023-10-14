@@ -58,7 +58,8 @@ function BetterPlacementCoreV2:initialize()
 		roundingSetting = "Dynamic", -- Center, Fixed, Dynamic
 		positionSelectionTimer = 5, -- Ticks before advancing to position selection
 		placementRadii = 7.5, -- Reach distance
-		doubleClick = false
+		doubleClick = false, -- Click to begin placement, click again to end it
+		onlyUpdateWhenMoved = false
 	}
 end
 
@@ -100,7 +101,8 @@ function BetterPlacementCoreV2:reset()
 	self.status = {
 		lockedSelection = false,
 		verticalPositioning = false,
-		phase = 0
+		phase = 0,
+		cursorHasMoved = false
 	}
 
 	self.partVisualization:visualize("None")
@@ -141,6 +143,8 @@ function BetterPlacementCoreV2:onToggle()
 	elseif self.status.phase == 1 then
 
 		self.status.verticalPositioning = not self.status.verticalPositioning
+
+		self.status.cursorHasMoved = false
 	end
 end
 
@@ -294,10 +298,16 @@ function BetterPlacementCoreV2:doPhase1()
 	local phase1 = self.phase1
 	
 	if not self.status.verticalPositioning then
-		
-		local surfaceDelta = UsefulUtils.raycastToPlane(self.raycastResult.originWorld, self.raycastResult.directionWorld, phase1.parentBody:transformPoint(phase1.surfacePos), phase1.parentBody.worldRotation * phase1.surfaceRot).pointLocal
 
-		phase1.partPos = UsefulUtils.snapVolumeToSurface(UsefulUtils.absVec(phase1.partRot * sm.item.getShapeSize(self.currentItem) * SubdivideRatio), surfaceDelta, phase1.surfacePos, phase1.localNormal, "Dynamic")
+		if not self.status.cursorHasMoved and self.settings.onlyUpdateWhenMoved then
+			
+			
+		else
+		
+			local surfaceDelta = UsefulUtils.raycastToPlane(self.raycastResult.originWorld, self.raycastResult.directionWorld, phase1.parentBody:transformPoint(phase1.surfacePos), phase1.parentBody.worldRotation * phase1.surfaceRot).pointLocal
+
+			phase1.partPos = UsefulUtils.snapVolumeToSurface(UsefulUtils.absVec(phase1.partRot * sm.item.getShapeSize(self.currentItem) * SubdivideRatio), surfaceDelta, phase1.surfacePos, phase1.localNormal, "Dynamic")
+		end
 
 		-- Show part preview
 
@@ -305,15 +315,19 @@ function BetterPlacementCoreV2:doPhase1()
 	
 	else
 
-		local normalDelta = UsefulUtils.raycastToLine(self.raycastResult.originWorld, self.raycastResult.directionWorld, phase1.parentBody:transformPoint(phase1.partPos), phase1.parentBody.worldRotation * sm.quat.getAt(phase1.surfaceRot)).pointLocal
+		if not self.status.cursorHasMoved and self.settings.onlyUpdateWhenMoved then
+			
+			
+		else
 
-		print(normalDelta)
+			local normalDelta = UsefulUtils.raycastToLine(self.raycastResult.originWorld, self.raycastResult.directionWorld, phase1.parentBody:transformPoint(phase1.partPos), phase1.parentBody.worldRotation * sm.quat.getAt(phase1.surfaceRot)).pointLocal
 
-		local nextSurfacePos = UsefulUtils.roundVecToCenterGrid(phase1.surfacePos + phase1.localNormal * SubdivideRatio_2 + phase1.localNormal * normalDelta.z) - phase1.localNormal * SubdivideRatio_2
+			local nextSurfacePos = UsefulUtils.roundVecToCenterGrid(phase1.surfacePos + phase1.localNormal * SubdivideRatio_2 + phase1.localNormal * normalDelta.z) - phase1.localNormal * SubdivideRatio_2
 
-		phase1.partPos = phase1.partPos + (nextSurfacePos - phase1.surfacePos)
+			phase1.partPos = phase1.partPos + (nextSurfacePos - phase1.surfacePos)
 
-		phase1.surfacePos = nextSurfacePos
+			phase1.surfacePos = nextSurfacePos
+		end
 
 		self.partVisualization:setTransforms(phase1.partPos, phase1.partRot)
 	end
@@ -359,6 +373,13 @@ end
 -- #endregion
 
 function BetterPlacementCoreV2:doFrame()
+
+	local deltaX, deltaY = sm.localPlayer.getMouseDelta()
+
+	if deltaX ~= 0 or deltaY ~= 0 then
+		
+		self.status.cursorHasMoved = true
+	end
 	
 	_, self.raycastResult = sm.localPlayer.getRaycast(self.settings.placementRadii)
 
