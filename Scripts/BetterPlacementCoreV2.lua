@@ -47,9 +47,9 @@ function BetterPlacementCoreV2:initialize()
 		colours = {
 			white = sm.color.new(0.8, 0.8, 0.8, 1),
 			highlight = sm.color.new(0, 0, 0.8, 1),
-			red = sm.color.new("8E0500"),
-			green = sm.color.new("29AF34"),
-			blue = sm.color.new("2347BD")
+			red = sm.color.new("9F0000"),
+			green = sm.color.new("009F00"),
+			blue = sm.color.new("00008F")
 		}
 	}
 
