@@ -2,6 +2,26 @@
 ---@diagnostic disable: need-check-nil
 
 ---@class SmartEffect
+---@field new function
+---@field initialize function
+---@field start function
+---@field stop function
+---@field updateTransforms function
+---@field setOffsetTransforms function
+---@field setTransforms function
+---@field setPosition function
+---@field setRotation function
+---@field setScale function
+---@field setParameter function
+---@field isPlaying function
+---@field effect Effect
+---@field on boolean
+---@field offsetPosition Vec3
+---@field offsetRotation Quat
+---@field offsetScale Vec3
+---@field worldPosition Vec3
+---@field worldRotation Quat
+---@field worldScale number
 
 SmartEffect = class()
 
@@ -11,6 +31,7 @@ SmartEffect = class()
 ---@return SmartEffect
 function SmartEffect.new(effectData)
 	
+	---@type SmartEffect
 	local returnClass = class(SmartEffect)
 
 	returnClass:initialize(effectData)
@@ -174,7 +195,32 @@ end
 
 --------------------------------------------------------------------------------------------
 
+
 ---@class EffectSet
+---@field initialize function
+---@field new function
+---@field getAllSmartEffects function
+---@field getAllEffectKeys function
+---@field setEffect function
+---@field setPosition function
+---@field setRotation function
+---@field setPositionAndRotation function
+---@field setScale function
+---@field setParameter function
+---@field updateTransforms function
+---@field setOffsetTransforms function
+---@field start function
+---@field showOnly function
+---@field show function
+---@field hide function
+---@field hideAll function
+---@field smartEffects table
+---@field allEffectKeys table
+---@field worldPosition Vec3
+---@field worldRotation Vec3
+---@field worldScale number
+
+
 
 EffectSet = class()
 
@@ -207,6 +253,7 @@ end
 ---@return EffectSet
 function EffectSet.new(effects)
 
+	---@type EffectSet
 	local returnClass = class(EffectSet)
 
 	returnClass:initialize(effects)

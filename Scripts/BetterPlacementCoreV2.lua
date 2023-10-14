@@ -37,9 +37,12 @@ function BetterPlacementCoreV2:initialize()
 	self.constants = {
 		supportedSurfaces = {
 			"body",
-			"joint",
-			"terrainSurface"
+			"terrainSurface",
+			"terrainAsset"
 		},
+		isSupportedItem = function (part)
+			return sm.item.isPart(part)
+		end,
 		centerSize = 0.45,
 		interfaceColorHighlight = sm.color.new(0, 0, 0.8, 1),
 		interfaceColorBase = sm.color.new(0.8, 0.8, 0.8, 1)
@@ -78,7 +81,6 @@ function BetterPlacementCoreV2:createEffects()
 
 	-- Create effects
 
-	---@type EffectSet
 	self.rotationGizmo = EffectSet.new(rotationGizmoUuids)
 
 	self.rotationGizmo:setParameter("Base", "color", self.constants.interfaceColorBase)
@@ -121,12 +123,16 @@ end
 
 
 function BetterPlacementCoreV2:evaluateRaycast(raycastResult)
-	--[[
+	
 	if not UsefulUtils.contains(raycastResult.type, self.constants.supportedSurfaces) then
 		return false
 	end
-	]]--
+	
 	if raycastResult.type == "joint" and sm.item.isJoint(self.currentItem) then
+		return false
+	end
+
+	if not self.constants.isSupportedItem(self.currentItem) then
 		return false
 	end
 
@@ -184,7 +190,7 @@ function BetterPlacementCoreV2:doPhase0()
 
 		sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Lock to Face")
 
-		self.phase0.placementIsValid = self:evaluateRaycast(self.raycastResult) and sm.item.isPart(self.currentItem)
+		self.phase0.placementIsValid = self:evaluateRaycast(self.raycastResult)
 
 		if self.phase0.placementIsValid then
 

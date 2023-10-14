@@ -130,9 +130,9 @@ end
 
 function BetterPlacementTemplateClass:client_onUpdate()
 
-	Item = sm.localPlayer.getActiveItem()
+	local item = sm.localPlayer.getActiveItem()
 
-	if Item == self.toolUuid then
+	if item == self.toolUuid then
 
 		if self.on then
 			sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Disable Better Placement")
@@ -149,14 +149,14 @@ function BetterPlacementTemplateClass:client_onUpdate()
 		self.isEquipped = false
 	end
 
-	local forceTool = sm.item.isPart(Item) or Item == sm.uuid.getNil()-- or sm.item.isJoint(Item)
+	local forceTool = self.placementCore.constants.isSupportedItem(item)
 
 	if forceTool and self.on then
 
 		sm.tool.forceTool(self.tool)
 	else
 
-		sm.tool.forceTool(nil)
+		sm.tool.forceTool()
 	end
 
 	if self.on then

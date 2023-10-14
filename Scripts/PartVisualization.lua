@@ -5,6 +5,22 @@ dofile("$CONTENT_DATA/Scripts/DefaultBody.lua")
 dofile("$CONTENT_DATA/Scripts/UsefulUtils.lua")
 
 ---@class PartVisualization
+---@field new function
+---@field initialize function
+---@field destroy function
+---@field doFrame function
+---@field setPart function
+---@field attachEffect function
+---@field setParent function
+---@field setTransforms function
+---@field visualize function
+---@field part Uuid
+---@field effect SmartEffect
+---@field visualizationType "None"|"Solid"|"Blue"|"Red"
+---@field parent Body|nil
+---@field localPosition Vec3
+---@field localRotation Quat
+
 
 PartVisualization = class()
 
@@ -14,6 +30,7 @@ PartVisualization = class()
 ---@param parent Body|nil
 function PartVisualization.new(part, parent)
 	
+	---@type PartVisualization
 	local returnClass = class(PartVisualization)
 
 	returnClass:initialize(part, parent)
@@ -48,12 +65,6 @@ function PartVisualization:initialize(part, parent)
 end
 
 
-function PartVisualization:destroy()
-	
-
-end
-
-
 function PartVisualization:doFrame()
 	
 	self.effect:setOffsetTransforms({self.localPosition, self.localRotation, nil})
@@ -71,13 +82,6 @@ function PartVisualization:setPart(part)
 	self.effect:setParameter("uuid", part)
 
 	self:visualize(self.visualizationType)
-end
-
-
----Attach an extra effect to the Center of the PartVisualization
----@param smartEffect any
-function PartVisualization:attachEffect(smartEffect)
-	
 end
 
 
