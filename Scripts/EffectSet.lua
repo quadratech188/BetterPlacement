@@ -240,6 +240,7 @@ function EffectSet:initialize(effects)
 
 	for key, data in pairs(effects) do
 
+		---@type SmartEffect
 		self.smartEffects[key] = SmartEffect.new(data)
 
 		table.insert(self.allEffectKeys, key)

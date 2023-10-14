@@ -156,7 +156,7 @@ function BetterPlacementTemplateClass:client_onUpdate()
 		sm.tool.forceTool(self.tool)
 	else
 
-		sm.tool.forceTool()
+		sm.tool.forceTool(nil)
 	end
 
 	if self.on then

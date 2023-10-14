@@ -44,8 +44,13 @@ function BetterPlacementCoreV2:initialize()
 			return sm.item.isPart(part)
 		end,
 		centerSize = 0.45,
-		interfaceColorHighlight = sm.color.new(0, 0, 0.8, 1),
-		interfaceColorBase = sm.color.new(0.8, 0.8, 0.8, 1)
+		colours = {
+			white = sm.color.new(0.8, 0.8, 0.8, 1),
+			highlight = sm.color.new(0, 0, 0.8, 1),
+			red = sm.color.new("8E0500"),
+			green = sm.color.new("29AF34"),
+			blue = sm.color.new("2347BD")
+		}
 	}
 
 	self:createEffects()
@@ -61,8 +66,7 @@ function BetterPlacementCoreV2:initialize()
 		roundingSetting = "Dynamic", -- Center, Fixed, Dynamic
 		positionSelectionTimer = 5, -- Ticks before advancing to position selection
 		placementRadii = 7.5, -- Reach distance
-		doubleClick = false, -- Click to begin placement, click again to end it
-		onlyUpdateWhenMoved = false
+		doubleClick = false -- Click to begin placement, click again to end it
 	}
 end
 
@@ -83,14 +87,43 @@ function BetterPlacementCoreV2:createEffects()
 
 	self.rotationGizmo = EffectSet.new(rotationGizmoUuids)
 
-	self.rotationGizmo:setParameter("Base", "color", self.constants.interfaceColorBase)
-	self.rotationGizmo:setParameter("+X", "color", self.constants.interfaceColorHighlight)
-	self.rotationGizmo:setParameter("+Y", "color", self.constants.interfaceColorHighlight)
-	self.rotationGizmo:setParameter("+Z", "color", self.constants.interfaceColorHighlight)
-	self.rotationGizmo:setParameter("-X", "color", self.constants.interfaceColorHighlight)
-	self.rotationGizmo:setParameter("-Y", "color", self.constants.interfaceColorHighlight)
+	self.rotationGizmo:setParameter("Base", "color", self.constants.colours.white)
+	self.rotationGizmo:setParameter("+X", "color", self.constants.colours.highlight)
+	self.rotationGizmo:setParameter("+Y", "color", self.constants.colours.highlight)
+	self.rotationGizmo:setParameter("+Z", "color", self.constants.colours.highlight)
+	self.rotationGizmo:setParameter("-X", "color", self.constants.colours.highlight)
+	self.rotationGizmo:setParameter("-Y", "color", self.constants.colours.highlight)
 
 	self.rotationGizmo:setScale(SubdivideRatio)
+
+	local cubeUuid = sm.uuid.new("4a91af39-7095-4497-8930-b9105e8a236d")
+
+	local transformGizmoUuids = {
+		["Base"] = cubeUuid,
+		["X"] = cubeUuid,
+		["Y"] = cubeUuid,
+		["Z"] = cubeUuid
+	}
+
+	local centerThickness = 0.35
+	local thickness = 0.2
+	local length = 1.5
+
+	self.transformGizmo = EffectSet.new(transformGizmoUuids)
+
+	self.transformGizmo:setOffsetTransforms({
+		["Base"] = {nil, nil, sm.vec3.one() * centerThickness},
+		["X"] = {PosX * length / 2, nil, sm.vec3.new(length, thickness, thickness)},
+		["Y"] = {PosY * length / 2, nil, sm.vec3.new(thickness, length, thickness)},
+		["Z"] = {PosZ * length / 2, nil, sm.vec3.new(thickness, thickness, length)}
+	})
+
+	self.transformGizmo:setParameter("Base", "color", self.constants.colours.white)
+	self.transformGizmo:setParameter("X", "color", self.constants.colours.red)
+	self.transformGizmo:setParameter("Y", "color", self.constants.colours.green)
+	self.transformGizmo:setParameter("Z", "color", self.constants.colours.blue)
+
+	self.transformGizmo:setScale(SubdivideRatio)
 end
 
 
@@ -103,8 +136,7 @@ function BetterPlacementCoreV2:reset()
 	self.status = {
 		lockedSelection = false,
 		verticalPositioning = false,
-		phase = 0,
-		cursorHasMoved = false
+		phase = 0
 	}
 
 	self.partVisualization:visualize("None")
@@ -314,14 +346,20 @@ function BetterPlacementCoreV2:doPhase1()
 	if not self.status.verticalPositioning then
 		
 		phase1.cursorPos = UsefulUtils.raycastToPlane(localRaycastOrigin, localRaycastDirection, phase1.cursorPos, phase1.surfaceRot).pointWorld
+
+		self.transformGizmo:showOnly({"X", "Y", "Base"})
 	else
 
 		phase1.cursorPos = UsefulUtils.raycastToLine(localRaycastOrigin, localRaycastDirection, phase1.cursorPos, sm.quat.getAt(phase1.surfaceRot)).pointWorld
+
+		self.transformGizmo:showOnly({"Z", "Base"})
 	end
 
 	phase1.partPos = UsefulUtils.roundVecToGrid(phase1.cursorPos - phase1.shapeOffset) + phase1.shapeOffset
 
 	self.partVisualization:setTransforms(phase1.partPos, phase1.partRot)
+
+	self.transformGizmo:setPositionAndRotation(phase1.partPos, phase1.surfaceRot)
 
 	if (self.settings.doubleClick and self.primaryState == 1) or (not self.settings.doubleClick and self.primaryState  == 3) then
 		
@@ -339,6 +377,8 @@ function BetterPlacementCoreV2:preparePhase2()
 	self.phase2.partPos = self.phase1.partPos
 
 	self.phase2.partRot = self.phase1.partRot
+
+	self.transformGizmo:hideAll()
 end
 
 
