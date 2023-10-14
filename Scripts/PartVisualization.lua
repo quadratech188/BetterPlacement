@@ -13,12 +13,12 @@ PartVisualization = class()
 ---@param part Uuid
 ---@param parent Body|nil
 function PartVisualization.new(part, parent)
-    
-    local returnClass = class(PartVisualization)
+	
+	local returnClass = class(PartVisualization)
 
-    returnClass:initialize(part, parent)
+	returnClass:initialize(part, parent)
 
-    return returnClass
+	return returnClass
 end
 
 
@@ -26,68 +26,68 @@ end
 ---@param part Uuid
 ---@param parent Body|nil
 function PartVisualization:initialize(part, parent)
-    
-    self.part = part
+	
+	self.part = part
 
-    self.effect = SmartEffect.new(part)
+	self.effect = SmartEffect.new(part)
 
-    self.effect:setOffsetTransforms({nil, nil, BlockSize})
+	self.effect:setOffsetTransforms({nil, nil, BlockSize})
 
-    self.visualizationType = "None"
+	self.visualizationType = "None"
 
-    if parent == nil then
-        self.parent = TerrainBody
-    
-    else
-        self.parent = parent
-    end
+	if parent == nil then
+		self.parent = TerrainBody
+	
+	else
+		self.parent = parent
+	end
 
-    self.localPosition = sm.vec3.zero()
+	self.localPosition = sm.vec3.zero()
 
-    self.localRotation = sm.quat.identity()
+	self.localRotation = sm.quat.identity()
 end
 
 
 function PartVisualization:destroy()
-    
+	
 
 end
 
 
 function PartVisualization:doFrame()
-    
-    self.effect:setOffsetTransforms({self.localPosition, self.localRotation, nil})
-    self.effect:setTransforms({self.parent.worldPosition, self.parent.worldRotation, nil})
+	
+	self.effect:setOffsetTransforms({self.localPosition, self.localRotation, nil})
+	self.effect:setTransforms({self.parent.worldPosition, self.parent.worldRotation, nil})
 end
 
 
 ---Set the uuid of the part
 ---@param part Uuid
 function PartVisualization:setPart(part)
-    
-    self.part = part
+	
+	self.part = part
 
-    self.effect:stop()
-    self.effect:setParameter("uuid", part)
+	self.effect:stop()
+	self.effect:setParameter("uuid", part)
 
-    self:visualize(self.visualizationType)
+	self:visualize(self.visualizationType)
 end
 
 
 ---Attach an extra effect to the Center of the PartVisualization
 ---@param smartEffect any
 function PartVisualization:attachEffect(smartEffect)
-    
+	
 end
 
 
 ---comment
 ---@param body Body
 function PartVisualization:setParent(body)
-    
-    self.parent = body
+	
+	self.parent = body
 
-    self:doFrame()
+	self:doFrame()
 end
 
 
@@ -95,16 +95,16 @@ end
 ---@param pos Vec3|nil The position
 ---@param rot Quat|nil The rotation
 function PartVisualization:setTransforms(pos, rot)
-    
-    if pos ~= nil then
-        self.localPosition = pos
-    end
+	
+	if pos ~= nil then
+		self.localPosition = pos
+	end
 
-    if rot ~= nil then
-        self.localRotation = rot
-    end
+	if rot ~= nil then
+		self.localRotation = rot
+	end
 
-    self:doFrame()
+	self:doFrame()
 end
 
 
@@ -112,7 +112,7 @@ end
 ---@param state "None"|"Solid"|"Blue"|"Red"
 function PartVisualization:visualize(state)
 
-    self.visualizationType = state
-    
-    UsefulUtils.setShapeRenderableState(self.effect, state)
+	self.visualizationType = state
+	
+	UsefulUtils.setShapeRenderableState(self.effect, state)
 end

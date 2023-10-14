@@ -11,16 +11,16 @@ TerrainBody.type = "TerrainBody"
 
 
 function TerrainBody:transformPoint(pos)
-    
-    return pos
+	
+	return pos
 end
 
 
 function TerrainBody:createPart(a, b, c, d, e)
-    
-    --sm.shape.createPart(a, b, c, d, e)
+	
+	--sm.shape.createPart(a, b, c, d, e)
 
-    print("Ignored!")
+	print("Ignored!")
 end
 
 --------------------------------------------------------------------------------------------
@@ -29,6 +29,6 @@ LiftBody = class(TerrainBody)
 
 
 function LiftBody:createPart(a, b, c, d, e)
-    
+	
 
 end

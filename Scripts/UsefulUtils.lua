@@ -30,12 +30,12 @@ QuatNegY = sm.vec3.getRotation(PosZ, NegY)
 QuatNegZ = sm.vec3.getRotation(PosZ, NegZ)
 
 Axes = {
-    ["+X"] = QuatPosX,
-    ["+Y"] = QuatPosY,
-    ["+Z"] = QuatPosZ,
-    ["-X"] = QuatNegX,
-    ["-Y"] = QuatNegY,
-    ["-Z"] = QuatNegZ
+	["+X"] = QuatPosX,
+	["+Y"] = QuatPosY,
+	["+Z"] = QuatPosZ,
+	["-X"] = QuatNegX,
+	["-Y"] = QuatNegY,
+	["-Z"] = QuatNegZ
 }
 
 Quat90 = sm.quat.angleAxis(- math.pi / 2, PosZ)
@@ -53,40 +53,40 @@ UsefulUtils.callbacks = {}
 ---@param order integer -1: function is called before the original function, 1: function is called after the original function
 function UsefulUtils.linkCallback(class, callbackName, func, order)
 
-    if UsefulUtils.callbacks[class] == nil then
-        UsefulUtils.callbacks[class] = {}
-    end
+	if UsefulUtils.callbacks[class] == nil then
+		UsefulUtils.callbacks[class] = {}
+	end
 
-    if UsefulUtils.callbacks[class][callbackName] == nil then
+	if UsefulUtils.callbacks[class][callbackName] == nil then
 
-        -- This is the first time hooking the callback
+		-- This is the first time hooking the callback
 
-        UsefulUtils.callbacks[class][callbackName] = {
-            [-1] = {},
-            [1] = {}
-        }
+		UsefulUtils.callbacks[class][callbackName] = {
+			[-1] = {},
+			[1] = {}
+		}
 
-        local originalFunction = class[callbackName]
+		local originalFunction = class[callbackName]
 
-        class[callbackName] = function (...)
-            
-            for _, func in pairs(UsefulUtils.callbacks[class][callbackName][-1]) do
-                    
-                func(...)
-            end
+		class[callbackName] = function (...)
+			
+			for _, func in pairs(UsefulUtils.callbacks[class][callbackName][-1]) do
+					
+				func(...)
+			end
 
-            if originalFunction ~= nil then
-                originalFunction(...)
-            end
+			if originalFunction ~= nil then
+				originalFunction(...)
+			end
 
-            for _, func in pairs(UsefulUtils.callbacks[class][callbackName][1]) do
-                    
-                func(...)
-            end
-        end
-    end
+			for _, func in pairs(UsefulUtils.callbacks[class][callbackName][1]) do
+					
+				func(...)
+			end
+		end
+	end
 
-    table.insert(UsefulUtils.callbacks[class][callbackName][order], func)
+	table.insert(UsefulUtils.callbacks[class][callbackName][order], func)
 end
 
 
@@ -95,39 +95,39 @@ end
 ---@param shape Shape The shape
 function UsefulUtils.highlightShape(smartEffect, shape)
 
-    smartEffect:stop()
-        
-    smartEffect:setParameter("uuid", shape.uuid)
+	smartEffect:stop()
+		
+	smartEffect:setParameter("uuid", shape.uuid)
 
-    smartEffect:start()
+	smartEffect:start()
 
-    if shape.isBlock then
-        smartEffect:setOffsetTransforms({nil, nil, shape:getBoundingBox() / SubdivideRatio})
-    else
-        smartEffect:setOffsetTransforms({nil, nil, sm.vec3.one()})
-    end
-        
-    smartEffect:setTransforms({shape.worldPosition, shape.worldRotation, SubdivideRatio})
+	if shape.isBlock then
+		smartEffect:setOffsetTransforms({nil, nil, shape:getBoundingBox() / SubdivideRatio})
+	else
+		smartEffect:setOffsetTransforms({nil, nil, sm.vec3.one()})
+	end
+		
+	smartEffect:setTransforms({shape.worldPosition, shape.worldRotation, SubdivideRatio})
 end
 
 
 ---Returns face data about the raycast
 ---@param raycastResult RaycastResult
 function UsefulUtils.getFaceDataFromRaycast(raycastResult)
-    
-    local returnTable = {}
+	
+	local returnTable = {}
 
-    returnTable.parentBody = UsefulUtils.getTransformBody(raycastResult)
-    returnTable.parentObject = UsefulUtils.getAttachedObject(raycastResult)
+	returnTable.parentBody = UsefulUtils.getTransformBody(raycastResult)
+	returnTable.parentObject = UsefulUtils.getAttachedObject(raycastResult)
 
-    returnTable.localRawPos = raycastResult.pointLocal
-    returnTable.localNormal = sm.vec3.closestAxis(raycastResult.normalLocal)
+	returnTable.localRawPos = raycastResult.pointLocal
+	returnTable.localNormal = sm.vec3.closestAxis(raycastResult.normalLocal)
 
-    ---@type Vec3
-    returnTable.localFaceCenterPos = UsefulUtils.roundVecToCenterGrid(raycastResult.pointLocal + returnTable.localNormal * SubdivideRatio_2) - returnTable.localNormal * SubdivideRatio_2
-    returnTable.localFaceRot = sm.vec3.getRotation(PosZ, returnTable.localNormal)
+	---@type Vec3
+	returnTable.localFaceCenterPos = UsefulUtils.roundVecToCenterGrid(raycastResult.pointLocal + returnTable.localNormal * SubdivideRatio_2) - returnTable.localNormal * SubdivideRatio_2
+	returnTable.localFaceRot = sm.vec3.getRotation(PosZ, returnTable.localNormal)
 
-    return returnTable
+	return returnTable
 end
 
 
@@ -135,16 +135,16 @@ end
 ---@param table table
 ---@return boolean
 function UsefulUtils.contains(object, table)
-    
-    for _, value in pairs(table) do
-        
-        if value == object then
-            
-            return true
-        end
-    end
+	
+	for _, value in pairs(table) do
+		
+		if value == object then
+			
+			return true
+		end
+	end
 
-    return false
+	return false
 end
 
 
@@ -152,29 +152,29 @@ end
 ---@param state "None"|"Solid"|"Blue"|"Red"
 function UsefulUtils.setShapeRenderableState(effect, state)
 
-    if effect:isPlaying() then
+	if effect:isPlaying() then
 
-        effect:stop()
-    end
+		effect:stop()
+	end
 
-    if state == "None" then
-        
+	if state == "None" then
+		
 
-    elseif state == "Solid" then
+	elseif state == "Solid" then
 
-        effect:setParameter("visualization", false)
-        effect:start()
-    elseif state == "Blue" then
+		effect:setParameter("visualization", false)
+		effect:start()
+	elseif state == "Blue" then
 
-        effect:setParameter("visualization", true)
-        effect:setParameter("valid", true)
-        effect:start()
-    elseif state == "Red" then
+		effect:setParameter("visualization", true)
+		effect:setParameter("valid", true)
+		effect:start()
+	elseif state == "Red" then
 
-        effect:setParameter("visualization", true)
-        effect:setParameter("valid", false)
-        effect:start()
-    end
+		effect:setParameter("visualization", true)
+		effect:setParameter("valid", false)
+		effect:start()
+	end
 end
 
 
@@ -182,49 +182,49 @@ end
 ---@param table1 table the table to be copied from
 ---@param table2 table the table to be copied to
 function UsefulUtils.copyExcludingNil(table1, table2)
-    
-    for key, value in pairs(table1) do
+	
+	for key, value in pairs(table1) do
 
-        table2[key] = value
-    end
+		table2[key] = value
+	end
 end
 
 
 ---@param container Container
 ---@return table
 function UsefulUtils.containerToTable(container)
-    
-    local size = container:getSize()
+	
+	local size = container:getSize()
 
-    local returnTable = {}
+	local returnTable = {}
 
-    for i = 1, size, 1 do
-        
-        returnTable[i] = container:getItem(i)
-    end
+	for i = 1, size, 1 do
+		
+		returnTable[i] = container:getItem(i)
+	end
 
-    return returnTable
+	return returnTable
 end
 
 
 ---@param container Container
 ---@return table
 function UsefulUtils.containerToStringTable(container)
-    
-    local size = container:getSize()
+	
+	local size = container:getSize()
 
-    local returnTable = {}
+	local returnTable = {}
 
-    for i = 1, size, 1 do
+	for i = 1, size, 1 do
 
-        local info = container:getItem(i)
-        
-        info.uuid = tostring(info.uuid)
+		local info = container:getItem(i)
+		
+		info.uuid = tostring(info.uuid)
 
-        returnTable[i] = info
-    end
+		returnTable[i] = info
+	end
 
-    return returnTable
+	return returnTable
 end
 
 
@@ -232,23 +232,23 @@ end
 ---@param pos Vec3
 ---@param rot Quat
 function UsefulUtils.setTransforms(effect, pos, rot)
-    
-    effect:setPosition(pos)
-    effect:setRotation(rot)
+	
+	effect:setPosition(pos)
+	effect:setRotation(rot)
 end
 
 
 function UsefulUtils.is6Way(item)
-    
-    -- WIP
+	
+	-- WIP
 
-    return false
+	return false
 end
 
 
 function UsefulUtils.getCenterOffset(dimensions)
-    
-    return dimensions / 2 - UsefulUtils.roundVecToGrid(dimensions / 2)
+	
+	return dimensions / 2 - UsefulUtils.roundVecToGrid(dimensions / 2)
 end
 
 
@@ -256,7 +256,7 @@ end
 ---@return number
 function UsefulUtils.roundToCenterGrid(num)
 
-    return SubdivideRatio * (math.ceil(num / SubdivideRatio) - 1/2)
+	return SubdivideRatio * (math.ceil(num / SubdivideRatio) - 1/2)
 end
 
 
@@ -264,29 +264,29 @@ end
 ---@return Vec3
 function UsefulUtils.roundVecToCenterGrid(vec)
 
-    return sm.vec3.new(UsefulUtils.roundToCenterGrid(vec.x), UsefulUtils.roundToCenterGrid(vec.y), UsefulUtils.roundToCenterGrid(vec.z))
+	return sm.vec3.new(UsefulUtils.roundToCenterGrid(vec.x), UsefulUtils.roundToCenterGrid(vec.y), UsefulUtils.roundToCenterGrid(vec.z))
 end
 
 
 ---@param num number
 ---@return number
 function UsefulUtils.roundToGrid(num)
-    
-    return SubdivideRatio * math.ceil(num / SubdivideRatio - 1/2)
+	
+	return SubdivideRatio * math.ceil(num / SubdivideRatio - 1/2)
 end
 
 
 ---@param vec Vec3
 ---@return Vec3
 function UsefulUtils.roundVecToGrid(vec)
-    
-    return sm.vec3.new(UsefulUtils.roundToGrid(vec.x), UsefulUtils.roundToGrid(vec.y), UsefulUtils.roundToGrid(vec.z))
+	
+	return sm.vec3.new(UsefulUtils.roundToGrid(vec.x), UsefulUtils.roundToGrid(vec.y), UsefulUtils.roundToGrid(vec.z))
 end
 
 
 function UsefulUtils.absVec(vec)
-    
-    return sm.vec3.new(math.abs(vec.x), math.abs(vec.y), math.abs(vec.z))
+	
+	return sm.vec3.new(math.abs(vec.x), math.abs(vec.y), math.abs(vec.z))
 end
 
 
@@ -295,7 +295,7 @@ end
 ---@return Vec3
 function UsefulUtils.clampVec(vec, range)
 
-    return sm.vec3.new(sm.util.clamp(vec.x, - range, range), sm.util.clamp(vec.y, - range, range), sm.util.clamp(vec.z, - range, range))
+	return sm.vec3.new(sm.util.clamp(vec.x, - range, range), sm.util.clamp(vec.y, - range, range), sm.util.clamp(vec.z, - range, range))
 end
 
 
@@ -305,14 +305,14 @@ end
 ---@param planeNormal Vec3
 ---@return Vec3
 function UsefulUtils.raycastToPlaneDeprecated(raycastPos, raycastDirection, planePos, planeNormal)
-    
-    local distance = planePos - raycastPos
+	
+	local distance = planePos - raycastPos
 
-    local perpendicularDistance = distance:dot(planeNormal)
+	local perpendicularDistance = distance:dot(planeNormal)
 
-    local perpendicularComponentOfRaycast = raycastDirection:dot(planeNormal)
+	local perpendicularComponentOfRaycast = raycastDirection:dot(planeNormal)
 
-    return raycastDirection * perpendicularDistance / perpendicularComponentOfRaycast
+	return raycastDirection * perpendicularDistance / perpendicularComponentOfRaycast
 end
 
 
@@ -323,24 +323,24 @@ end
 ---@return table
 function UsefulUtils.raycastToPlane(raycastPos, raycastDirection, planePos, planeRotation)
 
-    local planeNormal = sm.quat.getAt(planeRotation)
-    
-    local distance = planePos - raycastPos
+	local planeNormal = sm.quat.getAt(planeRotation)
+	
+	local distance = planePos - raycastPos
 
-    local perpendicularDistance = distance:dot(planeNormal)
+	local perpendicularDistance = distance:dot(planeNormal)
 
-    local perpendicularComponentOfRaycast = raycastDirection:dot(planeNormal)
+	local perpendicularComponentOfRaycast = raycastDirection:dot(planeNormal)
 
-    local worldPos = raycastDirection * perpendicularDistance / perpendicularComponentOfRaycast + raycastPos
+	local worldPos = raycastDirection * perpendicularDistance / perpendicularComponentOfRaycast + raycastPos
 
-    local worldDeltaPos = worldPos - planePos
+	local worldDeltaPos = worldPos - planePos
 
-    local localPos = sm.quat.inverse(planeRotation) * worldDeltaPos
+	local localPos = sm.quat.inverse(planeRotation) * worldDeltaPos
 
-    return {
-        pointLocal = localPos,
-        pointWorld = worldPos
-    }
+	return {
+		pointLocal = localPos,
+		pointWorld = worldPos
+	}
 end
 
 
@@ -351,13 +351,13 @@ end
 ---@return number
 function UsefulUtils.raycastToLineDeprecated(raycastPos, raycastDirection, linePos, lineDirection)
 
-    local distance = raycastPos - linePos
+	local distance = raycastPos - linePos
 
-    local planeNormal = (distance - lineDirection * distance:dot(lineDirection))
+	local planeNormal = (distance - lineDirection * distance:dot(lineDirection))
 
-    local delta = UsefulUtils.raycastToPlaneDeprecated(raycastPos, raycastDirection, linePos, planeNormal) + raycastPos - linePos
+	local delta = UsefulUtils.raycastToPlaneDeprecated(raycastPos, raycastDirection, linePos, planeNormal) + raycastPos - linePos
 
-    return delta:dot(lineDirection)
+	return delta:dot(lineDirection)
 end
 
 
@@ -368,18 +368,18 @@ end
 ---@return table
 function UsefulUtils.raycastToLine(raycastPos, raycastDirection, linePos, lineDirection)
 
-    local distance = raycastPos - linePos
+	local distance = raycastPos - linePos
 
-    local planeNormal = (distance - lineDirection * distance:dot(lineDirection))
+	local planeNormal = (distance - lineDirection * distance:dot(lineDirection))
 
-    local delta = UsefulUtils.raycastToPlaneDeprecated(raycastPos, raycastDirection, linePos, planeNormal) + raycastPos - linePos
+	local delta = UsefulUtils.raycastToPlaneDeprecated(raycastPos, raycastDirection, linePos, planeNormal) + raycastPos - linePos
 
-    local offset = delta:dot(lineDirection)
+	local offset = delta:dot(lineDirection)
 
-    return {
-        pointLocal = sm.vec3.new(0, 0, offset),
-        pointWorld = linePos + lineDirection * offset
-    }
+	return {
+		pointLocal = sm.vec3.new(0, 0, offset),
+		pointWorld = linePos + lineDirection * offset
+	}
 end
 
 
@@ -392,121 +392,121 @@ end
 ---@return Vec3
 function UsefulUtils.snapVolumeToSurface(size, cursorPos, surfacePos, surfaceNormal, snappingMode)
 
-    local localSize = UsefulUtils.absVec(sm.quat.inverse(sm.vec3.getRotation(PosZ, surfaceNormal)) * size)
+	local localSize = UsefulUtils.absVec(sm.quat.inverse(sm.vec3.getRotation(PosZ, surfaceNormal)) * size)
 
-    local roundedOffset
-    
-    if snappingMode == "Center" then
+	local roundedOffset
+	
+	if snappingMode == "Center" then
 
-        roundedOffset = sm.vec3.zero()
-    
-    elseif snappingMode == "Fixed" then
+		roundedOffset = sm.vec3.zero()
+	
+	elseif snappingMode == "Fixed" then
 
-        roundedOffset = UsefulUtils.getCenterOffset(localSize) - BlockSize / 2
-        
-    elseif snappingMode == "Dynamic" then
+		roundedOffset = UsefulUtils.getCenterOffset(localSize) - BlockSize / 2
+		
+	elseif snappingMode == "Dynamic" then
 
-        roundedOffset = UsefulUtils.roundVecToCenterGrid(cursorPos + UsefulUtils.getCenterOffset(localSize)) - UsefulUtils.getCenterOffset(localSize)
+		roundedOffset = UsefulUtils.roundVecToCenterGrid(cursorPos + UsefulUtils.getCenterOffset(localSize)) - UsefulUtils.getCenterOffset(localSize)
 
-    end
+	end
 
-    roundedOffset.z = localSize.z / 2
+	roundedOffset.z = localSize.z / 2
 
-    return sm.vec3.getRotation(PosZ, surfaceNormal) * roundedOffset + surfacePos
+	return sm.vec3.getRotation(PosZ, surfaceNormal) * roundedOffset + surfacePos
 end
 
 
 ---@param raycastResult RaycastResult
 function UsefulUtils.getTransformBody(raycastResult)
 
-    if raycastResult.type == "body" then
+	if raycastResult.type == "body" then
 
-        return raycastResult:getBody()
+		return raycastResult:getBody()
 
-    elseif raycastResult.type == "joint" then
-        
-        return raycastResult:getJoint().shapeA.body
+	elseif raycastResult.type == "joint" then
+		
+		return raycastResult:getJoint().shapeA.body
 
-    elseif raycastResult.type == "terrainSurface" or raycastResult.type == "terrainAsset" then
+	elseif raycastResult.type == "terrainSurface" or raycastResult.type == "terrainAsset" then
 
-        return TerrainBody
-    
-    elseif raycastResult.type == "lift" then
+		return TerrainBody
+	
+	elseif raycastResult.type == "lift" then
 
-        return LiftBody
-    end
+		return LiftBody
+	end
 end
 
 
 ---@param raycastResult RaycastResult
 function UsefulUtils.getAttachedObject(raycastResult)
-    
-    if raycastResult.type == "body" then
+	
+	if raycastResult.type == "body" then
 
-        return raycastResult:getShape()
+		return raycastResult:getShape()
 
-    elseif raycastResult.type == "joint" then
+	elseif raycastResult.type == "joint" then
 
-        return raycastResult:getJoint()
-    
-    elseif raycastResult.type == "terrainSurface" or raycastResult.type == "terrainAsset" then
+		return raycastResult:getJoint()
+	
+	elseif raycastResult.type == "terrainSurface" or raycastResult.type == "terrainAsset" then
 
-        return TerrainBody
-    
-    elseif raycastResult.type == "lift" then
-        
-        return LiftBody
-    end
+		return TerrainBody
+	
+	elseif raycastResult.type == "lift" then
+		
+		return LiftBody
+	end
 end
 
 ---@param raycastResult RaycastResult
 ---@param normalVector Vec3
 ---@return boolean
 function UsefulUtils.isPlaceableFace(raycastResult, normalVector)
-    
-    if raycastResult.type == "body" then
+	
+	if raycastResult.type == "body" then
 
-        PositiveStick, NegativeStick = raycastResult:getShape():getSticky()
+		PositiveStick, NegativeStick = raycastResult:getShape():getSticky()
 
-    elseif raycastResult.type == "joint" then
+	elseif raycastResult.type == "joint" then
 
-        PositiveStick, NegativeStick = raycastResult:getJoint():getSticky()
+		PositiveStick, NegativeStick = raycastResult:getJoint():getSticky()
 
-        -- Check if joint isn't occupied
+		-- Check if joint isn't occupied
 
-        if raycastResult:getJoint():getShapeB() ~= nil then
-            return false
-        end
+		if raycastResult:getJoint():getShapeB() ~= nil then
+			return false
+		end
 
-    elseif raycastResult.type == "lift" then
-        
-        return (normalVector.z == 1)
+	elseif raycastResult.type == "lift" then
+		
+		return (normalVector.z == 1)
 
-    else
-        
-        return UsefulUtils.contains(raycastResult.type, {"terrainSurface", "terrainAsset"})
-    end
+	else
+		
+		return UsefulUtils.contains(raycastResult.type, {"terrainSurface", "terrainAsset"})
+	end
 
-    local t = {[0] = false, [1] = true}
+	local t = {[0] = false, [1] = true}
 
-    if normalVector.x == -1 then
-        return t[PositiveStick.x]
-    
-    elseif normalVector.x == 1 then
-        return t[NegativeStick.x]
+	if normalVector.x == -1 then
+		return t[PositiveStick.x]
+	
+	elseif normalVector.x == 1 then
+		return t[NegativeStick.x]
 
-    elseif normalVector.y == -1 then
-        return t[PositiveStick.y]
+	elseif normalVector.y == -1 then
+		return t[PositiveStick.y]
 
-    elseif normalVector.y == 1 then
-        return t[NegativeStick.y]
+	elseif normalVector.y == 1 then
+		return t[NegativeStick.y]
 
-    elseif normalVector.z == -1 then
-        return t[PositiveStick.z]
+	elseif normalVector.z == -1 then
+		return t[PositiveStick.z]
 
-    else
-        return t[NegativeStick.z]
-    end
+	else
+		return t[NegativeStick.z]
+	end
 end
 
 -- #endregion
@@ -517,38 +517,38 @@ end
 ---Params: {uuid, parent, localPos, localRot, forceAccept}
 function UsefulUtils.sv_createPart(_, data)
 
-    local part = data[1]
-    local parentObject = data[2]
-    local localPos = data[3]
-    local localRot = data[4]
-    local forceAccept = data[5]
+	local part = data[1]
+	local parentObject = data[2]
+	local localPos = data[3]
+	local localRot = data[4]
+	local forceAccept = data[5]
 
-    if forceAccept == nil then
-        forceAccept = true
-    end
+	if forceAccept == nil then
+		forceAccept = true
+	end
 
-    local xAxis = sm.vec3.closestAxis(sm.quat.getRight(localRot))
-    local yAxis = sm.vec3.closestAxis(sm.quat.getUp(localRot))
-    local zAxis = sm.vec3.closestAxis(sm.quat.getAt(localRot))
+	local xAxis = sm.vec3.closestAxis(sm.quat.getRight(localRot))
+	local yAxis = sm.vec3.closestAxis(sm.quat.getUp(localRot))
+	local zAxis = sm.vec3.closestAxis(sm.quat.getAt(localRot))
 
-    if sm.item.isPart(part) then
+	if sm.item.isPart(part) then
 
-        if type(parentObject) == "Shape" then
-            
-            parentObject:getBody():createPart(part, localPos / SubdivideRatio - localRot * sm.item.getShapeSize(part) * 0.5, zAxis, xAxis, forceAccept)
-        
-        elseif type(parentObject) == "Joint" then
+		if type(parentObject) == "Shape" then
+			
+			parentObject:getBody():createPart(part, localPos / SubdivideRatio - localRot * sm.item.getShapeSize(part) * 0.5, zAxis, xAxis, forceAccept)
+		
+		elseif type(parentObject) == "Joint" then
 
-            -- parentObject:createPart(part, localPlacementPos - parentObject.localPosition / SubdivideRatio, zAxis, xAxis, forceAccept)
-        
-        elseif parentObject == "terrain" then
+			-- parentObject:createPart(part, localPlacementPos - parentObject.localPosition / SubdivideRatio, zAxis, xAxis, forceAccept)
+		
+		elseif parentObject == "terrain" then
 
-            sm.shape.createPart(part, localPos - localRot * sm.item.getShapeOffset(part), localRot, false, forceAccept)
-        elseif parentObject == "lift" then
+			sm.shape.createPart(part, localPos - localRot * sm.item.getShapeOffset(part), localRot, false, forceAccept)
+		elseif parentObject == "lift" then
 
 
-        end
-    end
+		end
+	end
 end
 
 -- #endregion
