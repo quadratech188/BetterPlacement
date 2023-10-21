@@ -26,7 +26,7 @@ function BetterPlacementTemplateClass:client_onCreate()
 
 	self.placementCore = BetterPlacementCoreV2
 
-	self.guiClass = PlacementSettingsGUI
+	-- self.guiClass = PlacementSettingsGUI
 
 	-- Constants
 
@@ -63,7 +63,7 @@ function BetterPlacementTemplateClass:client_onCreate()
 
 	self.placementCore:initialize()
 
-	self.guiClass:initialize()
+	-- self.guiClass:initialize()
 
 	sm.gui.chatMessage("Initialized BetterPlacement Mod")
 	print("Initialized BetterPlacement Mod")

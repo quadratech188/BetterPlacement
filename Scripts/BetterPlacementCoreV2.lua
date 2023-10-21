@@ -64,8 +64,7 @@ function BetterPlacementCoreV2:initialize()
 	self.settings = {
 
 		roundingSetting = "Dynamic", -- Center, Fixed, Dynamic
-		positionSelectionTimer = 5, -- Ticks before advancing to position selection
-		placementRadii = 7.5, -- Reach distance
+		placementRadius = 7.5, -- Reach distance
 		doubleClick = false -- Click to begin placement, click again to end it
 	}
 end
@@ -412,7 +411,7 @@ function BetterPlacementCoreV2:doFrame()
 		self.status.cursorHasMoved = true
 	end
 	
-	_, self.raycastResult = sm.localPlayer.getRaycast(self.settings.placementRadii)
+	_, self.raycastResult = sm.localPlayer.getRaycast(self.settings.placementRadius)
 
 	local lastItem = self.currentItem
 
