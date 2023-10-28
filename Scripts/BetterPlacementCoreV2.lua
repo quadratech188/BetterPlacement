@@ -336,11 +336,11 @@ end
 
 function BetterPlacementCoreV2:doPhase1()
 
+	local phase1 = self.phase1
+
 	local localRaycastOrigin = UsefulUtils.worldToLocalPos(self.raycastResult.originWorld, self.phase1.parentBody)
 
 	local localRaycastDirection = UsefulUtils.worldToLocalDir(self.raycastResult.directionWorld, self.phase1.parentBody)
-
-	local phase1 = self.phase1
 	
 	if not self.status.verticalPositioning then
 		
@@ -358,7 +358,7 @@ function BetterPlacementCoreV2:doPhase1()
 
 	self.partVisualization:setTransforms(phase1.partPos, phase1.partRot)
 
-	self.transformGizmo:setPositionAndRotation(phase1.partPos, phase1.surfaceRot)
+	self.transformGizmo:setPositionAndRotation(phase1.parentBody:transformPoint(phase1.partPos), phase1.parentBody.worldRotation * phase1.surfaceRot)
 
 	if (self.settings.doubleClick and self.primaryState == 1) or (not self.settings.doubleClick and self.primaryState  == 3) then
 		
