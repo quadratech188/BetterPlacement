@@ -1,29 +1,6 @@
-[
 
-	{
-		"name": "Rounding Setting",
-		"mapTo": "roundingSetting",
-		"description": "Controls the location of the part visualization in the first phase of placement",
-		"widgetName": "roundingSetting",
-		"widgetType": "Choose3",
-		"widgetData": {
-			"options": [
-				{
-					"name": "Dynamic",
-					"value": "Dynamic",
-					"description": "The part visualization is rounded to the cursor position"
-				},
-				{
-					"name": "Constant",
-					"value": "Fixed",
-					"description": "The part visualization is rounded to the center face"
-				},
-				{
-					"name": "No rounding",
-					"value": "Center",
-					"description": "The part visualization is set to be at the center face \nThis causes even-width blocks to not be on grid"
-				}
-			]
-		}
-	}
-]
+{
+	"doubleClick" : false,
+	"placementRadius" : 7.50,
+	"roundingSetting" : "Dynamic"
+}

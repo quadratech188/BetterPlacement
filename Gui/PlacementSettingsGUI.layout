@@ -2,85 +2,70 @@
 <MyGUI type="Layout" version="3.2.0">
     <Widget type="Widget" skin="PanelEmpty" position_real="0.20000000000000001 0.14999999999999999 0.59999999999999998 0.69999999999999996" align="HCenter VCenter" name="BackPanel">
         <Property key="NeedKey" value="false"/>
-        <Widget type="Widget" skin="BackgroundDarkRoundedUpperRight" position_real="0 0 1 0.099206349206349201">
+        <Widget type="Widget" skin="BackgroundDarkRoundedUpperRight" position_real="0 0 1 0.09841269841269841">
             <Widget type="TextBox" skin="TextBox" position_real="0 0 1 1">
                 <Property key="Caption" value="Advanced Placement Settings"/>
                 <Property key="FontName" value="SM_HeaderLarge_Medium"/>
                 <Property key="TextAlign" value="Center"/>
             </Widget>
         </Widget>
-        <Widget type="Widget" skin="BackgroundLightRoundedLowerLeft" position_real="0 0.099206349206349201 1 0.89947089947089942">
-            <Widget type="TextBox" skin="TextBox" position_real="0.049479166666666664 0.1 0.44965277777777779 0.074999999999999997">
-                <Property key="Caption" value="Placement Snapping Mode"/>
-                <Property key="FontName" value="SM_SubHeader"/>
-                <Property key="TextColour" value="1 0.803922 0.247059" />
-                <Property key="TextAlign" value="Left VCenter"/>
+        <Widget type="Widget" skin="BackgroundLightRoundedLowerLeft" position_real="0 0.09841269841269841 1 0.89841269841269844">
+            <Widget type="Widget" skin="PanelEmpty" position_real="0.048958333333333333 0.098939929328621903 0.8989583333333333 0.24911660777385158">
+                <Widget type="TextBox" skin="TextBox" position_real="0 0 0.49942062572421786 0.2978723404255319">
+                    <Property key="Caption" value="Rounding Mode"/>
+                    <Property key="TextAlign" value="Left VCenter"/>
+                    <Property key="FontName" value="SM_SubHeader"/>
+                    <Property key="TextColour" value="1 0.691406 0"/>
+                </Widget>
+                <Widget type="Widget" skin="PanelEmpty" position_real="0 0.2978723404255319 0.29895712630359211 0.69503546099290781">
+                    <Widget type="Button" skin="SecondaryButton" position_real="0 0 1 0.29591836734693877" name="RoundingMode_Center">
+                        <Property key="Visible" value="true"/>
+                        <Property key="Caption" value="Center"/>
+                        <Property key="FontHeight" value="100"/>
+                        <Property key="FontName" value="SM_SubHeader"/>
+                        <Property key="TextAlign" value="Center"/>
+                    </Widget>
+                    <Widget type="TextBox" skin="TextBox" position_real="0 0.29591836734693877 1 0.69387755102040816">
+                        <Property key="Caption" value="The part visualization is set\nto be at the center face. \nThis causes even-width blocks\nto not be on grid."/>
+                        <Property key="TextAlign" value="HCenter Top"/>
+                    </Widget>
+                </Widget>
+                <Widget type="Widget" skin="PanelEmpty" position_real="0.34994206257242177 0.2978723404255319 0.29895712630359211 0.69503546099290781">
+                    <Widget type="Button" skin="SecondaryButton" position_real="0 0 1 0.29591836734693877" name="RoundingMode_Fixed">
+                        <Property key="Visible" value="true"/>
+                        <Property key="Caption" value="Static"/>
+                        <Property key="FontHeight" value="100"/>
+                        <Property key="FontName" value="SM_SubHeader"/>
+                        <Property key="TextAlign" value="Center"/>
+                    </Widget>
+                    <Widget type="TextBox" skin="TextBox" position_real="0 0.29591836734693877 1 0.69387755102040816">
+                        <Property key="Caption" value="The part visualization is\nrounded to the center face."/>
+                        <Property key="TextAlign" value="HCenter Top"/>
+                    </Widget>
+                </Widget>
+                <Widget type="Widget" skin="PanelEmpty" position_real="0.69988412514484355 0.2978723404255319 0.29895712630359211 0.69503546099290781">
+                    <Widget type="Button" skin="SecondaryButton" position_real="0 0 1 0.29591836734693877" name="RoundingMode_Dynamic">
+                        <Property key="Visible" value="true"/>
+                        <Property key="Caption" value="Dynamic"/>
+                        <Property key="FontHeight" value="100"/>
+                        <Property key="FontName" value="SM_SubHeader"/>
+                        <Property key="TextAlign" value="Center"/>
+                    </Widget>
+                    <Widget type="TextBox" skin="TextBox" position_real="0 0.29591836734693877 1 0.69387755102040816">
+                        <Property key="Caption" value="The part visualization is\nrounded to the cursor position."/>
+                        <Property key="TextAlign" value="HCenter Top"/>
+                    </Widget>
+                </Widget>
             </Widget>
-
-            <Widget type="TextBox" skin="TextBox" position_real="0.049479166666666664 0.17 0.44965277777777779 0.074999999999999997">
-                <Property key="Caption" value="Try it for yourself"/>
-                <Property key="FontName" value="SM_TextLabel"/>
-                <Property key="TextAlign" value="Left Top"/>
+            <Widget type="Widget" skin="PanelEmpty" position_real="0.050000000000000003 0.34982332155477031 0.90000000000000002 0.074204946996466431">
+                <Widget type="TextBox" skin="TextBox" position_real="0 0 0.5 1">
+                    <Property key="FontName" value="SM_SubHeader"/>
+                    <Property key="TextAlign" value="Left VCenter"/>
+                    <Property key="Caption" value="Reach Distance"/>
+                    <Property key="TextColour" value="1 0.691406 0"/>
+                </Widget>
+                <Widget type="Widget" skin="PanelEmpty" position_real="0.5 0 0.5 1" name="PlacementRadius"/>
             </Widget>
-
-            <Widget type="Widget" skin="PanelEmpty" position_real="0.59982638888888884 0.10000000000000001 0.3498263888888889 0.074999999999999997" name="PlacementSettingsDropdown"/>
-            
-
-
-
-            <Widget type="TextBox" skin="TextBox" position_real="0.049479166666666664 0.25 0.44965277777777779 0.074999999999999997">
-                <Property key="Caption" value="Position Selection Time"/>
-                <Property key="FontName" value="SM_SubHeader"/>
-                <Property key="TextColour" value="1 0.803922 0.247059" />
-                <Property key="TextAlign" value="Left VCenter"/>
-            </Widget>
-            
-            <Widget type="TextBox" skin="TextBox" position_real="0.049479166666666664 0.32 1 0.074999999999999997">
-                <Property key="Caption" value="Position selection starts when you hold the primary button \n for more than this time ( Ticks / 1/40 seconds)"/>
-                <Property key="FontName" value="SM_TextLabel"/>
-                <Property key="TextAlign" value="Left Top"/>
-            </Widget>
-
-            <Widget type="TextBox" skin="SettingsButton" position_real="0.508 0.25 0.08 0.074999999999999997" name="PositionSelectionTimerTextBox">
-                <Property key="Caption" value=""/>
-                <Property key="FontName" value="SM_SearchText"/>
-                <Property key="TextColour" value="1 1 1"/>
-                <Property key="TextAlign" value="Center"/>
-                <Property key="ReadOnly" value="true"/>
-            </Widget>
-            
-            <Widget type="Widget" skin="PanelEmpty" position_real="0.59982638888888884 0.22500000000000001 0.3498263888888889 0.125" name="PositionSelectionTimerSlider"/>
-
-
-
-
-
-            <Widget type="TextBox" skin="TextBox" position_real="0.049479166666666664 0.4 0.44965277777777779 0.074999999999999997">
-                <Property key="Caption" value="Placement Radii"/>
-                <Property key="FontName" value="SM_SubHeader"/>
-                <Property key="TextColour" value="1 0.803922 0.247059" />
-                <Property key="TextAlign" value="Left VCenter"/>
-            </Widget>
-
-            <Widget type="TextBox" skin="TextBox" position_real="0.049479166666666664 0.47 1 0.074999999999999997">
-                <Property key="Caption" value="The max distance you can start placing a part (Metres / 4 Blocks)"/>
-                <Property key="FontName" value="SM_TextLabel"/>
-                <Property key="TextAlign" value="Left Top"/>
-            </Widget>
-
-            <Widget type="TextBox" skin="SettingsButton" position_real="0.508 0.4 0.08 0.074999999999999997" name="PlacementRadiiTextBox">
-                <Property key="Caption" value=""/>
-                <Property key="FontName" value="SM_SearchText"/>
-                <Property key="TextColour" value="1 1 1"/>
-                <Property key="TextAlign" value="Center"/>
-                <Property key="ReadOnly" value="true"/>
-            </Widget>
-            
-            <Widget type="Widget" skin="PanelEmpty" position_real="0.59982638888888884 0.375 0.3498263888888889 0.125" name="PlacementRadiiSlider"/>
-
-
-
-
         </Widget>
     </Widget>
     <CodeGeneratorSettings/>

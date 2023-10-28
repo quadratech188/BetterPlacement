@@ -3,51 +3,45 @@ PlacementSettingsGUI = class()
 
 -- The next 3 functions recieve BetterPlacementClass as self
 
-function PlacementSettingsGUI:onPlacementSettingsSelect(value)
-	
-	self.settings.RoundingSetting = value
-
-	sm.json.save(self.settings, "$CONTENT_DATA/Scripts/settings.json")
-end
-
-function PlacementSettingsGUI:onPositionSelectionTimerSelect(value)
-	self.settings.PositionSelectionTimer = value
-
-	sm.json.save(self.settings, "$CONTENT_DATA/Scripts/settings.json")
-
-	self.guiClass.gui:setText("PositionSelectionTimerTextBox", tostring(self.settings.PositionSelectionTimer))
-end
-
-function PlacementSettingsGUI:onPlacementRadiiSelect(value)
-
-	self.settings.PlacementRadii = value
-
-	sm.json.save(self.settings, "$CONTENT_DATA/Scripts/settings.json")
-
-	self.guiClass.gui:setText("PlacementRadiiTextBox", tostring(self.settings.PlacementRadii))
-end
 
 function PlacementSettingsGUI:initialize()
 
-	self.main = BetterPlacementClass
-
 	self.gui = sm.gui.createGuiFromLayout("$CONTENT_DATA/Gui/PlacementSettingsGUI.layout")
 
-	self.gui:createDropDown("PlacementSettingsDropdown", "onPlacementSettingsSelect", self.main.settingsData.RoundingSettings)
+	self.gui:createHorizontalSlider("PlacementRadius", 20, 7.5, "onGUIUpdate", true)
 
-	self.main:linkCallback("onPlacementSettingsSelect", self.onPlacementSettingsSelect, 1)
+	self.roundingModeButtons = {
+		["Center"] = "RoundingMode_Center",
+		["Fixed"] = "RoundingMode_Fixed",
+		["Dynamic"] = "RoundingMode_Dynamic"
+	}
 
-	self.gui:createHorizontalSlider("PositionSelectionTimerSlider", self.main.settingsData.MaxPositionSelectionTimer, self.main.settings.PositionSelectionTimer, "onPositionSelectionTimerSelect", true)
+	for _, button in pairs(self.roundingModeButtons) do
+		self.gui:setButtonCallback(button, "onGUIUpdate")
+	end
 
-	self.main:linkCallback("onPositionSelectionTimerSelect", self.onPositionSelectionTimerSelect, 1)
+	BetterPlacementClass:linkCallback("onGUIUpdate", self.onGUIUpdate, -1)
+end
 
-	self.gui:setText("PositionSelectionTimerTextBox", tostring(self.main.settings.PositionSelectionTimer))
 
-	self.gui:createHorizontalSlider("PlacementRadiiSlider", self.main.settingsData.MaxPlacementRadii, self.main.settings.PlacementRadii, "onPlacementRadiiSelect", true)
+function PlacementSettingsGUI:onGUIUpdate(data)
+	
+	self = PlacementSettingsGUI
+	
+	if data:sub(1, 12) == "RoundingMode" then -- If it's RoundingMode
+		
+		for index, button in pairs(self.roundingModeButtons) do
+			
+			if button == data then
+				self.gui:setButtonState(button, true)
+				BetterPlacementCoreV2.settings.roundingSetting = index
+			else
+				self.gui:setButtonState(button, false)
+			end
+		end
+	end
 
-	self.main:linkCallback("onPlacementRadiiSelect", self.onPlacementRadiiSelect, 1)
-
-	self.gui:setText("PlacementRadiiTextBox", tostring(self.main.settings.PlacementRadii))
+	
 end
 
 

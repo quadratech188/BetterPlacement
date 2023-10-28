@@ -26,23 +26,7 @@ function BetterPlacementTemplateClass:client_onCreate()
 
 	self.placementCore = BetterPlacementCoreV2
 
-	-- self.guiClass = PlacementSettingsGUI
-
-	-- Constants
-
-	self.defaultSettings = {
-
-		RoundingSetting = "SnapCornerToGrid", -- SnapCenterToGrid, DynamicSnapCornerToGrid, FixedSnapCornerToGrid
-		PositionSelectionTimer = 5, -- Ticks before advancing to position selection
-		PlacementRadii = 7.5, -- Reach distance
-	}
-
-	self.settingsData = {
-
-		RoundingSettings = {"SnapCenterToGrid", "DynamicSnapCornerToGrid", "FixedSnapCornerToGrid"},
-		MaxPositionSelectionTimer = 40,
-		MaxPlacementRadii = 40
-	}
+	self.guiClass = PlacementSettingsGUI
 
 	-- Setup callback system
 
@@ -59,11 +43,11 @@ function BetterPlacementTemplateClass:client_onCreate()
 
 	BetterPlacementClass = self
 
-	 self.settings = sm.json.open("$CONTENT_DATA/Scripts/settings.json")
+	-- self.placementCore.settings = sm.json.open("$CONTENT_DATA/Scripts/settings.json")
 
 	self.placementCore:initialize()
 
-	-- self.guiClass:initialize()
+	self.guiClass:initialize()
 
 	sm.gui.chatMessage("Initialized BetterPlacement Mod")
 	print("Initialized BetterPlacement Mod")
@@ -78,6 +62,7 @@ end
 
 function BetterPlacementTemplateClass:client_onDestroy()
 
+	sm.json.save(self.placementCore.settings, "$CONTENT_DATA/Scripts/settings.json")
 end
 
 -- On/Off
