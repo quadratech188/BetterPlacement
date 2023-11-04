@@ -3,55 +3,104 @@ PlacementSettingsGUI = class()
 
 -- The next 3 functions recieve BetterPlacementClass as self
 
-function PlacementSettingsGUI:onPlacementSettingsSelect(value)
-    
-    self.settings.RoundingSetting = value
-
-    sm.json.save(self.settings, "$CONTENT_DATA/Scripts/settings.json")
-end
-
-function PlacementSettingsGUI:onPositionSelectionTimerSelect(value)
-    self.settings.PositionSelectionTimer = value
-
-    sm.json.save(self.settings, "$CONTENT_DATA/Scripts/settings.json")
-
-    self.guiClass.gui:setText("PositionSelectionTimerTextBox", tostring(self.settings.PositionSelectionTimer))
-end
-
-function PlacementSettingsGUI:onPlacementRadiiSelect(value)
-
-    self.settings.PlacementRadii = value
-
-    sm.json.save(self.settings, "$CONTENT_DATA/Scripts/settings.json")
-
-    self.guiClass.gui:setText("PlacementRadiiTextBox", tostring(self.settings.PlacementRadii))
-end
 
 function PlacementSettingsGUI:initialize()
 
-    self.main = BetterPlacementClass
+	self.gui = sm.gui.createGuiFromLayout("$CONTENT_DATA/Gui/PlacementSettingsGUI.layout")
 
-    self.gui = sm.gui.createGuiFromLayout("$CONTENT_DATA/Gui/PlacementSettingsGUI.layout")
+	self.gui:createHorizontalSlider("PlacementRadius", 20, 7.5, "onGUIUpdate", true)
 
-    self.gui:createDropDown("PlacementSettingsDropdown", "onPlacementSettingsSelect", self.main.settingsData.RoundingSettings)
+	self.buttons = {
+		roundingMode = {
+			["Center"] = "RoundingMode_Center",
+			["Fixed"] = "RoundingMode_Fixed",
+			["Dynamic"] = "RoundingMode_Dynamic"
+		},
+		clickMode = {
+			[true] = "ClickMode_Twice",
+			[false] = "ClickMode_Once"
+		}
+	}
 
-    self.main:linkCallback("onPlacementSettingsSelect", self.onPlacementSettingsSelect, 1)
+	for _, button in pairs(self.buttons.roundingMode) do
+		self.gui:setButtonCallback(button .. "T", "onGUIUpdate")
+		self.gui:setButtonCallback(button .. "F", "onGUIUpdate")
+	end
 
-    self.gui:createHorizontalSlider("PositionSelectionTimerSlider", self.main.settingsData.MaxPositionSelectionTimer, self.main.settings.PositionSelectionTimer, "onPositionSelectionTimerSelect", true)
+	for _, button in pairs(self.buttons.clickMode) do
+		self.gui:setButtonCallback(button .. "T", "onGUIUpdate")
+		self.gui:setButtonCallback(button .. "F", "onGUIUpdate")
+	end
 
-    self.main:linkCallback("onPositionSelectionTimerSelect", self.onPositionSelectionTimerSelect, 1)
+	BetterPlacementClass:linkCallback("onGUIUpdate", self.onGUIUpdate, -1)
 
-    self.gui:setText("PositionSelectionTimerTextBox", tostring(self.main.settings.PositionSelectionTimer))
+	self:onGUIUpdate(nil)
+end
 
-    self.gui:createHorizontalSlider("PlacementRadiiSlider", self.main.settingsData.MaxPlacementRadii, self.main.settings.PlacementRadii, "onPlacementRadiiSelect", true)
 
-    self.main:linkCallback("onPlacementRadiiSelect", self.onPlacementRadiiSelect, 1)
+function PlacementSettingsGUI:onGUIUpdate(data)
+	
+	self = PlacementSettingsGUI
 
-    self.gui:setText("PlacementRadiiTextBox", tostring(self.main.settings.PlacementRadii))
+	if type(data) == "string" then
+		
+		if data:sub(1, 12) == "RoundingMode" then
+
+			for index, button in pairs(self.buttons.roundingMode) do
+				if string.match(data, button) then
+					BetterPlacementCoreV2.settings.roundingSetting = index
+				end
+			end
+		else -- If it's ClickMode
+
+			for index, button in pairs(self.buttons.clickMode) do
+				
+				if string.match(data, button) then
+					BetterPlacementCoreV2.settings.doubleClick = index
+				end
+			end
+		end
+	end
+
+	if type(data) == "number" then -- If it's PlacementRadius
+		
+		BetterPlacementCoreV2.settings.placementRadius = data
+	end
+
+
+	for index, button in pairs(self.buttons.clickMode) do
+		
+		if index == BetterPlacementCoreV2.settings.doubleClick then
+			
+			self.gui:setVisible(button .. "T", true)
+			self.gui:setVisible(button .. "F", false)
+		
+		else
+			self.gui:setVisible(button .. "T", false)
+			self.gui:setVisible(button .. "F", true)
+		end
+	end
+
+	for index, button in pairs(self.buttons.roundingMode) do
+		
+		if index == BetterPlacementCoreV2.settings.roundingSetting then
+			
+			self.gui:setVisible(button .. "T", true)
+			self.gui:setVisible(button .. "F", false)
+		
+		else
+			self.gui:setVisible(button .. "T", false)
+			self.gui:setVisible(button .. "F", true)
+		end
+	end
 end
 
 
 function PlacementSettingsGUI:onToggle()
-    
-    self.gui:open()
+
+	self.gui:setButtonState(self.buttons.roundingMode[BetterPlacementCoreV2.settings.roundingSetting], true)
+
+	self.gui:setButtonState(self.buttons.clickMode[BetterPlacementCoreV2.settings.doubleClick], true)
+	
+	self.gui:open()
 end

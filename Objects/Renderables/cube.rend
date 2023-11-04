@@ -1,0 +1,17 @@
+{
+    "lodList": [
+        {
+            "minViewSize": 12,
+            "subMeshList": [
+                {
+                        "textureList": [
+                        ],
+                        "material": "ConnectJoint"
+
+                }
+            ],
+            "mesh": "$CONTENT_DATA/Objects/Mesh/cube.fbx"
+
+        }
+    ]
+}

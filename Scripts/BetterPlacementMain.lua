@@ -2,6 +2,8 @@
 
 dofile("$CONTENT_DATA/Scripts/BetterPlacementCore.lua")
 
+dofile("$CONTENT_DATA/Scripts/BetterPlacementCoreV2.lua")
+
 dofile("$SURVIVAL_DATA/Scripts/game/survival_shapes.lua")
 
 dofile("$CONTENT_DATA/Scripts/UsefulUtils.lua")
@@ -10,153 +12,140 @@ dofile("$CONTENT_DATA/Scripts/EffectSet.lua")
 
 dofile("$CONTENT_DATA/Scripts/PlacementSettingsGUI.lua")
 
+---@class BetterPlacementTemplateClass:ToolClass
+
 BetterPlacementTemplateClass = class()
 
 
 function BetterPlacementTemplateClass:client_onCreate()
 
-    sm.gui.chatMessage("Initializing BetterPlacement Mod")
-    print("Initializing BetterPlacement Mod")
+	sm.gui.chatMessage("Initializing BetterPlacement Mod")
+	print("Initializing BetterPlacement Mod")
 
-    -- References
+	-- References
 
-    self.placementCore = BetterPlacementCore
+	self.placementCore = BetterPlacementCoreV2
 
-    self.guiClass = PlacementSettingsGUI
+	self.guiClass = PlacementSettingsGUI
 
-    -- Constants
+	-- Setup callback system
 
-    self.defaultSettings = {
+	self.linkCallback = UsefulUtils.linkCallback
 
-        RoundingSetting = "SnapCornerToGrid", -- SnapCenterToGrid, DynamicSnapCornerToGrid, FixedSnapCornerToGrid
-        PositionSelectionTimer = 5, -- Ticks before advancing to position selection
-        PlacementRadii = 7.5, -- Reach distance
-    }
+	-- Other
 
-    self.settingsData = {
+	self.on = false
 
-        RoundingSettings = {"SnapCenterToGrid", "DynamicSnapCornerToGrid", "FixedSnapCornerToGrid"},
-        MaxPositionSelectionTimer = 40,
-        MaxPlacementRadii = 40
-    }
+	self.toolUuid = sm.uuid.new("74febb3f-cc08-4e02-89c8-9fd0d0a1aa3c")
 
-    -- Setup callback system
+	-- 'self' is actually not BetterPlacementTemplateClass, it's another object created by duplicating it and adding some extra parameters.
+	-- We write the following line so that other classes can also refer to 'self'.
 
-    self.linkCallback = UsefulUtils.linkCallback
+	BetterPlacementClass = self
 
-    -- Other
+	self.placementCore.settings = sm.json.open("$CONTENT_DATA/Scripts/settings.json")
 
-    self.on = false
+	self.placementCore:initialize()
 
-    self.toolUuid = sm.uuid.new("74febb3f-cc08-4e02-89c8-9fd0d0a1aa3c")
+	self.guiClass:initialize()
 
-    -- 'self' is actually not BetterPlacementTemplateClass, it's another object created by duplicating it and adding some extra parameters.
-    -- We write the following line so that other classes can also refer to 'self'.
-
-    BetterPlacementClass = self
-
-     self.settings = sm.json.open("$CONTENT_DATA/Scripts/settings.json")
-
-    self.placementCore:initialize()
-
-    self.guiClass:initialize()
-
-    sm.gui.chatMessage("Initialized BetterPlacement Mod")
-    print("Initialized BetterPlacement Mod")
+	sm.gui.chatMessage("Initialized BetterPlacement Mod")
+	print("Initialized BetterPlacement Mod")
 end
 
 
 function BetterPlacementTemplateClass:client_onRefresh()
 
-    self:client_onCreate()
+	self:client_onCreate()
 end
 
 
 function BetterPlacementTemplateClass:client_onDestroy()
 
+	sm.json.save(self.placementCore.settings, "$CONTENT_DATA/Scripts/settings.json")
 end
 
 -- On/Off
 
 function BetterPlacementTemplateClass.client_onReload(self)
 
-    -- Is the tool selected
+	-- Is the tool selected
 
-    if self.isEquipped then
-        self.on = not self.on
+	if self.isEquipped then
+		self.on = not self.on
 
-        if self.on then
+		if self.on then
 
-            sm.gui.displayAlertText("Use Better Placement:\n#00ff00True", 2)
-        else
+			sm.gui.displayAlertText("Use Better Placement:\n#00ff00True", 2)
+		else
 
-            sm.gui.displayAlertText("Use Better Placement:\n#ff0000False", 2)
-        end
-    else
+			sm.gui.displayAlertText("Use Better Placement:\n#ff0000False", 2)
+		end
+	else
 
-        self.placementCore:onReload()
-    end
+		self.placementCore:onReload()
+	end
 
-    return true
+	return true
 end
 
 -- Rotation
 
 function BetterPlacementTemplateClass.client_onToggle(self)
 
-    if self.isEquipped then
+	if self.isEquipped then
 
-        self.guiClass:onToggle()
-    else
+		self.guiClass:onToggle()
+	else
 
-        self.placementCore:onToggle()
-    end
+		self.placementCore:onToggle()
+	end
 
-    return true
+	return true
 end
 
 function BetterPlacementTemplateClass.client_onEquippedUpdate(self, primaryState, secondaryState, forceBuild)
 
-    self.placementCore.primaryState = primaryState
+	self.placementCore.primaryState = primaryState
 
-    -- The first parameter doesn't work for some reason
+	-- The first parameter doesn't work for some reason
 
-    return false, false
+	return false, false
 end
 
 function BetterPlacementTemplateClass:client_onUpdate()
 
-    Item = sm.localPlayer.getActiveItem()
+	local item = sm.localPlayer.getActiveItem()
 
-    if Item == self.toolUuid then
+	if item == self.toolUuid then
 
-        if self.on then
-            sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Disable Better Placement")
-        
-        else
-            sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Enable Better Placement")
-        end
-        
-        sm.gui.setInteractionText("", sm.gui.getKeyBinding("NextCreateRotation", true), "Open Settings GUI") -- https://scrapmechanictools.com/modding_help/Keybind_Names
+		if self.on then
+			sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Disable Better Placement")
+		
+		else
+			sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Enable Better Placement")
+		end
+		
+		sm.gui.setInteractionText("", sm.gui.getKeyBinding("NextCreateRotation", true), "Open Settings GUI") -- https://scrapmechanictools.com/modding_help/Keybind_Names
 
-        self.isEquipped = true
-    else
+		self.isEquipped = true
+	else
 
-        self.isEquipped = false
-    end
+		self.isEquipped = false
+	end
 
-    local forceTool = sm.item.isPart(Item) or Item == sm.uuid.getNil()-- or sm.item.isJoint(Item)
+	local forceTool = self.placementCore.constants.isSupportedItem(item)
 
-    if forceTool and self.on then
+	if forceTool and self.on then
 
-        sm.tool.forceTool(self.tool)
-    else
+		sm.tool.forceTool(self.tool)
+	else
 
-        sm.tool.forceTool(nil)
-    end
+		sm.tool.forceTool(nil)
+	end
 
-    if self.on then
+	if self.on then
 
-        self.placementCore:doFrame()
-    end
+		self.placementCore:doFrame()
+	end
 end

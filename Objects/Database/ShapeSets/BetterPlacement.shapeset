@@ -83,6 +83,20 @@
          "showInInventory" : false,
          "sticky" : "All",
          "uuid" : "01e9830e-4b80-47b5-9cbb-736024f12d53"
+      },
+      {
+         "box" : {
+            "x" : 1,
+            "y" : 1,
+            "z" : 1
+         },
+         "name" : "cube",
+         "physicsMaterial" : "Default",
+         "renderable" : "$CONTENT_DATA/Objects/Renderables/cube.rend",
+         "rotationSet" : "Default",
+         "showInInventory" : false,
+         "sticky" : "All",
+         "uuid" : "4a91af39-7095-4497-8930-b9105e8a236d"
       }
    ]
 }
