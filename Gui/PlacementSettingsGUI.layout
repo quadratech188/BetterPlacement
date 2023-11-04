@@ -4,7 +4,7 @@
         <Property key="NeedKey" value="false"/>
         <Widget type="Widget" skin="BackgroundDarkRoundedUpperRight" position_real="0 0 1 0.09841269841269841">
             <Widget type="TextBox" skin="TextBox" position_real="0 0 1 1" name="Title">
-                <Property key="Caption" value="Advanced Placement Settings"/>
+                <Property key="Caption" value="Better Placement Settings"/>
                 <Property key="FontName" value="SM_HeaderLarge_Medium"/>
                 <Property key="TextAlign" value="Center"/>
             </Widget>
