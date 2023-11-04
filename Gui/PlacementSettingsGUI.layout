@@ -3,7 +3,7 @@
     <Widget type="Widget" skin="PanelEmpty" position_real="0.20000000000000001 0.14999999999999999 0.59999999999999998 0.69999999999999996" align="HCenter VCenter" name="BackPanel">
         <Property key="NeedKey" value="false"/>
         <Widget type="Widget" skin="BackgroundDarkRoundedUpperRight" position_real="0 0 1 0.09841269841269841">
-            <Widget type="TextBox" skin="TextBox" position_real="0 0 1 1">
+            <Widget type="TextBox" skin="TextBox" position_real="0 0 1 1" name="Title">
                 <Property key="Caption" value="Advanced Placement Settings"/>
                 <Property key="FontName" value="SM_HeaderLarge_Medium"/>
                 <Property key="TextAlign" value="Center"/>
@@ -18,7 +18,14 @@
                     <Property key="TextColour" value="1 0.691406 0"/>
                 </Widget>
                 <Widget type="Widget" skin="PanelEmpty" position_real="0 0.2978723404255319 0.29895712630359211 0.69503546099290781">
-                    <Widget type="Button" skin="SecondaryButton" position_real="0 0 1 0.29591836734693877" name="RoundingMode_Center">
+                    <Widget type="Button" skin="SettingsButton" position_real="0 -0.1 1 0.39591836734693877" name="RoundingMode_CenterF">
+                        <Property key="Visible" value="true"/>
+                        <Property key="Caption" value="Center"/>
+                        <Property key="FontHeight" value="100"/>
+                        <Property key="FontName" value="SM_SubHeader"/>
+                        <Property key="TextAlign" value="Center"/>
+                    </Widget>
+                    <Widget type="Button" skin="ActiveButton" position_real="0 -0.1 1 0.39591836734693877" name="RoundingMode_CenterT">
                         <Property key="Visible" value="true"/>
                         <Property key="Caption" value="Center"/>
                         <Property key="FontHeight" value="100"/>
@@ -31,7 +38,14 @@
                     </Widget>
                 </Widget>
                 <Widget type="Widget" skin="PanelEmpty" position_real="0.34994206257242177 0.2978723404255319 0.29895712630359211 0.69503546099290781">
-                    <Widget type="Button" skin="SecondaryButton" position_real="0 0 1 0.29591836734693877" name="RoundingMode_Fixed">
+                    <Widget type="Button" skin="SettingsButton" position_real="0 -0.1 1 0.39591836734693877" name="RoundingMode_FixedF">
+                        <Property key="Visible" value="true"/>
+                        <Property key="Caption" value="Static"/>
+                        <Property key="FontHeight" value="100"/>
+                        <Property key="FontName" value="SM_SubHeader"/>
+                        <Property key="TextAlign" value="Center"/>
+                    </Widget>
+                    <Widget type="Button" skin="ActiveButton" position_real="0 -0.1 1 0.39591836734693877" name="RoundingMode_FixedT">
                         <Property key="Visible" value="true"/>
                         <Property key="Caption" value="Static"/>
                         <Property key="FontHeight" value="100"/>
@@ -44,7 +58,14 @@
                     </Widget>
                 </Widget>
                 <Widget type="Widget" skin="PanelEmpty" position_real="0.69988412514484355 0.2978723404255319 0.29895712630359211 0.69503546099290781">
-                    <Widget type="Button" skin="SecondaryButton" position_real="0 0 1 0.29591836734693877" name="RoundingMode_Dynamic">
+                    <Widget type="Button" skin="SettingsButton" position_real="0 -0.1 1 0.39591836734693877" name="RoundingMode_DynamicF">
+                        <Property key="Visible" value="true"/>
+                        <Property key="Caption" value="Dynamic"/>
+                        <Property key="FontHeight" value="100"/>
+                        <Property key="FontName" value="SM_SubHeader"/>
+                        <Property key="TextAlign" value="Center"/>
+                    </Widget>
+                    <Widget type="Button" skin="ActiveButton" position_real="0 -0.1 1 0.39591836734693877" name="RoundingMode_DynamicT">
                         <Property key="Visible" value="true"/>
                         <Property key="Caption" value="Dynamic"/>
                         <Property key="FontHeight" value="100"/>
@@ -65,6 +86,54 @@
                     <Property key="TextColour" value="1 0.691406 0"/>
                 </Widget>
                 <Widget type="Widget" skin="PanelEmpty" position_real="0.5 0 0.5 1" name="PlacementRadius"/>
+            </Widget>
+            <Widget type="Widget" skin="PanelEmpty" position_real="0.048958333333333333 0.6 0.8989583333333333 0.24911660777385158">
+                <Widget type="TextBox" skin="TextBox" position_real="0 0 0.49942062572421786 0.2978723404255319">
+                    <Property key="Caption" value="Click Mode"/>
+                    <Property key="TextAlign" value="Left VCenter"/>
+                    <Property key="FontName" value="SM_SubHeader"/>
+                    <Property key="TextColour" value="1 0.691406 0"/>
+                </Widget>
+                <Widget type="Widget" skin="PanelEmpty" position_real="0 0.2978723404255319 0.473928157589803 0.69503546099290781">
+                    <Widget type="Button" skin="SettingsButton" position_real="0 -0.1 1 0.39591836734693877" name="ClickMode_OnceF">
+                        <Property key="Visible" value="true"/>
+                        <Property key="FontHeight" value="100"/>
+                        <Property key="FontName" value="SM_SubHeader"/>
+                        <Property key="TextAlign" value="Center"/>
+                        <Property key="Caption" value="Click &amp; Drag"/>
+                    </Widget>
+                    <Widget type="Button" skin="ActiveButton" position_real="0 -0.1 1 0.39591836734693877" name="ClickMode_OnceT">
+                        <Property key="Visible" value="true"/>
+                        <Property key="FontHeight" value="100"/>
+                        <Property key="FontName" value="SM_SubHeader"/>
+                        <Property key="TextAlign" value="Center"/>
+                        <Property key="Caption" value="Click &amp; Drag"/>
+                    </Widget>
+                    <Widget type="TextBox" skin="TextBox" position_real="0 0.29591836734693877 1 0.69387755102040816">
+                        <Property key="Caption" value="Click and hold to initiate position selection.\nRelease hold to place the part."/>
+                        <Property key="TextAlign" value="HCenter Top"/>
+                    </Widget>
+                </Widget>
+                <Widget type="Widget" skin="PanelEmpty" position_real="0.52491309385863272 0.2978723404255319 0.473928157589803 0.69503546099290781">
+                    <Widget type="Button" skin="SettingsButton" position_real="0 -0.1 1 0.39591836734693877" name="ClickMode_TwiceF">
+                        <Property key="Visible" value="true"/>
+                        <Property key="Caption" value="Click Twice"/>
+                        <Property key="FontHeight" value="100"/>
+                        <Property key="FontName" value="SM_SubHeader"/>
+                        <Property key="TextAlign" value="Center"/>
+                    </Widget>
+                    <Widget type="Button" skin="ActiveButton" position_real="0 -0.1 1 0.39591836734693877" name="ClickMode_TwiceT">
+                        <Property key="Visible" value="true"/>
+                        <Property key="Caption" value="Click Twice"/>
+                        <Property key="FontHeight" value="100"/>
+                        <Property key="FontName" value="SM_SubHeader"/>
+                        <Property key="TextAlign" value="Center"/>
+                    </Widget>
+                    <Widget type="TextBox" skin="TextBox" position_real="0 0.29591836734693877 1 0.69387755102040816">
+                        <Property key="TextAlign" value="HCenter Top"/>
+                        <Property key="Caption" value="Click to initiate position selection.\nClick again to place the part."/>
+                    </Widget>
+                </Widget>
             </Widget>
         </Widget>
     </Widget>

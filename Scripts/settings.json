@@ -2,5 +2,5 @@
 {
 	"doubleClick" : false,
 	"placementRadius" : 7.50,
-	"roundingSetting" : "Dynamic"
+	"roundingSetting" : "Fixed"
 }
