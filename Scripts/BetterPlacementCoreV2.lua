@@ -205,12 +205,9 @@ end
 
 function BetterPlacementCoreV2:doPhase0()
 	
-	sm.gui.setInteractionText("", sm.gui.getKeyBinding("NextCreateRotation", true), "Rotate")
-	sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Lock to Face")
+
 
 	if not self.status.lockedSelection then
-
-		sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Lock to Face")
 
 		self.phase0.placementIsValid = self:evaluateRaycast(self.raycastResult)
 
@@ -220,8 +217,6 @@ function BetterPlacementCoreV2:doPhase0()
 
 			self.phase0.faceData = UsefulUtils.getFaceDataFromRaycast(self.phase0.raycastStorage)
 		end
-	else
-		sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Unlock Face")
 	end
 
 	if not self.phase0.placementIsValid then
@@ -230,6 +225,16 @@ function BetterPlacementCoreV2:doPhase0()
 		self.rotationGizmo:hideAll()
 
 	else
+
+		sm.gui.setInteractionText("", sm.gui.getKeyBinding("NextCreateRotation", true), "Rotate")
+
+		if self.status.lockedSelection then
+
+			sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Unlock Face")
+		else
+
+			sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Lock to Face")
+		end
 
 		local faceData = self.phase0.faceData
 
@@ -315,9 +320,11 @@ function BetterPlacementCoreV2:preparePhase1()
 
 	self.phase1.cursorPos = self.phase0.localPlacementPos
 
+	self.phase1.shapeOffset = sm.vec3.zero()
+
 	self.phase1.partRot = self.phase0.localPlacementRot
 
-	self.phase1.shapeOffset = self.phase0.localPlacementRot * sm.item.getShapeOffset(self.currentItem)
+	self.phase1.roundingOffset = self.phase0.localPlacementRot * sm.item.getShapeOffset(self.currentItem)
 
 	self.partVisualization:visualize("Blue")
 
@@ -345,11 +352,11 @@ function BetterPlacementCoreV2:doPhase1()
 		self.transformGizmo:showOnly({"Z", "Base"})
 	end
 
-	phase1.partPos = UsefulUtils.roundVecToGrid(phase1.cursorPos - phase1.shapeOffset) + phase1.shapeOffset
+	phase1.partPos = UsefulUtils.roundVecToGrid(phase1.cursorPos + phase1.shapeOffset - phase1.roundingOffset) + phase1.roundingOffset
 
 	self.partVisualization:setTransforms(phase1.partPos, phase1.partRot)
 
-	self.transformGizmo:setPositionAndRotation(phase1.parentBody:transformPoint(phase1.partPos), phase1.parentBody.worldRotation * phase1.surfaceRot)
+	self.transformGizmo:setPositionAndRotation(phase1.parentBody:transformPoint(phase1.partPos - phase1.shapeOffset), phase1.parentBody.worldRotation * phase1.surfaceRot)
 
 	if (self.settings.doubleClick and self.primaryState == 1) or (not self.settings.doubleClick and self.primaryState  == 3) then
 		
