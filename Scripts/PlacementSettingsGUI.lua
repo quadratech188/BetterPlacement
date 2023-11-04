@@ -39,8 +39,6 @@ end
 
 
 function PlacementSettingsGUI:onGUIUpdate(data)
-
-	print(data)
 	
 	self = PlacementSettingsGUI
 

@@ -58,15 +58,6 @@ function BetterPlacementCoreV2:initialize()
 	UsefulUtils.linkCallback(BetterPlacementClass, "sv_createPart", UsefulUtils.sv_createPart, -1)
 
 	self:reset()
-
-	-- Temporary
-
-	self.settings = {
-
-		roundingSetting = "Dynamic", -- Center, Fixed, Dynamic
-		placementRadius = 7.5, -- Reach distance
-		doubleClick = false -- Click to begin placement, click again to end it
-	}
 end
 
 

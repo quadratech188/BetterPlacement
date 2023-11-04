@@ -18,14 +18,14 @@
                     <Property key="TextColour" value="1 0.691406 0"/>
                 </Widget>
                 <Widget type="Widget" skin="PanelEmpty" position_real="0 0.2978723404255319 0.29895712630359211 0.69503546099290781">
-                    <Widget type="Button" skin="SettingsButton" position_real="0 -0.1 1 0.39591836734693877" name="RoundingMode_CenterF">
+                    <Widget type="Button" skin="SettingsButton" position_real="0 -0.05 1 0.39591836734693877" name="RoundingMode_CenterF">
                         <Property key="Visible" value="true"/>
                         <Property key="Caption" value="Center"/>
                         <Property key="FontHeight" value="100"/>
                         <Property key="FontName" value="SM_SubHeader"/>
                         <Property key="TextAlign" value="Center"/>
                     </Widget>
-                    <Widget type="Button" skin="ActiveButton" position_real="0 -0.1 1 0.39591836734693877" name="RoundingMode_CenterT">
+                    <Widget type="Button" skin="ActiveButton" position_real="0 -0.05 1 0.39591836734693877" name="RoundingMode_CenterT">
                         <Property key="Visible" value="true"/>
                         <Property key="Caption" value="Center"/>
                         <Property key="FontHeight" value="100"/>
@@ -38,14 +38,14 @@
                     </Widget>
                 </Widget>
                 <Widget type="Widget" skin="PanelEmpty" position_real="0.34994206257242177 0.2978723404255319 0.29895712630359211 0.69503546099290781">
-                    <Widget type="Button" skin="SettingsButton" position_real="0 -0.1 1 0.39591836734693877" name="RoundingMode_FixedF">
+                    <Widget type="Button" skin="SettingsButton" position_real="0 -0.05 1 0.39591836734693877" name="RoundingMode_FixedF">
                         <Property key="Visible" value="true"/>
                         <Property key="Caption" value="Static"/>
                         <Property key="FontHeight" value="100"/>
                         <Property key="FontName" value="SM_SubHeader"/>
                         <Property key="TextAlign" value="Center"/>
                     </Widget>
-                    <Widget type="Button" skin="ActiveButton" position_real="0 -0.1 1 0.39591836734693877" name="RoundingMode_FixedT">
+                    <Widget type="Button" skin="ActiveButton" position_real="0 -0.05 1 0.39591836734693877" name="RoundingMode_FixedT">=
                         <Property key="Visible" value="true"/>
                         <Property key="Caption" value="Static"/>
                         <Property key="FontHeight" value="100"/>
@@ -58,14 +58,14 @@
                     </Widget>
                 </Widget>
                 <Widget type="Widget" skin="PanelEmpty" position_real="0.69988412514484355 0.2978723404255319 0.29895712630359211 0.69503546099290781">
-                    <Widget type="Button" skin="SettingsButton" position_real="0 -0.1 1 0.39591836734693877" name="RoundingMode_DynamicF">
+                    <Widget type="Button" skin="SettingsButton" position_real="0 -0.05 1 0.39591836734693877" name="RoundingMode_DynamicF">
                         <Property key="Visible" value="true"/>
                         <Property key="Caption" value="Dynamic"/>
                         <Property key="FontHeight" value="100"/>
                         <Property key="FontName" value="SM_SubHeader"/>
                         <Property key="TextAlign" value="Center"/>
                     </Widget>
-                    <Widget type="Button" skin="ActiveButton" position_real="0 -0.1 1 0.39591836734693877" name="RoundingMode_DynamicT">
+                    <Widget type="Button" skin="ActiveButton" position_real="0 -0.05 1 0.39591836734693877" name="RoundingMode_DynamicT">
                         <Property key="Visible" value="true"/>
                         <Property key="Caption" value="Dynamic"/>
                         <Property key="FontHeight" value="100"/>
@@ -95,14 +95,14 @@
                     <Property key="TextColour" value="1 0.691406 0"/>
                 </Widget>
                 <Widget type="Widget" skin="PanelEmpty" position_real="0 0.2978723404255319 0.473928157589803 0.69503546099290781">
-                    <Widget type="Button" skin="SettingsButton" position_real="0 -0.1 1 0.39591836734693877" name="ClickMode_OnceF">
+                    <Widget type="Button" skin="SettingsButton" position_real="0 -0.05 1 0.39591836734693877" name="ClickMode_OnceF">
                         <Property key="Visible" value="true"/>
                         <Property key="FontHeight" value="100"/>
                         <Property key="FontName" value="SM_SubHeader"/>
                         <Property key="TextAlign" value="Center"/>
                         <Property key="Caption" value="Click &amp; Drag"/>
                     </Widget>
-                    <Widget type="Button" skin="ActiveButton" position_real="0 -0.1 1 0.39591836734693877" name="ClickMode_OnceT">
+                    <Widget type="Button" skin="ActiveButton" position_real="0 -0.05 1 0.39591836734693877" name="ClickMode_OnceT">
                         <Property key="Visible" value="true"/>
                         <Property key="FontHeight" value="100"/>
                         <Property key="FontName" value="SM_SubHeader"/>
@@ -115,14 +115,14 @@
                     </Widget>
                 </Widget>
                 <Widget type="Widget" skin="PanelEmpty" position_real="0.52491309385863272 0.2978723404255319 0.473928157589803 0.69503546099290781">
-                    <Widget type="Button" skin="SettingsButton" position_real="0 -0.1 1 0.39591836734693877" name="ClickMode_TwiceF">
+                    <Widget type="Button" skin="SettingsButton" position_real="0 -0.05 1 0.39591836734693877" name="ClickMode_TwiceF">
                         <Property key="Visible" value="true"/>
                         <Property key="Caption" value="Click Twice"/>
                         <Property key="FontHeight" value="100"/>
                         <Property key="FontName" value="SM_SubHeader"/>
                         <Property key="TextAlign" value="Center"/>
                     </Widget>
-                    <Widget type="Button" skin="ActiveButton" position_real="0 -0.1 1 0.39591836734693877" name="ClickMode_TwiceT">
+                    <Widget type="Button" skin="ActiveButton" position_real="0 -0.05 1 0.39591836734693877" name="ClickMode_TwiceT">
                         <Property key="Visible" value="true"/>
                         <Property key="Caption" value="Click Twice"/>
                         <Property key="FontHeight" value="100"/>

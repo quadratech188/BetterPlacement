@@ -43,7 +43,7 @@ function BetterPlacementTemplateClass:client_onCreate()
 
 	BetterPlacementClass = self
 
-	-- self.placementCore.settings = sm.json.open("$CONTENT_DATA/Scripts/settings.json")
+	self.placementCore.settings = sm.json.open("$CONTENT_DATA/Scripts/settings.json")
 
 	self.placementCore:initialize()
 
