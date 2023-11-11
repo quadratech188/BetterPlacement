@@ -58,12 +58,9 @@ function PieMenu:doFrame()
     
     local pos = sm.camera.getPosition()
     local rot = sm.camera.getRotation()
-    local offset = UsefulUtils.raycastToPlane(sm.camera.getPosition(), sm.camera.getDirection(), self.position, sm.camera.getRotation()).pointLocal
+    local offset = UsefulUtils.raycastToPlane(sm.camera.getPosition(), sm.camera.getDirection(), self.position, sm.camera.getRotation() * QuatPosY).pointLocal
 
-    self.debugeffect:setPosition(self.position)
-    self.debugeffect:setRotation(rot)
-
-    print(offset)
+    local angle = math.atan2(offset.y, offset.x)
 
     print(angle)
 end
