@@ -324,22 +324,16 @@ end
 ---@return table raycastData {pointLocal, pointWorld}
 function UsefulUtils.raycastToPlane(raycastPos, raycastDirection, planePos, planeRotation)
 
-	local planeNormal = sm.quat.getAt(planeRotation)
-	
-	local distance = planePos - raycastPos
+	local localPos = sm.quat.inverse(planeRotation) * (raycastPos - planePos)
 
-	local perpendicularDistance = distance:dot(planeNormal)
+	local localDir = sm.quat.inverse(planeRotation) * raycastDirection
 
-	local perpendicularComponentOfRaycast = raycastDirection:dot(planeNormal)
+	local localPlanePos = localPos - localDir * (localPos.z / localDir.z)
 
-	local worldPos = raycastDirection * perpendicularDistance / perpendicularComponentOfRaycast + raycastPos
-
-	local worldDeltaPos = worldPos - planePos
-
-	local localPos = sm.quat.inverse(planeRotation) * worldDeltaPos
+	local worldPos = planeRotation * localPlanePos + planePos
 
 	return {
-		pointLocal = localPos,
+		pointLocal = localPlanePos,
 		pointWorld = worldPos
 	}
 end
