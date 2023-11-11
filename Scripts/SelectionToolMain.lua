@@ -21,7 +21,7 @@ function SelectionToolTemplateClass:client_onCreate()
 
 	HighLightEffect:setParameter("visualization", true)
 
-	ActionSelectionPieMenu = SelectionToolPieMenu.new("$CONTENT_DATA/Gui/PieMenuGUI4.layout", 4, 0, 0.1, nil)
+	ActionSelectionPieMenu = PieMenu.new("$CONTENT_DATA/Gui/PieMenuGUI4.layout", 4, 0, 0.1, nil)
 end
 
 function SelectionToolTemplateClass:client_onRefresh()
@@ -50,6 +50,8 @@ function SelectionToolTemplateClass:doPhase0(isRisingEdge)
 		self.shape = self.raycastResult:getShape()
 
 		UsefulUtils.highlightShape(HighLightEffect, self.shape)
+
+		ActionSelectionPieMenu:setPosition(self.shape.worldPosition)
 	
 	else
 
@@ -67,6 +69,8 @@ function SelectionToolTemplateClass:doPhase1(isRisingEdge)
 	sm.gui.setInteractionText("", sm.gui.getKeyBinding("ForceBuild", true), "Actions...")
 
 	UsefulUtils.highlightShape(HighLightEffect, self.shape)
+
+	ActionSelectionPieMenu:setPosition(self.shape.worldPosition)
 end
 
 function SelectionToolTemplateClass:doActionSelect(isRisingEdge)

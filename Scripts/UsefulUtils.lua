@@ -316,11 +316,12 @@ function UsefulUtils.raycastToPlaneDeprecated(raycastPos, raycastDirection, plan
 end
 
 
+---Returns raycast data to a plane
 ---@param raycastPos Vec3
 ---@param raycastDirection Vec3
 ---@param planePos Vec3
 ---@param planeRotation Quat
----@return table
+---@return table raycastData {pointLocal, pointWorld}
 function UsefulUtils.raycastToPlane(raycastPos, raycastDirection, planePos, planeRotation)
 
 	local planeNormal = sm.quat.getAt(planeRotation)
