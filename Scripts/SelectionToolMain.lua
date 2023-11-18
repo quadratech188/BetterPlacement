@@ -4,6 +4,7 @@ dofile("$CONTENT_DATA/Scripts/PieMenu.lua")
 
 SelectionToolTemplateClass = class()
 
+
 function SelectionToolTemplateClass:client_onCreate()
 	
 	self.phases = {
@@ -21,20 +22,38 @@ function SelectionToolTemplateClass:client_onCreate()
 
 	HighLightEffect:setParameter("visualization", true)
 
-	ActionSelectionPieMenu = PieMenu.new("$CONTENT_DATA/Gui/SelectionToolPieMenu.layout", 4)
+	self.pieMenu = PieMenu.new("$CONTENT_DATA/Gui/SelectionToolPieMenu.layout", 4, 0.12)
+
+	self.actions = {
+		[0] = self.back,
+		[1] = self.move,
+		[2] = self.reset, -- Temp
+		[3] = self.reset,
+		[4] = self.reset -- Temp
+	}
 end
+
 
 function SelectionToolTemplateClass:client_onRefresh()
 	
 	self:client_onCreate()
 end
 
+
 function SelectionToolTemplateClass:client_onDestroy()
 	
 	HighLightEffect:stop()
 end
 
-function SelectionToolTemplateClass:doPhase0(isRisingEdge)
+
+function SelectionToolTemplateClass:reset()
+	
+	self.currentPhase = "start"
+	self.pieMenu:close()
+end
+
+
+function SelectionToolTemplateClass:doPhase0()
 
 	-- print("start")
 
@@ -51,8 +70,16 @@ function SelectionToolTemplateClass:doPhase0(isRisingEdge)
 
 		UsefulUtils.highlightShape(HighLightEffect, self.shape)
 
-		ActionSelectionPieMenu:setPosition(self.shape:getWorldPosition())
+		self.pieMenu:setPosition(self.shape:getWorldPosition())
 	
+		if self.primaryState == 1 then
+			self.currentPhase = "select"
+		end
+
+		if self.forceBuild then
+			self.pieMenu:open()
+			self.currentPhase = "actionSelect"
+		end
 	else
 
 		self.shape = nil
@@ -61,7 +88,8 @@ function SelectionToolTemplateClass:doPhase0(isRisingEdge)
 	end
 end
 
-function SelectionToolTemplateClass:doPhase1(isRisingEdge)
+
+function SelectionToolTemplateClass:doPhase1()
 
 	-- print("select")
 	
@@ -70,30 +98,52 @@ function SelectionToolTemplateClass:doPhase1(isRisingEdge)
 
 	UsefulUtils.highlightShape(HighLightEffect, self.shape)
 
-	ActionSelectionPieMenu:setPosition(self.shape:getWorldPosition())
-end
+	self.pieMenu:setPosition(self.shape:getWorldPosition())
 
-function SelectionToolTemplateClass:doActionSelect(isRisingEdge)
-
-	if isRisingEdge then
-		
-		ActionSelectionPieMenu:open()
+	if self.primaryState == 1 then
+		self.currentPhase = "start"
 	end
 
-	-- print("actionSelect")
+	if self.forceBuild then
+		self.pieMenu:open()
+		self.currentPhase = "actionSelect"
+	end
 end
 
-function SelectionToolTemplateClass:executeAction(isRisingEdge)
 
-	if isRisingEdge then
-		
-		ActionSelectionPieMenu:close()
+function SelectionToolTemplateClass:doActionSelect()
+
+	if not self.forceBuild then
+		self.currentAction = self.pieMenu:close()
+
+		self.currentPhase = "execute"
 	end
+end
+
+
+function SelectionToolTemplateClass:executeAction()
 	
-	-- print("execute")
+	print(self.currentAction)
 
-	self.currentPhase = "start"
+	self.actions[self.currentAction](self)
 end
+
+
+function SelectionToolTemplateClass:move()
+	
+	print("move")
+
+	self:reset()
+end
+
+
+function SelectionToolTemplateClass:back()
+	
+	print("back")
+	
+	self:reset()
+end
+
 
 function SelectionToolTemplateClass.client_onEquippedUpdate(self, primaryState, secondaryState, forceBuild)
 
@@ -101,34 +151,14 @@ function SelectionToolTemplateClass.client_onEquippedUpdate(self, primaryState, 
 	self.secondaryState = secondaryState
 	self.forceBuild = forceBuild
 
-	local isRisingEdge
-
-	if self.currentPhase == "start" and primaryState == 1 and self.shape ~= nil then
-		self.currentPhase = "select"
-		isRisingEdge = true
-
-	elseif self.currentPhase == "select" and primaryState == 1 then
-		self.currentPhase = "start"
-		isRisingEdge = true
-	end
-
-	if (self.currentPhase == "start" or self.currentPhase == "select") and forceBuild then
-		self.currentPhase = "actionSelect"
-		isRisingEdge = true
-	
-	elseif self.currentPhase == "actionSelect" and not forceBuild then
-		self.currentPhase = "execute"
-		isRisingEdge = true
-	end
-
 	self.raycastSuccess, self.raycastResult = sm.localPlayer.getRaycast(7.5)
 
-	self.phases[self.currentPhase](self, isRisingEdge)
+	self.pieMenu:doFrame()
 
-	ActionSelectionPieMenu:doFrame()
+	self.phases[self.currentPhase](self)
+
 
 	-- The first parameter doesn't work for some reason
 
 	return false, false
-	
 end

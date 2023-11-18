@@ -18,23 +18,26 @@ PieMenu = class()
 
 ---@param guiPath string
 ---@param numberOfSegments integer
+---@param deadzone number
 ---@return PieMenu
-function PieMenu.new(guiPath, numberOfSegments)
+function PieMenu.new(guiPath, numberOfSegments, deadzone)
 
 	---@type PieMenu
 	local returnClass = class(PieMenu)
 
-	returnClass:initialize(guiPath, numberOfSegments)
+	returnClass:initialize(guiPath, numberOfSegments, deadzone)
 
 	return returnClass
 end
 
 
-function PieMenu:initialize(guiPath, numberOfSegments)
+function PieMenu:initialize(guiPath, numberOfSegments, deadzone)
     
     self.worldGui = sm.gui.createWorldIconGui(1920, 1080, guiPath, false)
 
     self.numberOfSegments = numberOfSegments
+
+    self.deadzone = deadzone
 
     self.position = sm.vec3.zero()
 
@@ -72,7 +75,9 @@ function PieMenu:doFrame()
     
     local pos = sm.camera.getPosition()
     local rot = sm.camera.getRotation()
-    local offset = UsefulUtils.raycastToPlane(sm.camera.getPosition(), sm.camera.getDirection(), self.position, sm.camera.getRotation() * QuatPosY).pointLocal
+    local raycast = UsefulUtils.raycastToPlane(sm.camera.getPosition(), sm.camera.getDirection(), self.position, sm.camera.getRotation() * QuatPosY)
+    local offset = raycast.pointLocal
+    local distance = math.abs(raycast.distanceToPlane)
 
     -- math.atan doesn't work
     local angle = math.atan2(offset.y, offset.x) -- -pi to pi
@@ -84,6 +89,10 @@ function PieMenu:doFrame()
     end
 
     self.index = math.ceil(angleFromFirst / (2 * math.pi) * self.numberOfSegments)
+
+    if offset:length() < self.deadzone * distance then
+        self.index = 0
+    end
 
     self.worldGui:setVisible(tostring(self.index), true)
 

@@ -334,7 +334,8 @@ function UsefulUtils.raycastToPlane(raycastPos, raycastDirection, planePos, plan
 
 	return {
 		pointLocal = localPlanePos,
-		pointWorld = worldPos
+		pointWorld = worldPos,
+		distanceToPlane = localPos.z
 	}
 end
 
