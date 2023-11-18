@@ -21,7 +21,7 @@ function SelectionToolTemplateClass:client_onCreate()
 
 	HighLightEffect:setParameter("visualization", true)
 
-	ActionSelectionPieMenu = PieMenu.new("$CONTENT_DATA/Gui/PieMenuGUI4.layout", 4, 0, 0.1, nil)
+	ActionSelectionPieMenu = PieMenu.new("$CONTENT_DATA/Gui/SelectionToolPieMenu.layout", 4)
 end
 
 function SelectionToolTemplateClass:client_onRefresh()
@@ -51,7 +51,7 @@ function SelectionToolTemplateClass:doPhase0(isRisingEdge)
 
 		UsefulUtils.highlightShape(HighLightEffect, self.shape)
 
-		ActionSelectionPieMenu:setPosition(self.shape.worldPosition)
+		ActionSelectionPieMenu:setPosition(self.shape:getWorldPosition())
 	
 	else
 
@@ -70,7 +70,7 @@ function SelectionToolTemplateClass:doPhase1(isRisingEdge)
 
 	UsefulUtils.highlightShape(HighLightEffect, self.shape)
 
-	ActionSelectionPieMenu:setPosition(self.shape.worldPosition)
+	ActionSelectionPieMenu:setPosition(self.shape:getWorldPosition())
 end
 
 function SelectionToolTemplateClass:doActionSelect(isRisingEdge)
