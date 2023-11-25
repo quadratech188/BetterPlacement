@@ -313,8 +313,6 @@ function SelectionToolTemplateClass:duplicate(isMain)
 	-- Set position of transformGizmo
 	self.transformGizmo:setPositionAndRotation(self.parentBody:transformPoint(self.cursorPos), self.parentBody.worldRotation)
 
-	print(self.partPos)
-
 	if self.reloadState then -- If selection has ended
 
 		-- Build part
