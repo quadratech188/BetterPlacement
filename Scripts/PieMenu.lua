@@ -1,5 +1,3 @@
- 
-dofile("$CONTENT_DATA/Scripts/UsefulUtils.lua")
 
 ---@class PieMenu
 ---@field worldGui GuiInterface
@@ -40,12 +38,6 @@ function PieMenu:initialize(guiPath, numberOfSegments, deadzone)
     self.deadzone = deadzone
 
     self.position = sm.vec3.zero()
-
-    self.debugEffect = SmartEffect.new(sm.uuid.new("4a91af39-7095-4497-8930-b9105e8a236d"))
-
-    self.debugEffect:start()
-
-    self.debugEffect:setOffsetTransforms({nil, nil, sm.vec3.new(1, 0.1, 1)})
 
     for i = 1, numberOfSegments, 1 do
         

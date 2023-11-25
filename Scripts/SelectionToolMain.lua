@@ -1,5 +1,6 @@
 
-dofile("$CONTENT_DATA/Scripts/UsefulUtils.lua")
+dofile("$CONTENT_DATA/Scripts/LoadBasics.lua")
+
 dofile("$CONTENT_DATA/Scripts/PieMenu.lua")
 
 SelectionToolTemplateClass = class()
@@ -15,22 +16,51 @@ function SelectionToolTemplateClass:client_onCreate()
 	}
 
 	self.currentPhase = "start"
+	
+	self.highLightEffect = SmartEffect.new(sm.effect.createEffect("ShapeRenderable"))
 
-	HighLightEffect = SmartEffect.new(sm.effect.createEffect("ShapeRenderable"))
+	self.highLightEffect:setScale(SubdivideRatio)
 
-	HighLightEffect:setScale(SubdivideRatio)
-
-	HighLightEffect:setParameter("visualization", true)
+	self.highLightEffect:setParameter("visualization", true)
 
 	self.pieMenu = PieMenu.new("$CONTENT_DATA/Gui/SelectionToolPieMenu.layout", 4, 0.12)
 
 	self.actions = {
 		[0] = self.back,
 		[1] = self.move,
-		[2] = self.reset, -- Temp
-		[3] = self.reset,
-		[4] = self.reset -- Temp
+		[2] = self.duplicate,
+		[3] = self.back,
+		[4] = self.back -- Temp
 	}
+
+	self.settings = {
+		onlySwitchAxisWhenMouseIsInActive = false
+	}
+
+	-- Create global access point
+
+	---@type ToolClass
+	SelectionToolClass = self
+
+	UsefulUtils.linkCallback(SelectionToolClass, "sv_destroyPart", UsefulUtils.sv_destroyPart, -1)
+	
+	UsefulUtils.linkCallback(SelectionToolClass, "sv_createPart", UsefulUtils.sv_createPart, -1)
+end
+
+
+function SelectionToolTemplateClass:client_onToggle()
+	
+	self.toggleState = true
+
+	return true
+end
+
+
+function SelectionToolTemplateClass:client_onReload()
+	
+	self.reloadState = true
+
+	return true
 end
 
 
@@ -42,7 +72,7 @@ end
 
 function SelectionToolTemplateClass:client_onDestroy()
 	
-	HighLightEffect:stop()
+	self.highLightEffect:stop()
 end
 
 
@@ -50,25 +80,37 @@ function SelectionToolTemplateClass:reset()
 	
 	self.currentPhase = "start"
 	self.pieMenu:close()
+	self.highLightEffect:stop()
+end
+
+
+function SelectionToolTemplateClass:evaluateRaycast()
+	
+	if self.raycastResult.type ~= "body" then
+		return false
+	end
+
+	if sm.item.isBlock(self.raycastResult:getShape():getShapeUuid()) then
+		return false
+	end
+	
+	return true
 end
 
 
 function SelectionToolTemplateClass:doPhase0()
 
 	-- print("start")
-
-	sm.gui.setInteractionText("", sm.gui.getKeyBinding("Create", true), "Select")
-
-	if self.raycastSuccess then
-
-		sm.gui.setInteractionText("", sm.gui.getKeyBinding("ForceBuild", true), "Actions...")
-	end
 	
-	if self.raycastResult.type == "body" then
+	if self:evaluateRaycast() then
 
+		sm.gui.setInteractionText("", sm.gui.getKeyBinding("Create", true), "Select")
+		sm.gui.setInteractionText("", sm.gui.getKeyBinding("ForceBuild", true), "Actions...")
+
+		---@type Shape
 		self.shape = self.raycastResult:getShape()
 
-		UsefulUtils.highlightShape(HighLightEffect, self.shape)
+		UsefulUtils.highlightShape(self.highLightEffect, self.shape)
 
 		self.pieMenu:setPosition(self.shape:getWorldPosition())
 	
@@ -84,7 +126,7 @@ function SelectionToolTemplateClass:doPhase0()
 
 		self.shape = nil
 		
-		HighLightEffect:stop()
+		self.highLightEffect:stop()
 	end
 end
 
@@ -96,7 +138,7 @@ function SelectionToolTemplateClass:doPhase1()
 	sm.gui.setInteractionText("", sm.gui.getKeyBinding("Create", true), "Release")
 	sm.gui.setInteractionText("", sm.gui.getKeyBinding("ForceBuild", true), "Actions...")
 
-	UsefulUtils.highlightShape(HighLightEffect, self.shape)
+	UsefulUtils.highlightShape(self.highLightEffect, self.shape)
 
 	self.pieMenu:setPosition(self.shape:getWorldPosition())
 
@@ -105,6 +147,7 @@ function SelectionToolTemplateClass:doPhase1()
 	end
 
 	if self.forceBuild then
+
 		self.pieMenu:open()
 		self.currentPhase = "actionSelect"
 	end
@@ -116,24 +159,178 @@ function SelectionToolTemplateClass:doActionSelect()
 	if not self.forceBuild then
 		self.currentAction = self.pieMenu:close()
 
+		-- Prepare sandbox for actions
+
+		self.sandBox = {
+			shape = self.shape,
+			highLightEffect = self.highLightEffect,
+			initialize = true
+		}
+
 		self.currentPhase = "execute"
 	end
 end
 
 
 function SelectionToolTemplateClass:executeAction()
-	
-	print(self.currentAction)
 
-	self.actions[self.currentAction](self)
+	-- Update variables
+
+	self.sandBox.primaryState = self.primaryState
+	self.sandBox.secondaryState = self.secondaryState
+	self.sandBox.toggleState = self.toggleState
+	self.sandBox.reloadState = self.reloadState
+	self.forceBuild = self.forceBuild
+	self.sandBox.raycastResult = self.raycastResult
+	self.sandBox.reset = function ()
+		self:reset()
+	end
+	self.sandBox.settings = self.settings
+
+	self.actions[self.currentAction](self.sandBox)
 end
 
 
 function SelectionToolTemplateClass:move()
 	
-	print("move")
+	-- Run the duplicate function
+	SelectionToolClass.duplicate(self, false)
 
-	self:reset()
+	-- Add deletion indicator
+
+	self.highLightEffect:setParameter("valid", false)
+
+	UsefulUtils.highlightShape(self.highLightEffect, self.shape)
+
+	-- Overwrite Hotkeys
+
+	sm.gui.setInteractionText("", sm.gui.getKeyBinding("NextCreateRotation", true), "Rotate Axis")
+	sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Relocate")
+
+	if self.reloadState then
+		
+		-- The new part has already been placed, we only need to delete the old one
+
+		SelectionToolClass.network:sendToServer("sv_destroyPart", self.shape)
+	end
+
+	if self.reloadState or self.secondaryState ~= 0 then -- Reset conditions
+		
+		self.highLightEffect:stop()
+		self.highLightEffect:setParameter("valid", true)
+	end
+end
+
+
+function SelectionToolTemplateClass:duplicate(isMain)
+
+	-- Compatibility for move
+	if isMain ~= false then
+		sm.gui.setInteractionText("", sm.gui.getKeyBinding("NextCreateRotation", true), "Rotate Axis")
+		sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Paste")
+	end
+
+	if self.initialize then
+		
+		-- Create visualizationEffect
+
+		self.visualizationEffect = SmartEffect.new(self.shape.uuid)
+
+		self.visualizationEffect:setParameter("color", self.shape:getColor())
+		self.visualizationEffect:setScale(SubdivideRatio)
+		self.visualizationEffect:start()
+
+		-- Create transformGizmo
+		
+		self.transformGizmo = BPEffects.createTransformGizmo()
+
+		-- We don't need highLightEffect
+
+		self.highLightEffect:stop()
+
+		self.parentBody = self.shape:getBody()
+
+		self.directionNum = 0
+
+		self.vecDirections = {
+			[0] = PosX,
+			[1] = PosY,
+			[2] = PosZ
+		}
+
+		self.strDirections = {
+			[0] = "X",
+			[1] = "Y",
+			[2] = "Z"
+		}
+
+		self.direction = PosX
+		self.transformGizmo:showOnly({"X", "Base"})
+
+		self.partPos = UsefulUtils.getActualLocalPos(self.shape)
+		self.cursorPos = self.partPos
+		self.initialOffset = 0
+
+		self.initialize = false
+	end
+
+	local localRaycastOrigin = UsefulUtils.worldToLocalPos(self.raycastResult.originWorld, self.parentBody)
+
+	local localRaycastDirection = UsefulUtils.worldToLocalDir(self.raycastResult.directionWorld, self.parentBody)
+	
+	if self.toggleState then
+
+		if self.settings.onlySwitchAxisWhenMouseIsInActive and self.primaryState ~= 0 then
+			
+			goto skip
+		end
+		
+		self.directionNum = self.directionNum + 1
+		
+		if self.directionNum == 3 then
+			self.directionNum = 0
+		end
+		
+		self.direction = self.vecDirections[self.directionNum]
+
+		self.transformGizmo:showOnly({self.strDirections[self.directionNum], "Base"})
+	end
+	
+	::skip::
+
+	if self.primaryState == 1 or self.primaryState == 2 then -- If left mouse is clicked
+		
+		local offset = UsefulUtils.raycastToLine(localRaycastOrigin, localRaycastDirection, self.cursorPos, self.direction).pointLocal.z
+
+		self.cursorPos = self.cursorPos + self.direction * (offset - self.initialOffset)
+
+		self.partPos = self.partPos + UsefulUtils.roundVecToGrid(self.cursorPos - self.partPos)
+	end
+
+	-- Set position of visualizationEffect
+	self.visualizationEffect:setTransforms({self.parentBody:transformPoint(self.partPos), self.shape.worldRotation, nil})
+
+	-- Set position of transformGizmo
+	self.transformGizmo:setPositionAndRotation(self.parentBody:transformPoint(self.cursorPos), self.parentBody.worldRotation)
+
+	print(self.partPos)
+
+	if self.reloadState then -- If selection has ended
+
+		-- Build part
+		
+		SelectionToolClass.network:sendToServer("sv_createPart", {self.shape.uuid, self.parentBody, self.partPos, self.shape.localRotation, true, self.shape.color})
+	end
+
+	if self.reloadState or self.secondaryState ~= 0 then -- Reset conditions
+
+		self.visualizationEffect:destroy()
+		self.visualizationEffect = nil
+		self.transformGizmo:destroy()
+		self.transformGizmo = nil
+
+		self.reset()
+	end
 end
 
 
@@ -141,11 +338,11 @@ function SelectionToolTemplateClass:back()
 	
 	print("back")
 	
-	self:reset()
+	self.reset()
 end
 
-
-function SelectionToolTemplateClass.client_onEquippedUpdate(self, primaryState, secondaryState, forceBuild)
+ 
+function SelectionToolTemplateClass:client_onEquippedUpdate(primaryState, secondaryState, forceBuild)
 
 	self.primaryState = primaryState
 	self.secondaryState = secondaryState
@@ -157,8 +354,21 @@ function SelectionToolTemplateClass.client_onEquippedUpdate(self, primaryState, 
 
 	self.phases[self.currentPhase](self)
 
+	-- Reset various states
+
+	self.toggleState = false
+	self.reloadState = false
 
 	-- The first parameter doesn't work for some reason
 
 	return false, false
+end
+
+
+function SelectionToolTemplateClass:client_onUpdate()
+	
+	if self.tool:isEquipped() == false then
+		
+		self:reset()
+	end
 end

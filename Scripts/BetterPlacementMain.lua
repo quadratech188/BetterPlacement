@@ -1,16 +1,10 @@
 
 
-dofile("$CONTENT_DATA/Scripts/BetterPlacementCore.lua")
-
 dofile("$CONTENT_DATA/Scripts/BetterPlacementCoreV2.lua")
 
-dofile("$SURVIVAL_DATA/Scripts/game/survival_shapes.lua")
-
-dofile("$CONTENT_DATA/Scripts/UsefulUtils.lua")
-
-dofile("$CONTENT_DATA/Scripts/EffectSet.lua")
-
 dofile("$CONTENT_DATA/Scripts/PlacementSettingsGUI.lua")
+
+dofile("$CONTENT_DATA/Scripts/LoadBasics.lua")
 
 ---@class BetterPlacementTemplateClass:ToolClass
 

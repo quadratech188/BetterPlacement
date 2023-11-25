@@ -14,6 +14,7 @@
 ---@field setScale function
 ---@field setParameter function
 ---@field isPlaying function
+---@field destroy function
 ---@field effect Effect
 ---@field on boolean
 ---@field offsetPosition Vec3
@@ -193,6 +194,12 @@ function SmartEffect:isPlaying()
 end
 
 
+function SmartEffect:destroy()
+	
+	self.effect:destroy()
+end
+
+
 --------------------------------------------------------------------------------------------
 
 
@@ -214,6 +221,7 @@ end
 ---@field show function
 ---@field hide function
 ---@field hideAll function
+---@field destroy function
 ---@field smartEffects table
 ---@field allEffectKeys table
 ---@field worldPosition Vec3
@@ -472,4 +480,13 @@ end
 function EffectSet:hideAll()
 	
 	self:hide(self.allEffectKeys)
+end
+
+
+function EffectSet:destroy()
+	
+	for _, smartEffect in pairs(self.smartEffects) do
+		
+		smartEffect:destroy()
+	end
 end

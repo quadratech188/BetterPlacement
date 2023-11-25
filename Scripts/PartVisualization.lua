@@ -1,9 +1,5 @@
 ---@diagnostic disable: undefined-field
 
-dofile("$CONTENT_DATA/Scripts/DefaultBody.lua")
-
-dofile("$CONTENT_DATA/Scripts/UsefulUtils.lua")
-
 ---@class PartVisualization
 ---@field new function
 ---@field initialize function

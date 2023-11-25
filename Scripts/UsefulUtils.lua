@@ -533,12 +533,20 @@ function UsefulUtils.worldToLocalPos(pos, body)
 	return sm.quat.inverse(body.worldRotation) * (pos - body.worldPosition)
 end
 
+
+---Returns the actual(not grid) local position of a shape
+---@param shape Shape
+function UsefulUtils.getActualLocalPos(shape)
+	
+	return UsefulUtils.worldToLocalPos(shape.worldPosition, shape:getBody())
+end
+
 -- #endregion
 
 -- #region Server
 
 ---Create a part.
----Params: {uuid, parent, localPos, localRot, forceAccept}
+---Params: {uuid, parent, localPos, localRot, forceAccept, colour}
 function UsefulUtils.sv_createPart(_, data)
 
 	local part = data[1]
@@ -546,9 +554,14 @@ function UsefulUtils.sv_createPart(_, data)
 	local localPos = data[3]
 	local localRot = data[4]
 	local forceAccept = data[5]
+	local colour = data[6]
 
 	if forceAccept == nil then
 		forceAccept = true
+	end
+
+	if colour == nil then
+		colour = sm.item.getShapeDefaultColor(part)
 	end
 
 	local xAxis = sm.vec3.closestAxis(sm.quat.getRight(localRot))
@@ -558,8 +571,12 @@ function UsefulUtils.sv_createPart(_, data)
 	if sm.item.isPart(part) then
 
 		if type(parentObject) == "Shape" then
-			
-			parentObject:getBody():createPart(part, localPos / SubdivideRatio - localRot * sm.item.getShapeSize(part) * 0.5, zAxis, xAxis, forceAccept)
+			print(localPos / SubdivideRatio - localRot * sm.item.getShapeSize(part) * 0.5)
+			parentObject:getBody():createPart(part, localPos / SubdivideRatio - localRot * sm.item.getShapeSize(part) * 0.5, zAxis, xAxis, forceAccept):setColor(colour)
+
+		elseif type(parentObject) == "Body" then
+			print(localPos / SubdivideRatio - localRot * sm.item.getShapeSize(part) * 0.5)
+			parentObject:createPart(part, localPos / SubdivideRatio - localRot * sm.item.getShapeSize(part) * 0.5, zAxis, xAxis, forceAccept):setColor(colour)
 		
 		elseif type(parentObject) == "Joint" then
 
@@ -567,12 +584,21 @@ function UsefulUtils.sv_createPart(_, data)
 		
 		elseif parentObject == "terrain" then
 
-			sm.shape.createPart(part, localPos - localRot * sm.item.getShapeOffset(part), localRot, false, forceAccept)
+			sm.shape.createPart(part, localPos - localRot * sm.item.getShapeOffset(part), localRot, false, forceAccept):setColor(colour)
+
 		elseif parentObject == "lift" then
 
 
 		end
 	end
+end
+
+
+---Destroy a part.
+---@param shape Shape
+function UsefulUtils.sv_destroyPart(_, shape)
+	
+	shape:destroyPart(0)
 end
 
 -- #endregion

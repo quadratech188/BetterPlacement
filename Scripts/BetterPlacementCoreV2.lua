@@ -1,10 +1,4 @@
 
-dofile("$CONTENT_DATA/Scripts/UsefulUtils.lua")
-
-dofile("$CONTENT_DATA/Scripts/PartVisualization.lua")
-
-dofile("$CONTENT_DATA/Scripts/EffectSet.lua")
-
 ---@class BetterPlacementCoreV2
 
 BetterPlacementCoreV2 = class()
@@ -43,14 +37,7 @@ function BetterPlacementCoreV2:initialize()
 		isSupportedItem = function (part)
 			return sm.item.isPart(part)
 		end,
-		centerSize = 0.45,
-		colours = {
-			white = sm.color.new(0.8, 0.8, 0.8, 1),
-			highlight = sm.color.new(0, 0, 0.8, 1),
-			red = sm.color.new("9F0000"),
-			green = sm.color.new("009F00"),
-			blue = sm.color.new("00008F")
-		}
+		centerSize = 0.45
 	}
 
 	self:createEffects()
@@ -77,43 +64,16 @@ function BetterPlacementCoreV2:createEffects()
 
 	self.rotationGizmo = EffectSet.new(rotationGizmoUuids)
 
-	self.rotationGizmo:setParameter("Base", "color", self.constants.colours.white)
-	self.rotationGizmo:setParameter("+X", "color", self.constants.colours.highlight)
-	self.rotationGizmo:setParameter("+Y", "color", self.constants.colours.highlight)
-	self.rotationGizmo:setParameter("+Z", "color", self.constants.colours.highlight)
-	self.rotationGizmo:setParameter("-X", "color", self.constants.colours.highlight)
-	self.rotationGizmo:setParameter("-Y", "color", self.constants.colours.highlight)
+	self.rotationGizmo:setParameter("Base", "color", BPEffects.colours.white)
+	self.rotationGizmo:setParameter("+X", "color", BPEffects.colours.highlight)
+	self.rotationGizmo:setParameter("+Y", "color", BPEffects.colours.highlight)
+	self.rotationGizmo:setParameter("+Z", "color", BPEffects.colours.highlight)
+	self.rotationGizmo:setParameter("-X", "color", BPEffects.colours.highlight)
+	self.rotationGizmo:setParameter("-Y", "color", BPEffects.colours.highlight)
 
 	self.rotationGizmo:setScale(SubdivideRatio)
 
-	local cubeUuid = sm.uuid.new("4a91af39-7095-4497-8930-b9105e8a236d")
-
-	local transformGizmoUuids = {
-		["Base"] = cubeUuid,
-		["X"] = cubeUuid,
-		["Y"] = cubeUuid,
-		["Z"] = cubeUuid
-	}
-
-	local centerThickness = 0.35
-	local thickness = 0.2
-	local length = 1.5
-
-	self.transformGizmo = EffectSet.new(transformGizmoUuids)
-
-	self.transformGizmo:setOffsetTransforms({
-		["Base"] = {nil, nil, sm.vec3.one() * centerThickness},
-		["X"] = {PosX * length / 2, nil, sm.vec3.new(length, thickness, thickness)},
-		["Y"] = {PosY * length / 2, nil, sm.vec3.new(thickness, length, thickness)},
-		["Z"] = {PosZ * length / 2, nil, sm.vec3.new(thickness, thickness, length)}
-	})
-
-	self.transformGizmo:setParameter("Base", "color", self.constants.colours.white)
-	self.transformGizmo:setParameter("X", "color", self.constants.colours.red)
-	self.transformGizmo:setParameter("Y", "color", self.constants.colours.green)
-	self.transformGizmo:setParameter("Z", "color", self.constants.colours.blue)
-
-	self.transformGizmo:setScale(SubdivideRatio)
+	self.transformGizmo = BPEffects.createTransformGizmo()
 end
 
 
@@ -318,9 +278,9 @@ function BetterPlacementCoreV2:preparePhase1()
 
 	self.phase1.partPos = self.phase0.localPlacementPos
 
-	self.phase1.cursorPos = self.phase0.localPlacementPos
+	self.phase1.cursorPos = faceData.localFaceCenterPos
 
-	self.phase1.shapeOffset = sm.vec3.zero()
+	self.phase1.shapeOffset = self.phase1.partPos - self.phase1.cursorPos
 
 	self.phase1.partRot = self.phase0.localPlacementRot
 
