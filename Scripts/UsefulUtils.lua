@@ -570,13 +570,40 @@ function UsefulUtils.sv_createPart(_, data)
 
 	if sm.item.isPart(part) then
 
+		local function convertToWeird(x)
+
+			--From testing, the correct numbers are:
+			-- -2 -> -2.5,
+			-- -1 -> -1.5,
+			-- 0 -> 0,
+			-- 1 -> 1.5,
+			-- 2 -> 2.5 etc.
+
+			if x > 0.5 then
+				return x + 0.5
+			
+			elseif x < 0.5 then
+				return x - 0.5
+			
+			else
+				return x
+			end
+		end
+
+		local function convertVecToWeird(vec)
+			
+			return sm.vec3.new(convertToWeird(vec.x), convertToWeird(vec.y), convertToWeird(vec.z))
+		end
+
 		if type(parentObject) == "Shape" then
-			print(localPos / SubdivideRatio - localRot * sm.item.getShapeSize(part) * 0.5)
-			parentObject:getBody():createPart(part, localPos / SubdivideRatio - localRot * sm.item.getShapeSize(part) * 0.5, zAxis, xAxis, forceAccept):setColor(colour)
+			local cornerPos = localPos / SubdivideRatio - localRot * sm.item.getShapeSize(part) * 0.5
+
+			parentObject:getBody():createPart(part, convertVecToWeird(cornerPos), zAxis, xAxis, forceAccept):setColor(colour)
 
 		elseif type(parentObject) == "Body" then
-			print(localPos / SubdivideRatio - localRot * sm.item.getShapeSize(part) * 0.5)
-			parentObject:createPart(part, localPos / SubdivideRatio - localRot * sm.item.getShapeSize(part) * 0.5, zAxis, xAxis, forceAccept):setColor(colour)
+			local cornerPos = localPos / SubdivideRatio - localRot * sm.item.getShapeSize(part) * 0.5
+
+			parentObject:createPart(part, convertVecToWeird(cornerPos), zAxis, xAxis, forceAccept):setColor(colour)
 		
 		elseif type(parentObject) == "Joint" then
 
