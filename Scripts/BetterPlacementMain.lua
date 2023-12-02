@@ -128,16 +128,6 @@ function BetterPlacementTemplateClass:client_onUpdate()
 		self.isEquipped = false
 	end
 
-	local forceTool = self.placementCore.constants.isSupportedItem(item)
-
-	if forceTool and self.on then
-
-		sm.tool.forceTool(self.tool)
-	else
-
-		sm.tool.forceTool(nil)
-	end
-
 	if self.on then
 
 		self.placementCore:doFrame()

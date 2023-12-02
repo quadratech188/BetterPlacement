@@ -78,6 +78,8 @@ end
 
 
 function BetterPlacementCoreV2:reset()
+
+	sm.tool.forceTool(nil)
 	
 	self.phase0.placementIsValid = false
 
@@ -90,6 +92,7 @@ function BetterPlacementCoreV2:reset()
 	}
 
 	self.partVisualization:visualize("None")
+	self.rotationGizmo:hideAll()
 end
 
 
@@ -164,8 +167,6 @@ end
 -- #region Phases
 
 function BetterPlacementCoreV2:doPhase0()
-	
-
 
 	if not self.status.lockedSelection then
 
@@ -181,10 +182,13 @@ function BetterPlacementCoreV2:doPhase0()
 
 	if not self.phase0.placementIsValid then
 		
-		self.partVisualization:visualize("None")
-		self.rotationGizmo:hideAll()
+		self:reset()
 
 	else
+
+		-- Block standard placement, listen for inputs
+
+		sm.tool.forceTool(BetterPlacementClass.tool)
 
 		sm.gui.setInteractionText("", sm.gui.getKeyBinding("NextCreateRotation", true), "Rotate")
 
@@ -361,13 +365,6 @@ end
 -- #endregion
 
 function BetterPlacementCoreV2:doFrame()
-
-	local deltaX, deltaY = sm.localPlayer.getMouseDelta()
-
-	if deltaX ~= 0 or deltaY ~= 0 then
-		
-		self.status.cursorHasMoved = true
-	end
 	
 	_, self.raycastResult = sm.localPlayer.getRaycast(self.settings.placementRadius)
 
