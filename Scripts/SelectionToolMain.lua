@@ -133,6 +133,11 @@ end
 
 function SelectionToolTemplateClass:doPhase1()
 
+	if not sm.exists(self.shape) then
+		self:reset()
+		return
+	end
+
 	-- print("select")
 	
 	sm.gui.setInteractionText("", sm.gui.getKeyBinding("Create", true), "Release")
@@ -156,6 +161,11 @@ end
 
 function SelectionToolTemplateClass:doActionSelect()
 
+	if not sm.exists(self.shape) then
+		self:reset()
+		return
+	end
+
 	if not self.forceBuild then
 		self.currentAction = self.pieMenu:close()
 
@@ -173,6 +183,11 @@ end
 
 
 function SelectionToolTemplateClass:executeAction()
+
+	if not sm.exists(self.shape) then
+		self:reset()
+		return
+	end
 
 	-- Update variables
 
