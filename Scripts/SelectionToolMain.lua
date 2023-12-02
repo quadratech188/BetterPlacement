@@ -268,6 +268,13 @@ function SelectionToolTemplateClass:sv_move(args)
 			newShape.interactable:connect(child)
 		end
 
+		local parents = originalShape.interactable:getParents()
+
+		for _, parent in pairs(parents) do
+			
+			parent:connect(newShape.interactable)
+		end
+
 		local joints = originalShape.interactable:getJoints()
 
 		for _, joint in pairs(joints) do
