@@ -261,11 +261,6 @@ function SelectionToolTemplateClass:sv_move(args)
 
 	if originalShape.usable then -- Copy over interactable properties
 
-		if originalShape.interactable:getType() == "scripted" then
-
-			newShape.interactable:setPublicData(originalShape.interactable.publicData)
-		end
-
 		local children = originalShape.interactable:getChildren()
 		
 		for _, child in pairs(children) do
