@@ -41,8 +41,6 @@ function SelectionToolTemplateClass:client_onCreate()
 
 	---@type ToolClass
 	SelectionToolClass = self
-
-	UsefulUtils.linkCallback(SelectionToolClass, "sv_destroyPart", UsefulUtils.sv_destroyPart, -1)
 	
 	UsefulUtils.linkCallback(SelectionToolClass, "sv_createPart", UsefulUtils.sv_createPart, -1)
 end
@@ -207,8 +205,16 @@ end
 
 
 function SelectionToolTemplateClass:move()
+
+	if self.initialize == true then
+
+		if self.shape:getInteractable() ~= nil then
+		end
+		
+		-- self.initialize will be set to false by SelectionToolClass:duplicate, we don't do it yet
+	end
 	
-	-- Run the duplicate function
+	-- Use the duplicate function for controls
 	SelectionToolClass.duplicate(self, false)
 
 	-- Add deletion indicator
@@ -224,9 +230,7 @@ function SelectionToolTemplateClass:move()
 
 	if self.reloadState then
 		
-		-- The new part has already been placed, we only need to delete the old one
-
-		SelectionToolClass.network:sendToServer("sv_destroyPart", self.shape)
+		SelectionToolClass.network:sendToServer("sv_move", {self.shape, self.partPos, self.parentBody})
 	end
 
 	if self.reloadState or self.secondaryState ~= 0 then -- Reset conditions
@@ -237,10 +241,59 @@ function SelectionToolTemplateClass:move()
 end
 
 
+function SelectionToolTemplateClass:sv_move(args)
+	
+	---@type Shape
+	local originalShape = args[1]
+
+	---@type Vec3
+	local newPosition = args[2]
+
+	---@type Body
+	local parentBody = args[3]
+
+	-- Create new shape
+	---@type Shape
+	local newShape = UsefulUtils.sv_createPart(nil, {originalShape.uuid, parentBody, newPosition, originalShape.localRotation, true, originalShape.color})
+	
+	print(originalShape)
+	print(newShape)
+
+	if originalShape.usable then -- Copy over interactable properties
+
+		if originalShape.interactable:getType() == "scripted" then
+
+			newShape.interactable:setPublicData(originalShape.interactable.publicData)
+		end
+
+		local children = originalShape.interactable:getChildren()
+		
+		for _, child in pairs(children) do
+
+			newShape.interactable:connect(child)
+		end
+
+		local joints = originalShape.interactable:getJoints()
+
+		for _, joint in pairs(joints) do
+			
+			newShape.interactable:connectToJoint(joint)
+		end
+	end
+
+	-- Destroy originalShape
+	originalShape:destroyPart(0)
+end
+
+
 function SelectionToolTemplateClass:duplicate(isMain)
 
+	if isMain == nil then
+		isMain = true
+	end
+
 	-- Compatibility for move
-	if isMain ~= false then
+	if isMain == true then
 		sm.gui.setInteractionText("", sm.gui.getKeyBinding("NextCreateRotation", true), "Rotate Axis")
 		sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Paste")
 	end
@@ -330,9 +383,12 @@ function SelectionToolTemplateClass:duplicate(isMain)
 
 	if self.reloadState then -- If selection has ended
 
-		-- Build part
-		
-		SelectionToolClass.network:sendToServer("sv_createPart", {self.shape.uuid, self.parentBody, self.partPos, self.shape.localRotation, true, self.shape.color})
+		if isMain then
+
+			-- Build part
+			
+			SelectionToolClass.network:sendToServer("sv_createPart", {self.shape.uuid, self.parentBody, self.partPos, self.shape.localRotation, true, self.shape.color})
+		end
 	end
 
 	if self.reloadState or self.secondaryState ~= 0 then -- Reset conditions

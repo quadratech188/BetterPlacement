@@ -546,7 +546,9 @@ end
 -- #region Server
 
 ---Create a part.
----Params: {uuid, parent, localPos, localRot, forceAccept, colour}
+---@param _ any ignored
+---@param data table {uuid, parent, localPos, localRot, forceAccept, colour}
+---@return Shape|Joint|nil
 function UsefulUtils.sv_createPart(_, data)
 
 	local part = data[1]
@@ -598,12 +600,20 @@ function UsefulUtils.sv_createPart(_, data)
 		if type(parentObject) == "Shape" then
 			local cornerPos = localPos / SubdivideRatio - localRot * sm.item.getShapeSize(part) * 0.5
 
-			parentObject:getBody():createPart(part, convertVecToWeird(cornerPos), zAxis, xAxis, forceAccept):setColor(colour)
+			local shape = parentObject:getBody():createPart(part, convertVecToWeird(cornerPos), zAxis, xAxis, forceAccept)
+
+			shape:setColor(colour)
+
+			return shape
 
 		elseif type(parentObject) == "Body" then
 			local cornerPos = localPos / SubdivideRatio - localRot * sm.item.getShapeSize(part) * 0.5
 
-			parentObject:createPart(part, convertVecToWeird(cornerPos), zAxis, xAxis, forceAccept):setColor(colour)
+			local shape = parentObject:createPart(part, convertVecToWeird(cornerPos), zAxis, xAxis, forceAccept)
+
+			shape:setColor(colour)
+
+			return shape
 		
 		elseif type(parentObject) == "Joint" then
 
@@ -611,7 +621,11 @@ function UsefulUtils.sv_createPart(_, data)
 		
 		elseif parentObject == "terrain" then
 
-			sm.shape.createPart(part, localPos - localRot * sm.item.getShapeOffset(part), localRot, false, forceAccept):setColor(colour)
+			local shape = sm.shape.createPart(part, localPos - localRot * sm.item.getShapeOffset(part), localRot, false, forceAccept)
+
+			shape:setColor(colour)
+
+			return shape
 
 		elseif parentObject == "lift" then
 
@@ -620,12 +634,5 @@ function UsefulUtils.sv_createPart(_, data)
 	end
 end
 
-
----Destroy a part.
----@param shape Shape
-function UsefulUtils.sv_destroyPart(_, shape)
-	
-	shape:destroyPart(0)
-end
 
 -- #endregion
