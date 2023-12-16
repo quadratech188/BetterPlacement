@@ -8,7 +8,7 @@ SelectionToolTemplateClass = class()
 
 function SelectionToolTemplateClass:client_onCreate()
 	
-	if SelectionToolInstances == nil or SelectionToolInstances == 0 then
+	if SelectionToolInstances == nil or SelectionToolInstances == 0 or BPDebug then
 
 		sm.gui.chatMessage("Initializing SelectionTool")
 		print("Initializing SelectionTool")

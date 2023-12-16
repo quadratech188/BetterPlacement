@@ -1,7 +1,7 @@
 
-local Debugging = true
+BPDebug = true
 
-if BPLoaded == nil or Debugging == true then
+if BPLoaded == nil or BPDebug == true then
     
     dofile("$CONTENT_DATA/Scripts/UsefulUtils.lua")
     dofile("$CONTENT_DATA/Scripts/EffectSet.lua")
