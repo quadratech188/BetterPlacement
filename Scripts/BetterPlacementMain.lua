@@ -13,38 +13,50 @@ BetterPlacementTemplateClass = class()
 
 function BetterPlacementTemplateClass:client_onCreate()
 
-	sm.gui.chatMessage("Initializing BetterPlacement Mod")
-	print("Initializing BetterPlacement Mod")
-
-	-- References
-
 	self.placementCore = BetterPlacementCoreV2
 
 	self.guiClass = PlacementSettingsGUI
 
-	-- Setup callback system
+	-- Managing Instances
 
-	self.linkCallback = UsefulUtils.linkCallback
+	if BetterPlacementToolInstances == nil  or BetterPlacementToolInstances == 0 then
 
-	-- Other
+		sm.gui.chatMessage("Initializing BetterPlacement Mod")
+		print("Initializing BetterPlacement Mod")
+		
+		BetterPlacementToolInstances = 1
+	
+		self.instanceIndex = 1
+		
+		-- 'self' is actually not BetterPlacementTemplateClass
+		-- We write the following line so that other classes can also refer to 'self'.
+	
+		BetterPlacementClass = self
+		
+		-- Setup callback system
 
-	self.on = false
+		BetterPlacementClass.linkCallback = UsefulUtils.linkCallback
+		
+		self.placementCore.settings = sm.json.open("$CONTENT_DATA/Scripts/settings.json")
 
-	self.toolUuid = sm.uuid.new("74febb3f-cc08-4e02-89c8-9fd0d0a1aa3c")
+		self.placementCore:initialize()
 
-	-- 'self' is actually not BetterPlacementTemplateClass, it's another object created by duplicating it and adding some extra parameters.
-	-- We write the following line so that other classes can also refer to 'self'.
+		self.guiClass:initialize()
+		
 
-	BetterPlacementClass = self
 
-	self.placementCore.settings = sm.json.open("$CONTENT_DATA/Scripts/settings.json")
+		BetterPlacementClass.toolUuid = sm.uuid.new("74febb3f-cc08-4e02-89c8-9fd0d0a1aa3c")
 
-	self.placementCore:initialize()
+		BetterPlacementClass.on = false
 
-	self.guiClass:initialize()
+		sm.gui.chatMessage("Initialized BetterPlacement Mod")
+		print("Initialized BetterPlacement Mod")
+	else
 
-	sm.gui.chatMessage("Initialized BetterPlacement Mod")
-	print("Initialized BetterPlacement Mod")
+		BetterPlacementToolInstances = BetterPlacementToolInstances + 1
+
+		self.instanceIndex = BetterPlacementToolInstances
+	end
 end
 
 
@@ -57,27 +69,28 @@ end
 function BetterPlacementTemplateClass:client_onDestroy()
 
 	sm.json.save(self.placementCore.settings, "$CONTENT_DATA/Scripts/settings.json")
+
+	BetterPlacementToolInstances = BetterPlacementToolInstances - 1
 end
 
 -- On/Off
 
 function BetterPlacementTemplateClass.client_onReload(self)
 
-	-- Is the tool selected
+	if self.instanceIndex == 1 and sm.localPlayer.getActiveItem() ~= BetterPlacementClass.toolUuid then -- not holding a BetterPlacement tool
+		
+		self.placementCore:onReload()
+	else
 
-	if self.isEquipped then
-		self.on = not self.on
+		BetterPlacementClass.on = not BetterPlacementClass.on
 
-		if self.on then
+		if BetterPlacementClass.on then
 
 			sm.gui.displayAlertText("Use Better Placement:\n#00ff00True", 2)
 		else
 
 			sm.gui.displayAlertText("Use Better Placement:\n#ff0000False", 2)
 		end
-	else
-
-		self.placementCore:onReload()
 	end
 
 	return true
@@ -87,12 +100,12 @@ end
 
 function BetterPlacementTemplateClass.client_onToggle(self)
 
-	if self.isEquipped then
-
-		self.guiClass:onToggle()
+	if self.instanceIndex == 1 and sm.localPlayer.getActiveItem() ~= BetterPlacementClass.toolUuid then -- not holding a BetterPlacement tool
+		
+		self.placementCore:onToggle()
 	else
 
-		self.placementCore:onToggle()
+		self.guiClass:onToggle()
 	end
 
 	return true
@@ -109,11 +122,15 @@ end
 
 function BetterPlacementTemplateClass:client_onUpdate()
 
+	if self.instanceIndex ~= 1 then
+		return
+	end
+
 	local item = sm.localPlayer.getActiveItem()
 
-	if item == self.toolUuid then
+	if item == BetterPlacementClass.toolUuid then
 
-		if self.on then
+		if BetterPlacementClass.on then
 			sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Disable Better Placement")
 		
 		else

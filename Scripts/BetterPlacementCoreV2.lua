@@ -1,8 +1,5 @@
 
----@class BetterPlacementCoreV2
-
-BetterPlacementCoreV2 = class()
-
+BetterPlacementCoreV2 = {}
 
 function BetterPlacementCoreV2:initialize()
 
