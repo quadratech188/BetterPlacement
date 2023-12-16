@@ -21,8 +21,8 @@ function BetterPlacementTemplateClass:client_onCreate()
 
 	if BetterPlacementToolInstances == nil  or BetterPlacementToolInstances == 0 then
 
-		sm.gui.chatMessage("Initializing BetterPlacement Mod")
-		print("Initializing BetterPlacement Mod")
+		sm.gui.chatMessage("Initializing BetterPlacement Tool")
+		print("Initializing BetterPlacement Tool")
 		
 		BetterPlacementToolInstances = 1
 	
@@ -49,8 +49,8 @@ function BetterPlacementTemplateClass:client_onCreate()
 
 		BetterPlacementClass.on = false
 
-		sm.gui.chatMessage("Initialized BetterPlacement Mod")
-		print("Initialized BetterPlacement Mod")
+		sm.gui.chatMessage("Initialized BetterPlacement Tool")
+		print("Initialized BetterPlacement Tool")
 	else
 
 		BetterPlacementToolInstances = BetterPlacementToolInstances + 1

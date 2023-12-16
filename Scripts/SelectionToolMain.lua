@@ -8,47 +8,64 @@ SelectionToolTemplateClass = class()
 
 function SelectionToolTemplateClass:client_onCreate()
 	
-	self.phases = {
-		["start"] = self.doPhase0,
-		["select"] = self.doPhase1,
-		["actionSelect"] = self.doActionSelect,
-		["execute"] = self.executeAction
-	}
+	if SelectionToolInstances == nil or SelectionToolInstances == 0 then
 
-	self.currentPhase = "start"
+		sm.gui.chatMessage("Initializing SelectionTool")
+		print("Initializing SelectionTool")
+
+		SelectionToolInstances = 1
 	
-	self.highLightEffect = SmartEffect.new(sm.effect.createEffect("ShapeRenderable"))
+		self.instanceIndex = 1
 
-	self.highLightEffect:setScale(SubdivideRatio)
+		self.phases = {
+			["start"] = self.doPhase0,
+			["select"] = self.doPhase1,
+			["actionSelect"] = self.doActionSelect,
+			["execute"] = self.executeAction
+		}
 
-	self.highLightEffect:setParameter("visualization", true)
+		self.currentPhase = "start"
+		
+		self.highLightEffect = SmartEffect.new(sm.effect.createEffect("ShapeRenderable"))
 
-	self.pieMenu = PieMenu.new("$CONTENT_DATA/Gui/SelectionToolPieMenu.layout", 4, 0.12)
+		self.highLightEffect:setScale(SubdivideRatio)
 
-	self.actions = {
-		[0] = self.back,
-		[1] = self.move,
-		[2] = self.duplicate,
-		[3] = self.back,
-		[4] = self.back -- Temp
-	}
+		self.highLightEffect:setParameter("visualization", true)
 
-	self.settings = {
-		onlySwitchAxisWhenMouseIsInActive = false
-	}
+		self.pieMenu = PieMenu.new("$CONTENT_DATA/Gui/SelectionToolPieMenu.layout", 4, 0.12)
 
-	-- Create global access point
+		self.actions = {
+			[0] = self.back,
+			[1] = self.move,
+			[2] = self.duplicate,
+			[3] = self.back,
+			[4] = self.back -- Temp
+		}
 
-	---@type ToolClass
-	SelectionToolClass = self
+		self.settings = {
+			onlySwitchAxisWhenMouseIsInActive = false
+		}
+
+		-- Create global access point
+
+		---@type ToolClass
+		SelectionToolClass = self
+		
+		UsefulUtils.linkCallback(self, "sv_createPart", UsefulUtils.sv_createPart, -1)
 	
-	UsefulUtils.linkCallback(SelectionToolClass, "sv_createPart", UsefulUtils.sv_createPart, -1)
+		sm.gui.chatMessage("Initialized SelectionTool")
+		print("Initialized SelectionTool")
+	else
+		SelectionToolInstances = SelectionToolInstances + 1
+
+		self.instanceIndex = SelectionToolInstances
+	end
 end
 
 
 function SelectionToolTemplateClass:client_onToggle()
 	
-	self.toggleState = true
+	SelectionToolClass.toggleState = true
 
 	return true
 end
@@ -56,7 +73,7 @@ end
 
 function SelectionToolTemplateClass:client_onReload()
 	
-	self.reloadState = true
+	SelectionToolClass.reloadState = true
 
 	return true
 end
@@ -71,6 +88,8 @@ end
 function SelectionToolTemplateClass:client_onDestroy()
 	
 	self.highLightEffect:stop()
+
+	SelectionToolInstances = SelectionToolInstances - 1
 end
 
 
@@ -415,20 +434,9 @@ end
  
 function SelectionToolTemplateClass:client_onEquippedUpdate(primaryState, secondaryState, forceBuild)
 
-	self.primaryState = primaryState
-	self.secondaryState = secondaryState
-	self.forceBuild = forceBuild
-
-	self.raycastSuccess, self.raycastResult = sm.localPlayer.getRaycast(7.5)
-
-	self.pieMenu:doFrame()
-
-	self.phases[self.currentPhase](self)
-
-	-- Reset various states
-
-	self.toggleState = false
-	self.reloadState = false
+	SelectionToolClass.primaryState = primaryState
+	SelectionToolClass.secondaryState = secondaryState
+	SelectionToolClass.forceBuild = forceBuild
 
 	-- The first parameter doesn't work for some reason
 
@@ -437,8 +445,21 @@ end
 
 
 function SelectionToolTemplateClass:client_onUpdate()
+
+	if self.instanceIndex == 1 and sm.localPlayer.getActiveItem() == sm.uuid.new("79f915b5-25cf-485c-9022-23becf9b3e09") then
+		self.raycastSuccess, self.raycastResult = sm.localPlayer.getRaycast(7.5)
+
+		self.pieMenu:doFrame()
+
+		self.phases[self.currentPhase](self)
+
+		-- Reset various states
+
+		self.toggleState = false
+		self.reloadState = false
+	end
 	
-	if self.tool:isEquipped() == false then
+	if sm.localPlayer.getActiveItem() ~= sm.uuid.new("79f915b5-25cf-485c-9022-23becf9b3e09") then
 		
 		self:reset()
 	end
