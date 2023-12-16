@@ -279,7 +279,7 @@ function SelectionToolTemplateClass:sv_move(args)
 
 		for _, joint in pairs(joints) do
 			
-			newShape.interactable:connectToJoint(joint)
+			-- newShape.interactable:connectToJoint(joint)
 		end
 	end
 

@@ -1,7 +1,7 @@
 
 local Debugging = true
 
-if BPLoadedBasics == nil or Debugging == true then
+if BPLoaded == nil or Debugging == true then
     
     dofile("$CONTENT_DATA/Scripts/UsefulUtils.lua")
     dofile("$CONTENT_DATA/Scripts/EffectSet.lua")
@@ -10,5 +10,5 @@ if BPLoadedBasics == nil or Debugging == true then
     dofile("$CONTENT_DATA/Scripts/PartVisualization.lua")
     dofile("$CONTENT_DATA/Scripts/PieMenu.lua")
 
-    BPLoadedBasics = true
+    BPLoaded = true
 end
