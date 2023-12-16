@@ -259,7 +259,7 @@ function SelectionToolTemplateClass:sv_move(args)
 	print(originalShape)
 	print(newShape)
 
-	if originalShape.usable then -- Copy over interactable properties
+	if originalShape.interactable ~= nil then -- Copy over interactable properties
 
 		local children = originalShape.interactable:getChildren()
 		
