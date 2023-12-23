@@ -41,6 +41,7 @@ function GetSelectionToolModules()
 
         if sandBox.reloadState or sandBox.secondaryState ~= 0 then -- Reset conditions
             
+            -- Return highLightEffect to normal
             sandBox.highLightEffect:stop()
             sandBox.highLightEffect:setParameter("valid", true)
         end

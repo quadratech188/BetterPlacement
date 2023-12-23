@@ -117,7 +117,21 @@ end
 
 
 function SelectionToolTemplateClass:reset()
+
+	print("reset")
+
+	if self.currentPhase == "execute" then
+		
+		self.sandBox.secondaryState = 1 -- Fake a right button press(the reset button)
+
+		self.sandBox.reset = function ()
+			
+		end -- self.sandBox.reset calls self.reset, We need to block it to prevent a loop
+
+		self.actions[self.currentAction](self.sandBox)
+	end
 	
+	self.sandBox = {}
 	self.currentPhase = "start"
 	self.pieMenu:close()
 	self.highLightEffect:stop()
@@ -273,6 +287,8 @@ end
 
 function SelectionToolTemplateClass:client_onUpdate()
 
+	print(SelectionToolClass.lastOn, (sm.localPlayer.getActiveItem() == self.toolUuid))
+
 	if self.instanceIndex == 1 and sm.localPlayer.getActiveItem() == self.toolUuid then
 		self.raycastSuccess, self.raycastResult = sm.localPlayer.getRaycast(7.5)
 
@@ -284,10 +300,16 @@ function SelectionToolTemplateClass:client_onUpdate()
 
 		self.toggleState = false
 		self.reloadState = false
+
+		self.lastOn = true
 	end
 	
-	if sm.localPlayer.getActiveItem() ~= self.toolUuid then
+	if self.instanceIndex == 1 and sm.localPlayer.getActiveItem() ~= self.toolUuid then
 		
-		self:reset()
+		if self.lastOn == true then
+			self:reset()
+		end
+	
+		self.lastOn = false
 	end
 end
