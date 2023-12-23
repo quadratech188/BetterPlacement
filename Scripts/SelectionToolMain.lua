@@ -13,6 +13,8 @@ function SelectionToolTemplateClass:client_onCreate()
 		sm.gui.chatMessage("Initializing SelectionTool")
 		print("Initializing SelectionTool")
 
+		self.toolUuid = sm.uuid.new("79f915b5-25cf-485c-9022-23becf9b3e09")
+
 		SelectionToolInstances = 1
 	
 		self.instanceIndex = 1
@@ -38,7 +40,7 @@ function SelectionToolTemplateClass:client_onCreate()
 			[0] = self.back,
 			[1] = self.move,
 			[2] = self.duplicate,
-			[3] = self.back,
+			[3] = self.delete,
 			[4] = self.back -- Temp
 		}
 
@@ -51,7 +53,8 @@ function SelectionToolTemplateClass:client_onCreate()
 		---@type ToolClass
 		SelectionToolClass = self
 		
-		UsefulUtils.linkCallback(self, "sv_createPart", UsefulUtils.sv_createPart, -1)
+		UsefulUtils.linkCallback(SelectionToolClass, "sv_createPart", UsefulUtils.sv_createPart, -1, true)
+		UsefulUtils.linkCallback(SelectionToolClass, "sv_destroyPart", UsefulUtils.sv_destroyPart, -1, true)
 	
 		sm.gui.chatMessage("Initialized SelectionTool")
 		print("Initialized SelectionTool")
@@ -114,6 +117,7 @@ function SelectionToolTemplateClass:evaluateRaycast()
 	return true
 end
 
+-- #region Phase Management
 
 function SelectionToolTemplateClass:doPhase0()
 
@@ -183,6 +187,8 @@ function SelectionToolTemplateClass:doActionSelect()
 		return
 	end
 
+	UsefulUtils.highlightShape(self.highLightEffect, self.shape)
+
 	if not self.forceBuild then
 		self.currentAction = self.pieMenu:close()
 
@@ -222,40 +228,45 @@ function SelectionToolTemplateClass:executeAction()
 	self.actions[self.currentAction](self.sandBox)
 end
 
+-- #endregion
 
-function SelectionToolTemplateClass:move()
+-- #region Modules
 
-	if self.initialize == true then
+-- #region Move
 
-		if self.shape:getInteractable() ~= nil then
+function SelectionToolTemplateClass.move(sandBox)
+
+	if sandBox.initialize == true then
+
+		if sandBox.shape:getInteractable() ~= nil then
 		end
 		
-		-- self.initialize will be set to false by SelectionToolClass:duplicate, we don't do it yet
+		-- sandBox.initialize will be set to false by SelectionToolClass:duplicate, we don't do it yet
 	end
 	
 	-- Use the duplicate function for controls
-	SelectionToolClass.duplicate(self, false)
+	SelectionToolClass.duplicate(sandBox, false)
 
 	-- Add deletion indicator
 
-	self.highLightEffect:setParameter("valid", false)
+	sandBox.highLightEffect:setParameter("valid", false)
 
-	UsefulUtils.highlightShape(self.highLightEffect, self.shape)
+	UsefulUtils.highlightShape(sandBox.highLightEffect, sandBox.shape)
 
 	-- Overwrite Hotkeys
 
 	sm.gui.setInteractionText("", sm.gui.getKeyBinding("NextCreateRotation", true), "Rotate Axis")
 	sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Relocate")
 
-	if self.reloadState then
+	if sandBox.reloadState then
 		
-		SelectionToolClass.network:sendToServer("sv_move", {self.shape, self.partPos, self.parentBody})
+		SelectionToolClass.network:sendToServer("sv_move", {sandBox.shape, sandBox.partPos, sandBox.parentBody})
 	end
 
-	if self.reloadState or self.secondaryState ~= 0 then -- Reset conditions
+	if sandBox.reloadState or sandBox.secondaryState ~= 0 then -- Reset conditions
 		
-		self.highLightEffect:stop()
-		self.highLightEffect:setParameter("valid", true)
+		sandBox.highLightEffect:stop()
+		sandBox.highLightEffect:setParameter("valid", true)
 	end
 end
 
@@ -306,8 +317,11 @@ function SelectionToolTemplateClass:sv_move(args)
 	originalShape:destroyPart(0)
 end
 
+-- #endregion
 
-function SelectionToolTemplateClass:duplicate(isMain)
+-- #region Duplicate
+
+function SelectionToolTemplateClass.duplicate(sandBox, isMain)
 
 	if isMain == nil then
 		isMain = true
@@ -319,110 +333,113 @@ function SelectionToolTemplateClass:duplicate(isMain)
 		sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Paste")
 	end
 
-	if self.initialize then
+	if sandBox.initialize then
 		
 		-- Create visualizationEffect
 
-		self.visualizationEffect = SmartEffect.new(self.shape.uuid)
+		sandBox.visualizationEffect = SmartEffect.new(sandBox.shape.uuid)
 
-		self.visualizationEffect:setParameter("color", self.shape:getColor())
-		self.visualizationEffect:setScale(SubdivideRatio)
-		self.visualizationEffect:start()
+		sandBox.visualizationEffect:setParameter("color", sandBox.shape:getColor())
+		sandBox.visualizationEffect:setScale(SubdivideRatio)
+		sandBox.visualizationEffect:start()
 
 		-- Create transformGizmo
 		
-		self.transformGizmo = BPEffects.createTransformGizmo()
+		sandBox.transformGizmo = BPEffects.createTransformGizmo()
 
 		-- We don't need highLightEffect
 
-		self.highLightEffect:stop()
+		sandBox.highLightEffect:stop()
 
-		self.parentBody = self.shape:getBody()
+		sandBox.parentBody = sandBox.shape:getBody()
 
-		self.directionNum = 0
+		sandBox.directionNum = 0
 
-		self.vecDirections = {
+		sandBox.vecDirections = {
 			[0] = PosX,
 			[1] = PosY,
 			[2] = PosZ
 		}
 
-		self.strDirections = {
+		sandBox.strDirections = {
 			[0] = "X",
 			[1] = "Y",
 			[2] = "Z"
 		}
 
-		self.direction = PosX
-		self.transformGizmo:showOnly({"X", "Base"})
+		sandBox.direction = PosX
+		sandBox.transformGizmo:showOnly({"X", "Base"})
 
-		self.partPos = UsefulUtils.getActualLocalPos(self.shape)
-		self.cursorPos = self.partPos
-		self.initialOffset = 0
+		sandBox.partPos = UsefulUtils.getActualLocalPos(sandBox.shape)
+		sandBox.cursorPos = sandBox.partPos
+		sandBox.initialOffset = 0
 
-		self.initialize = false
+		sandBox.initialize = false
 	end
 
-	local localRaycastOrigin = UsefulUtils.worldToLocalPos(self.raycastResult.originWorld, self.parentBody)
+	local localRaycastOrigin = UsefulUtils.worldToLocalPos(sandBox.raycastResult.originWorld, sandBox.parentBody)
 
-	local localRaycastDirection = UsefulUtils.worldToLocalDir(self.raycastResult.directionWorld, self.parentBody)
+	local localRaycastDirection = UsefulUtils.worldToLocalDir(sandBox.raycastResult.directionWorld, sandBox.parentBody)
 	
-	if self.toggleState then
+	if sandBox.toggleState then
 
-		if self.settings.onlySwitchAxisWhenMouseIsInActive and self.primaryState ~= 0 then
+		if sandBox.settings.onlySwitchAxisWhenMouseIsInActive and sandBox.primaryState ~= 0 then
 			
 			goto skip
 		end
 		
-		self.directionNum = self.directionNum + 1
+		sandBox.directionNum = sandBox.directionNum + 1
 		
-		if self.directionNum == 3 then
-			self.directionNum = 0
+		if sandBox.directionNum == 3 then
+			sandBox.directionNum = 0
 		end
 		
-		self.direction = self.vecDirections[self.directionNum]
+		sandBox.direction = sandBox.vecDirections[sandBox.directionNum]
 
-		self.transformGizmo:showOnly({self.strDirections[self.directionNum], "Base"})
+		sandBox.transformGizmo:showOnly({sandBox.strDirections[sandBox.directionNum], "Base"})
 	end
 	
 	::skip::
 
-	if self.primaryState == 1 or self.primaryState == 2 then -- If left mouse is clicked
+	if sandBox.primaryState == 1 or sandBox.primaryState == 2 then -- If left mouse is clicked
 		
-		local offset = UsefulUtils.raycastToLine(localRaycastOrigin, localRaycastDirection, self.cursorPos, self.direction).pointLocal.z
+		local offset = UsefulUtils.raycastToLine(localRaycastOrigin, localRaycastDirection, sandBox.cursorPos, sandBox.direction).pointLocal.z
 
-		self.cursorPos = self.cursorPos + self.direction * (offset - self.initialOffset)
+		sandBox.cursorPos = sandBox.cursorPos + sandBox.direction * (offset - sandBox.initialOffset)
 
-		self.partPos = self.partPos + UsefulUtils.roundVecToGrid(self.cursorPos - self.partPos)
+		sandBox.partPos = sandBox.partPos + UsefulUtils.roundVecToGrid(sandBox.cursorPos - sandBox.partPos)
 	end
 
 	-- Set position of visualizationEffect
-	self.visualizationEffect:setTransforms({self.parentBody:transformPoint(self.partPos), self.shape.worldRotation, nil})
+	sandBox.visualizationEffect:setTransforms({sandBox.parentBody:transformPoint(sandBox.partPos), sandBox.shape.worldRotation, nil})
 
 	-- Set position of transformGizmo
-	self.transformGizmo:setPositionAndRotation(self.parentBody:transformPoint(self.cursorPos), self.parentBody.worldRotation)
+	sandBox.transformGizmo:setPositionAndRotation(sandBox.parentBody:transformPoint(sandBox.cursorPos), sandBox.parentBody.worldRotation)
 
-	if self.reloadState then -- If selection has ended
+	if sandBox.reloadState then -- If selection has ended
 
 		if isMain then
 
 			-- Build part
 			
-			SelectionToolClass.network:sendToServer("sv_createPart", {self.shape.uuid, self.parentBody, self.partPos, self.shape.localRotation, true, self.shape.color})
+			SelectionToolClass.network:sendToServer("sv_createPart", {sandBox.shape.uuid, sandBox.parentBody, sandBox.partPos, sandBox.shape.localRotation, true, sandBox.shape.color})
 		end
 	end
 
-	if self.reloadState or self.secondaryState ~= 0 then -- Reset conditions
+	if sandBox.reloadState or sandBox.secondaryState ~= 0 then -- Reset conditions
 
-		self.visualizationEffect:destroy()
-		self.visualizationEffect = nil
-		self.transformGizmo:destroy()
-		self.transformGizmo = nil
+		sandBox.visualizationEffect:destroy()
+		sandBox.visualizationEffect = nil
+		sandBox.transformGizmo:destroy()
+		sandBox.transformGizmo = nil
 
-		self.reset()
+		sandBox.reset()
 	end
 end
 
+-- #endregion
+
+-- #endregion
 
 function SelectionToolTemplateClass:back()
 	
@@ -446,7 +463,7 @@ end
 
 function SelectionToolTemplateClass:client_onUpdate()
 
-	if self.instanceIndex == 1 and sm.localPlayer.getActiveItem() == sm.uuid.new("79f915b5-25cf-485c-9022-23becf9b3e09") then
+	if self.instanceIndex == 1 and sm.localPlayer.getActiveItem() == self.toolUuid then
 		self.raycastSuccess, self.raycastResult = sm.localPlayer.getRaycast(7.5)
 
 		self.pieMenu:doFrame()
@@ -459,7 +476,7 @@ function SelectionToolTemplateClass:client_onUpdate()
 		self.reloadState = false
 	end
 	
-	if sm.localPlayer.getActiveItem() ~= sm.uuid.new("79f915b5-25cf-485c-9022-23becf9b3e09") then
+	if sm.localPlayer.getActiveItem() ~= self.toolUuid then
 		
 		self:reset()
 	end

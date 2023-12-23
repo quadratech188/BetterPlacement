@@ -51,7 +51,8 @@ UsefulUtils.callbacks = {}
 ---@param callbackName string The name of the callback
 ---@param func function The function that is called
 ---@param order integer -1: function is called before the original function, 1: function is called after the original function
-function UsefulUtils.linkCallback(class, callbackName, func, order)
+---@param noDuplicates boolean|nil don't add the new function if it already exists
+function UsefulUtils.linkCallback(class, callbackName, func, order, noDuplicates)
 
 	if UsefulUtils.callbacks[class] == nil then
 		UsefulUtils.callbacks[class] = {}
@@ -86,7 +87,27 @@ function UsefulUtils.linkCallback(class, callbackName, func, order)
 		end
 	end
 
-	table.insert(UsefulUtils.callbacks[class][callbackName][order], func)
+	if not UsefulUtils.contains(func, UsefulUtils.getCallbacks(class, callbackName)[order]) and noDuplicates == true then
+		table.insert(UsefulUtils.callbacks[class][callbackName][order], func)
+	end
+end
+
+
+--- Get all functions linked to the specified callback
+---@param class table The class to which the callback is sent.
+---@param callbackName string The name of the callback
+---@return table|nil
+function UsefulUtils.getCallbacks(class, callbackName)
+
+	if callbackName == nil then
+		return UsefulUtils.callbacks[class]
+	end
+	
+	if UsefulUtils.callbacks[class] == nil then
+		return nil
+	end
+	
+	return UsefulUtils.callbacks[class][callbackName]
 end
 
 
@@ -632,6 +653,12 @@ function UsefulUtils.sv_createPart(_, data)
 
 		end
 	end
+end
+
+
+function UsefulUtils.sv_destroyPart(_, shape)
+	
+	shape:destroyPart()
 end
 
 

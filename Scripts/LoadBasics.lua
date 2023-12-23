@@ -2,6 +2,8 @@
 BPDebug = true
 
 if BPLoaded == nil or BPDebug == true then
+
+    print("Loading BetterPlacement Basics")
     
     dofile("$CONTENT_DATA/Scripts/UsefulUtils.lua")
     dofile("$CONTENT_DATA/Scripts/EffectSet.lua")
