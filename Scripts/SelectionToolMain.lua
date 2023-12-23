@@ -8,6 +8,21 @@ dofile("$CONTENT_DATA/Scripts/SelectionToolModules.lua")
 SelectionToolTemplateClass = class()
 
 
+function SelectionToolTemplateClass:server_onCreate()
+	
+	self.sv_modules = GetSelectionToolModules()
+
+	-- Register serverside functions: SelectionToolClass.createPart becomes SelectionToolModules.sv.createPart
+
+	for name, func in pairs(self.sv_modules.sv) do
+			
+		self[name] = function (_, args) 
+			func(args)
+		end
+	end
+end
+
+
 function SelectionToolTemplateClass:client_onCreate()
 	
 	if SelectionToolInstances == nil or SelectionToolInstances == 0 or BPDebug then
@@ -29,15 +44,6 @@ function SelectionToolTemplateClass:client_onCreate()
 		-- Get SelectionToolModules
 
 		self.modules = GetSelectionToolModules()
-
-		-- Register serverside functions: SelectionToolClass.createPart becomes SelectionToolModules.sv.createPart
-
-		for name, func in pairs(self.modules.sv) do
-			
-			self[name] = function (_, args) 
-				func(args)
-			end
-		end
 
 		-- Constants
 
