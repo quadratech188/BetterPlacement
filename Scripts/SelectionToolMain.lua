@@ -12,9 +12,9 @@ function SelectionToolTemplateClass:server_onCreate()
 	
 	self.sv_modules = GetSelectionToolModules()
 
-	-- Register serverside functions: SelectionToolClass.createPart becomes SelectionToolModules.sv.createPart
+	-- Register serverside functions: SelectionToolClass.createPart becomes SelectionToolModules.svcallbacks.createPart
 
-	for name, func in pairs(self.sv_modules.sv) do
+	for name, func in pairs(self.sv_modules.sv_callbacks) do
 			
 		self[name] = function (_, args) 
 			func(args)
@@ -45,6 +45,15 @@ function SelectionToolTemplateClass:client_onCreate()
 
 		self.modules = GetSelectionToolModules()
 
+		-- Register clientside functions: SelectionToolClass.createPart becomes SelectionToolModules.clcallbacks.createPart
+
+		for name, func in pairs(self.modules.cl_callbacks) do
+				
+			self[name] = function (_, args) 
+				func(args)
+			end
+		end
+
 		-- Constants
 
 		self.phases = {
@@ -65,11 +74,11 @@ function SelectionToolTemplateClass:client_onCreate()
 		self.pieMenu = PieMenu.new("$CONTENT_DATA/Gui/SelectionToolPieMenu.layout", 4, 0.12)
 
 		self.actions = {
-			[0] = self.back,
-			[1] = self.modules.cl.move,
-			[2] = self.modules.cl.duplicate,
-			[3] = self.back,
-			[4] = self.back -- Temp
+			[0] = self.modules.modules.back,
+			[1] = self.modules.modules.move,
+			[2] = self.modules.modules.duplicate,
+			[3] = self.modules.modules.back,
+			[4] = self.modules.modules.back -- Temp
 		}
 
 		self.settings = {
@@ -122,19 +131,14 @@ function SelectionToolTemplateClass:reset()
 
 	if self.currentPhase == "execute" then
 		
-		self.sandBox.secondaryState = 1 -- Fake a right button press(the reset button)
-
-		self.sandBox.reset = function ()
-			
-		end -- self.sandBox.reset calls self.reset, We need to block it to prevent a loop
-
-		self.actions[self.currentAction](self.sandBox)
-	end
+		self.sandBox:stop() -- This takes care of resetting
 	
-	self.sandBox = {}
-	self.currentPhase = "start"
-	self.pieMenu:close()
-	self.highLightEffect:stop()
+	else
+		self.sandBox = {}
+		self.currentPhase = "start"
+		self.pieMenu:close()
+		self.highLightEffect:stop()
+	end
 end
 
 
@@ -231,10 +235,31 @@ function SelectionToolTemplateClass:doActionSelect()
 		self.sandBox = {
 			shape = self.shape,
 			highLightEffect = self.highLightEffect,
-			initialize = true,
-			network = self.network
+			network = self.network,
+			terminate = function ()
+				self.currentPhase = "start"
+				self:reset()
+			end,
+			settings = self.settings,
+
+			doFrame = self.actions[self.currentAction].doFrame,
+			start = self.actions[self.currentAction].start,
+			stop = self.actions[self.currentAction].stop,
+
 		}
 
+		-- Update variables
+
+		self.sandBox.primaryState = self.primaryState
+		self.sandBox.secondaryState = self.secondaryState
+		self.sandBox.toggleState = self.toggleState
+		self.sandBox.reloadState = self.reloadState
+		self.forceBuild = self.forceBuild
+		self.sandBox.raycastResult = self.raycastResult
+
+		self.sandBox:start()
+
+		-- Next phase
 		self.currentPhase = "execute"
 	end
 end
@@ -255,23 +280,11 @@ function SelectionToolTemplateClass:executeAction()
 	self.sandBox.reloadState = self.reloadState
 	self.forceBuild = self.forceBuild
 	self.sandBox.raycastResult = self.raycastResult
-	self.sandBox.reset = function ()
-		self:reset()
-	end
-	self.sandBox.settings = self.settings
 
-	self.actions[self.currentAction](self.sandBox)
+	self.sandBox:doFrame()
 end
 
 -- #endregion
-
-function SelectionToolTemplateClass:back()
-	
-	print("back")
-	
-	self.reset()
-end
-
  
 function SelectionToolTemplateClass:client_onEquippedUpdate(primaryState, secondaryState, forceBuild)
 
@@ -287,8 +300,6 @@ end
 
 function SelectionToolTemplateClass:client_onUpdate()
 
-	print(SelectionToolClass.lastOn, (sm.localPlayer.getActiveItem() == self.toolUuid))
-
 	if self.instanceIndex == 1 and sm.localPlayer.getActiveItem() == self.toolUuid then
 		self.raycastSuccess, self.raycastResult = sm.localPlayer.getRaycast(7.5)
 
@@ -300,16 +311,10 @@ function SelectionToolTemplateClass:client_onUpdate()
 
 		self.toggleState = false
 		self.reloadState = false
-
-		self.lastOn = true
 	end
 	
 	if self.instanceIndex == 1 and sm.localPlayer.getActiveItem() ~= self.toolUuid then
 		
-		if self.lastOn == true then
-			self:reset()
-		end
-	
-		self.lastOn = false
+		self:reset()
 	end
 end

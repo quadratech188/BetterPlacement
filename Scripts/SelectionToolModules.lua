@@ -1,16 +1,35 @@
 
 function GetSelectionToolModules()
     
-    local M = {sv = {}, cl = {}}
+    local M = {modules = {}, cl_callbacks = {}, sv_callbacks = {}}
 
+    --[[
+    # Modules
 
-    function M.sv.sv_createPart(args)
+    Callbacks:
+    start(self): Called when the module is first loaded
+    doFrame(self): Called every frame when the module is loaded
+    stop(self): Called when the module is terminated externally
+
+    Functions:
+    terminate: Asks for the module to be terminated
+    
+    Attributes:
+    network: A network object for sending data to serverside functions
+    shape: The targeted shape
+    highLightEffect: A preexisting effect that highlights the targeted shape
+    primaryState, secondaryState, toggleState, reloadState, forceBuild: The states of the corresponding buttons
+    raycastResult: The current raycast result of the player
+    settings: General settings (TBD)
+    ]]
+
+    function M.sv_callbacks.sv_createPart(args)
         
         UsefulUtils.sv_createPart(nil, args)
     end
 
 
-    function M.sv.sv_move(args)
+    function M.sv_callbacks.sv_move(args)
 
         print(args)
         
@@ -25,6 +44,7 @@ function GetSelectionToolModules()
 
         -- Create new shape
         ---@type Shape
+        ---@diagnostic disable-next-line: assign-type-mismatch
         local newShape = UsefulUtils.sv_createPart(nil, {originalShape.uuid, parentBody, newPosition, originalShape.localRotation, true, originalShape.color})
         
         print(originalShape)
@@ -59,162 +79,188 @@ function GetSelectionToolModules()
     end
 
 
-    function M.cl.move(sandBox)
-        
-        if sandBox.initialize == true then
+    M.modules.move = {
 
-            if sandBox.shape:getInteractable() ~= nil then
-            end
+        start = function (self)
             
-            -- sandBox.initialize will be set to false by SelectionToolClass:duplicate, we don't do it yet
-        end
-        
-        -- Use the duplicate function for controls
-        M.cl.duplicate(sandBox, false)
+            M.modules.duplicate.start(self)
+        end,
 
-        -- Add deletion indicator
+        doFrame = function (self)
 
-        sandBox.highLightEffect:setParameter("valid", false)
+            -- Use the duplicate function for controls
+            M.modules.duplicate.doFrame(self, false)
 
-        UsefulUtils.highlightShape(sandBox.highLightEffect, sandBox.shape)
+            -- Add deletion indicator
 
-        -- Overwrite Hotkeys
+            self.highLightEffect:setParameter("valid", false)
 
-        sm.gui.setInteractionText("", sm.gui.getKeyBinding("NextCreateRotation", true), "Rotate Axis")
-        sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Relocate")
+            UsefulUtils.highlightShape(self.highLightEffect, self.shape)
 
-        if sandBox.reloadState then
-            
-            sandBox.network:sendToServer("sv_move", {sandBox.shape, sandBox.partPos, sandBox.parentBody})
-        end
+            -- Overwrite Hotkeys
 
-        if sandBox.reloadState or sandBox.secondaryState ~= 0 then -- Reset conditions
-            
-            -- Return highLightEffect to normal
-            sandBox.highLightEffect:stop()
-            sandBox.highLightEffect:setParameter("valid", true)
-        end
-    end
-
-
-
-
-
-    function M.cl.duplicate(sandBox, isMain)
-
-        if isMain == nil then
-            isMain = true
-        end
-
-        -- Compatibility for move
-        if isMain == true then
             sm.gui.setInteractionText("", sm.gui.getKeyBinding("NextCreateRotation", true), "Rotate Axis")
-            sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Paste")
-        end
+            sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Relocate")
 
-        if sandBox.initialize then
+            -- Copy over connections, create new shape, delete original shape
+
+            if self.reloadState then
             
+                self.network:sendToServer("sv_move", {self.shape, self.partPos, self.parentBody})
+            end
+
+            if self.reloadState or self.secondaryState ~= 0 then -- Reset conditions
+
+                self:stop()
+            end
+        end,
+
+        stop = function (self)
+
+            -- Return highLightEffect to normal
+            self.highLightEffect:stop()
+            self.highLightEffect:setParameter("valid", true)
+            
+            M.modules.duplicate.stop(self) -- This terminates the module
+        end
+    }
+
+
+    M.modules.duplicate = {
+
+        start = function (self)
+
             -- Create visualizationEffect
 
-            sandBox.visualizationEffect = SmartEffect.new(sandBox.shape.uuid)
+            self.visualizationEffect = SmartEffect.new(self.shape.uuid)
 
-            sandBox.visualizationEffect:setParameter("color", sandBox.shape:getColor())
-            sandBox.visualizationEffect:setScale(SubdivideRatio)
-            sandBox.visualizationEffect:start()
+            self.visualizationEffect:setParameter("color", self.shape:getColor())
+            self.visualizationEffect:setScale(SubdivideRatio)
+            self.visualizationEffect:start()
 
             -- Create transformGizmo
             
-            sandBox.transformGizmo = BPEffects.createTransformGizmo()
+            self.transformGizmo = BPEffects.createTransformGizmo()
 
             -- We don't need highLightEffect
 
-            sandBox.highLightEffect:stop()
+            self.highLightEffect:stop()
 
-            sandBox.parentBody = sandBox.shape:getBody()
+            self.parentBody = self.shape:getBody()
 
-            sandBox.directionNum = 0
+            self.directionNum = 0
 
-            sandBox.vecDirections = {
+            self.vecDirections = {
                 [0] = PosX,
                 [1] = PosY,
                 [2] = PosZ
             }
 
-            sandBox.strDirections = {
+            self.strDirections = {
                 [0] = "X",
                 [1] = "Y",
                 [2] = "Z"
             }
 
-            sandBox.direction = PosX
-            sandBox.transformGizmo:showOnly({"X", "Base"})
+            self.direction = PosX
+            self.transformGizmo:showOnly({"X", "Base"})
 
-            sandBox.partPos = UsefulUtils.getActualLocalPos(sandBox.shape)
-            sandBox.cursorPos = sandBox.partPos
-            sandBox.initialOffset = 0
+            self.partPos = UsefulUtils.getActualLocalPos(self.shape)
+            self.cursorPos = self.partPos
+            self.initialOffset = 0
+        end,
 
-            sandBox.initialize = false
-        end
-
-        local localRaycastOrigin = UsefulUtils.worldToLocalPos(sandBox.raycastResult.originWorld, sandBox.parentBody)
-
-        local localRaycastDirection = UsefulUtils.worldToLocalDir(sandBox.raycastResult.directionWorld, sandBox.parentBody)
-        
-        if sandBox.toggleState then
-
-            if sandBox.settings.onlySwitchAxisWhenMouseIsInActive and sandBox.primaryState ~= 0 then
+        doFrame = function (self, isMain)
+            
+            if isMain == nil then
+                isMain = true
+            end
+    
+            -- Compatibility for move
+            if isMain == true then
+                sm.gui.setInteractionText("", sm.gui.getKeyBinding("NextCreateRotation", true), "Rotate Axis")
+                sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Paste")
+            end
+    
+            local localRaycastOrigin = UsefulUtils.worldToLocalPos(self.raycastResult.originWorld, self.parentBody)
+    
+            local localRaycastDirection = UsefulUtils.worldToLocalDir(self.raycastResult.directionWorld, self.parentBody)
+            
+            if self.toggleState then
+    
+                if self.settings.onlySwitchAxisWhenMouseIsInActive and self.primaryState ~= 0 then
+                    
+                    goto skip
+                end
                 
-                goto skip
-            end
-            
-            sandBox.directionNum = sandBox.directionNum + 1
-            
-            if sandBox.directionNum == 3 then
-                sandBox.directionNum = 0
-            end
-            
-            sandBox.direction = sandBox.vecDirections[sandBox.directionNum]
-
-            sandBox.transformGizmo:showOnly({sandBox.strDirections[sandBox.directionNum], "Base"})
-        end
-        
-        ::skip::
-
-        if sandBox.primaryState == 1 or sandBox.primaryState == 2 then -- If left mouse is clicked
-            
-            local offset = UsefulUtils.raycastToLine(localRaycastOrigin, localRaycastDirection, sandBox.cursorPos, sandBox.direction).pointLocal.z
-
-            sandBox.cursorPos = sandBox.cursorPos + sandBox.direction * (offset - sandBox.initialOffset)
-
-            sandBox.partPos = sandBox.partPos + UsefulUtils.roundVecToGrid(sandBox.cursorPos - sandBox.partPos)
-        end
-
-        -- Set position of visualizationEffect
-        sandBox.visualizationEffect:setTransforms({sandBox.parentBody:transformPoint(sandBox.partPos), sandBox.shape.worldRotation, nil})
-
-        -- Set position of transformGizmo
-        sandBox.transformGizmo:setPositionAndRotation(sandBox.parentBody:transformPoint(sandBox.cursorPos), sandBox.parentBody.worldRotation)
-
-        if sandBox.reloadState then -- If selection has ended
-
-            if isMain then
-
-                -- Build part
+                self.directionNum = self.directionNum + 1
                 
-                sandBox.network:sendToServer("sv_createPart", {sandBox.shape.uuid, sandBox.parentBody, sandBox.partPos, sandBox.shape.localRotation, true, sandBox.shape.color})
+                if self.directionNum == 3 then
+                    self.directionNum = 0
+                end
+                
+                self.direction = self.vecDirections[self.directionNum]
+    
+                self.transformGizmo:showOnly({self.strDirections[self.directionNum], "Base"})
             end
+            
+            ::skip::
+    
+            if self.primaryState == 1 or self.primaryState == 2 then -- If left mouse is clicked
+                
+                local offset = UsefulUtils.raycastToLine(localRaycastOrigin, localRaycastDirection, self.cursorPos, self.direction).pointLocal.z
+    
+                self.cursorPos = self.cursorPos + self.direction * (offset - self.initialOffset)
+    
+                self.partPos = self.partPos + UsefulUtils.roundVecToGrid(self.cursorPos - self.partPos)
+            end
+    
+            -- Set position of visualizationEffect
+            self.visualizationEffect:setTransforms({self.parentBody:transformPoint(self.partPos), self.shape.worldRotation, nil})
+    
+            -- Set position of transformGizmo
+            self.transformGizmo:setPositionAndRotation(self.parentBody:transformPoint(self.cursorPos), self.parentBody.worldRotation)
+    
+            if self.reloadState then -- If selection has ended
+    
+                if isMain then
+    
+                    -- Build part
+                    
+                    self.network:sendToServer("sv_createPart", {self.shape.uuid, self.parentBody, self.partPos, self.shape.localRotation, true, self.shape.color})
+
+                    self:stop()
+                end
+            end
+        end,
+
+        stop = function (self)
+
+            self.visualizationEffect:destroy()
+            self.visualizationEffect = nil
+            self.transformGizmo:destroy()
+            self.transformGizmo = nil
+
+            self.terminate()
         end
+    }
 
-        if sandBox.reloadState or sandBox.secondaryState ~= 0 then -- Reset conditions
+    M.modules.back = {
 
-            sandBox.visualizationEffect:destroy()
-            sandBox.visualizationEffect = nil
-            sandBox.transformGizmo:destroy()
-            sandBox.transformGizmo = nil
+        start = function (self)
+            
+        end,
 
-            sandBox.reset()
+        doFrame = function (self)
+            
+            self:stop()
+        end,
+
+        stop = function (self)
+            
+            self.terminate(self)
         end
-    end
+    }
 
     return M
 end
