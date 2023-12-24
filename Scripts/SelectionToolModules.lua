@@ -10,44 +10,6 @@ function GetSelectionToolModules()
     end
 
 
-    function M.cl.move(sandBox)
-        
-        if sandBox.initialize == true then
-
-            if sandBox.shape:getInteractable() ~= nil then
-            end
-            
-            -- sandBox.initialize will be set to false by SelectionToolClass:duplicate, we don't do it yet
-        end
-        
-        -- Use the duplicate function for controls
-        M.cl.duplicate(sandBox, false)
-
-        -- Add deletion indicator
-
-        sandBox.highLightEffect:setParameter("valid", false)
-
-        UsefulUtils.highlightShape(sandBox.highLightEffect, sandBox.shape)
-
-        -- Overwrite Hotkeys
-
-        sm.gui.setInteractionText("", sm.gui.getKeyBinding("NextCreateRotation", true), "Rotate Axis")
-        sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Relocate")
-
-        if sandBox.reloadState then
-            
-            sandBox.network:sendToServer("sv_move", {sandBox.shape, sandBox.partPos, sandBox.parentBody})
-        end
-
-        if sandBox.reloadState or sandBox.secondaryState ~= 0 then -- Reset conditions
-            
-            -- Return highLightEffect to normal
-            sandBox.highLightEffect:stop()
-            sandBox.highLightEffect:setParameter("valid", true)
-        end
-    end
-
-
     function M.sv.sv_move(args)
 
         print(args)
@@ -95,6 +57,47 @@ function GetSelectionToolModules()
         -- Destroy originalShape
         originalShape:destroyPart(0)
     end
+
+
+    function M.cl.move(sandBox)
+        
+        if sandBox.initialize == true then
+
+            if sandBox.shape:getInteractable() ~= nil then
+            end
+            
+            -- sandBox.initialize will be set to false by SelectionToolClass:duplicate, we don't do it yet
+        end
+        
+        -- Use the duplicate function for controls
+        M.cl.duplicate(sandBox, false)
+
+        -- Add deletion indicator
+
+        sandBox.highLightEffect:setParameter("valid", false)
+
+        UsefulUtils.highlightShape(sandBox.highLightEffect, sandBox.shape)
+
+        -- Overwrite Hotkeys
+
+        sm.gui.setInteractionText("", sm.gui.getKeyBinding("NextCreateRotation", true), "Rotate Axis")
+        sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Relocate")
+
+        if sandBox.reloadState then
+            
+            sandBox.network:sendToServer("sv_move", {sandBox.shape, sandBox.partPos, sandBox.parentBody})
+        end
+
+        if sandBox.reloadState or sandBox.secondaryState ~= 0 then -- Reset conditions
+            
+            -- Return highLightEffect to normal
+            sandBox.highLightEffect:stop()
+            sandBox.highLightEffect:setParameter("valid", true)
+        end
+    end
+
+
+
 
 
     function M.cl.duplicate(sandBox, isMain)
