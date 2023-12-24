@@ -127,8 +127,6 @@ end
 
 function SelectionToolTemplateClass:reset()
 
-	print("reset")
-
 	if self.currentPhase == "execute" then
 		
 		self.sandBox:stop() -- This takes care of resetting
@@ -155,11 +153,42 @@ function SelectionToolTemplateClass:evaluateRaycast()
 	return true
 end
 
+function SelectionToolTemplateClass:client_onEquippedUpdate(primaryState, secondaryState, forceBuild)
+
+	SelectionToolClass.primaryState = primaryState
+	SelectionToolClass.secondaryState = secondaryState
+	SelectionToolClass.forceBuild = forceBuild
+
+	-- The first parameter doesn't work for some reason
+
+	return false, false
+end
+
+
+function SelectionToolTemplateClass:client_onUpdate()
+
+	if self.instanceIndex == 1 and sm.localPlayer.getActiveItem() == self.toolUuid then
+		self.raycastSuccess, self.raycastResult = sm.localPlayer.getRaycast(7.5)
+
+		self.pieMenu:doFrame()
+
+		self.phases[self.currentPhase](self)
+
+		-- Reset various states
+
+		self.toggleState = false
+		self.reloadState = false
+	end
+	
+	if self.instanceIndex == 1 and sm.localPlayer.getActiveItem() ~= self.toolUuid then
+		
+		self:reset()
+	end
+end
+
 -- #region Phase Management
 
 function SelectionToolTemplateClass:doPhase0()
-
-	-- print("start")
 	
 	if self:evaluateRaycast() then
 
@@ -196,8 +225,6 @@ function SelectionToolTemplateClass:doPhase1()
 		self:reset()
 		return
 	end
-
-	-- print("select")
 	
 	sm.gui.setInteractionText("", sm.gui.getKeyBinding("Create", true), "Release")
 	sm.gui.setInteractionText("", sm.gui.getKeyBinding("ForceBuild", true), "Actions...")
@@ -285,36 +312,3 @@ function SelectionToolTemplateClass:executeAction()
 end
 
 -- #endregion
- 
-function SelectionToolTemplateClass:client_onEquippedUpdate(primaryState, secondaryState, forceBuild)
-
-	SelectionToolClass.primaryState = primaryState
-	SelectionToolClass.secondaryState = secondaryState
-	SelectionToolClass.forceBuild = forceBuild
-
-	-- The first parameter doesn't work for some reason
-
-	return false, false
-end
-
-
-function SelectionToolTemplateClass:client_onUpdate()
-
-	if self.instanceIndex == 1 and sm.localPlayer.getActiveItem() == self.toolUuid then
-		self.raycastSuccess, self.raycastResult = sm.localPlayer.getRaycast(7.5)
-
-		self.pieMenu:doFrame()
-
-		self.phases[self.currentPhase](self)
-
-		-- Reset various states
-
-		self.toggleState = false
-		self.reloadState = false
-	end
-	
-	if self.instanceIndex == 1 and sm.localPlayer.getActiveItem() ~= self.toolUuid then
-		
-		self:reset()
-	end
-end

@@ -30,8 +30,6 @@ function GetSelectionToolModules()
 
 
     function M.sv_callbacks.sv_move(args)
-
-        print(args)
         
         ---@type Shape
         local originalShape = args[1]
@@ -46,9 +44,6 @@ function GetSelectionToolModules()
         ---@type Shape
         ---@diagnostic disable-next-line: assign-type-mismatch
         local newShape = UsefulUtils.sv_createPart(nil, {originalShape.uuid, parentBody, newPosition, originalShape.localRotation, true, originalShape.color})
-        
-        print(originalShape)
-        print(newShape)
 
         if originalShape.interactable ~= nil then -- Copy over interactable properties
 
