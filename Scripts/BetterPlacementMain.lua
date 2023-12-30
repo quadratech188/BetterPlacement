@@ -11,11 +11,15 @@ dofile("$CONTENT_DATA/Scripts/LoadBasics.lua")
 BetterPlacementTemplateClass = class()
 
 
+function BetterPlacementTemplateClass:onGUIUpdate(data)
+	
+	BetterPlacementClass.guiClass:onGUIUpdate(data)
+end
+
+
 function BetterPlacementTemplateClass:client_onCreate()
 
 	self.placementCore = BetterPlacementCoreV2
-
-	self.guiClass = PlacementSettingsGUI
 
 	-- Managing Instances
 
@@ -41,7 +45,7 @@ function BetterPlacementTemplateClass:client_onCreate()
 
 		self.placementCore:initialize()
 
-		self.guiClass:initialize()
+		self.guiClass = GetPlacementSettingsGUI()
 		
 
 
@@ -102,10 +106,10 @@ function BetterPlacementTemplateClass.client_onToggle(self)
 
 	if self.instanceIndex == 1 and sm.localPlayer.getActiveItem() ~= BetterPlacementClass.toolUuid then -- not holding a BetterPlacement tool
 		
-		self.placementCore:onToggle()
+		BetterPlacementClass.placementCore:onToggle()
 	else
 
-		self.guiClass:onToggle()
+		BetterPlacementClass.guiClass:onToggle()
 	end
 
 	return true
