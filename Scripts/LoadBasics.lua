@@ -1,5 +1,5 @@
 
-BPDebug = true
+BPDebug = false
 
 if BPLoaded == nil or BPDebug == true then
 

@@ -32,7 +32,7 @@
             <Widget type="TextBox" skin="TextBox" position_real="0 0.69841269841269837 1 0.29365079365079366" name="Desc3"/>
             <Widget type="TextBox" skin="MenuButton" position_real="0.234375 0.27777777777777779 0.5 0.3968253968253968">
                 <Property key="Alpha" value="1"/>
-                <Property key="Caption" value="Option3"/>
+                <Property key="Caption" value="TBD"/>
                 <Property key="TextAlign" value="HCenter VCenter"/>
                 <Property key="FontName" value="SM_SubHeader"/>
                 <Property key="Enabled" value="true"/>
@@ -45,7 +45,7 @@
             <Widget type="TextBox" skin="TextBox" position_real="0 0.69841269841269837 1 0.29365079365079366" name="Desc4"/>
             <Widget type="TextBox" skin="MenuButton" position_real="0.234375 0.27777777777777779 0.5 0.3968253968253968">
                 <Property key="Alpha" value="1"/>
-                <Property key="Caption" value="Option4"/>
+                <Property key="Caption" value="TBD"/>
                 <Property key="TextAlign" value="HCenter VCenter"/>
                 <Property key="FontName" value="SM_SubHeader"/>
                 <Property key="Enabled" value="true"/>
