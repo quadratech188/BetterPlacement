@@ -19,4 +19,12 @@ A collection of building-related tools.
 Tweakeroo's Flexible Block Placement (concept)
 
 ## SelectionTool
+### How to use
+1. Look at the block you want to manipulate
+2. Use the primary mouse button to 'lock' the selection
+3. Press and hold F (force build key) to Open the pie menu
+4. Select the wanted action, release F
+5. Follow instructions
+
+### Settings
 TBD

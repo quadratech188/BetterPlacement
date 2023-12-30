@@ -1,6 +1,10 @@
 {
    "74febb3f-cc08-4e02-89c8-9fd0d0a1aa3c" : {
-      "title" : "Better Placement Tool",
-      "description" : "Read the steam page for instructions"
+      "description" : "Access mod settings & the BetterPlacement mode with this tool.",
+      "title" : "Better Placement Tool"
+   },
+   "79f915b5-25cf-485c-9022-23becf9b3e09" : {
+      "description" : "Use this tool to manipulate shapes.\\n\\n!! Only works on parts(not blocks/joints) !!\n\nCurrent functiohs:\\n\\n- Copy\\n- Move",
+      "title" : "Selection Tool"
    }
 }
