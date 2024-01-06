@@ -19,52 +19,54 @@ end
 
 function BetterPlacementTemplateClass:client_onCreate()
 
-	self.placementCore = BetterPlacementCoreV2
+	if BetterPlacementClass == nil then -- If main tool doesn't exist
 
-	-- Managing Instances
-
-	if BetterPlacementToolInstances == nil  or BetterPlacementToolInstances == 0 then
+		-- Become main tool
 
 		sm.gui.chatMessage("Initializing BetterPlacement Tool")
 		print("Initializing BetterPlacement Tool")
-		
-		BetterPlacementToolInstances = 1
-	
-		self.instanceIndex = 1
-		
-		-- 'self' is actually not BetterPlacementTemplateClass
-		-- We write the following line so that other classes can also refer to 'self'.
 	
 		BetterPlacementClass = self
 		
 		-- Setup callback system
 
-		BetterPlacementClass.linkCallback = UsefulUtils.linkCallback
+		self.linkCallback = UsefulUtils.linkCallback
+
+		self.placementCore = BetterPlacementCoreV2
 		
 		self.placementCore.settings = sm.json.open("$CONTENT_DATA/Scripts/settings.json")
 
 		self.placementCore:initialize()
 
 		self.guiClass = GetPlacementSettingsGUI()
-		
 
+		self.toolUuid = sm.uuid.new("74febb3f-cc08-4e02-89c8-9fd0d0a1aa3c")
 
-		BetterPlacementClass.toolUuid = sm.uuid.new("74febb3f-cc08-4e02-89c8-9fd0d0a1aa3c")
+		self.on = false
 
-		BetterPlacementClass.on = false
+		UsefulUtils.linkCallback(self, "sv_createPart", UsefulUtils.sv_createPart, -1, true)
 
 		sm.gui.chatMessage("Initialized BetterPlacement Tool")
 		print("Initialized BetterPlacement Tool")
-	else
-
-		BetterPlacementToolInstances = BetterPlacementToolInstances + 1
-
-		self.instanceIndex = BetterPlacementToolInstances
 	end
+
+	-- Add self to list
+
+	if BetterPlacementTools == nil then
+		BetterPlacementTools = {}
+	end
+
+	table.insert(BetterPlacementTools, #BetterPlacementTools + 1, self)
 end
 
 
 function BetterPlacementTemplateClass:client_onRefresh()
+
+	BetterPlacementClass = nil
+
+	BetterPlacementTools = nil
+
+	print("Refresh")
 
 	self:client_onCreate()
 end
@@ -72,16 +74,48 @@ end
 
 function BetterPlacementTemplateClass:client_onDestroy()
 
-	sm.json.save(self.placementCore.settings, "$CONTENT_DATA/Scripts/settings.json")
+	if BetterPlacementClass == self then
 
-	BetterPlacementToolInstances = BetterPlacementToolInstances - 1
+		sm.json.save(self.placementCore.settings, "$CONTENT_DATA/Scripts/settings.json")
+		
+		if #BetterPlacementTools == 1 then -- If self is the only BetterPlacement Tool
+
+			print("Destroying BetterPlacementTool")
+
+			BetterPlacementClass = nil -- Delete self
+
+			BetterPlacementTools = {}
+			
+			print("Destroyed BetterPlacementTool")
+
+		elseif BetterPlacementTools[1] == self then -- If self is the first entry
+			
+			-- Switch BetterPlacementClass to second entry
+			
+			BetterPlacementClass = nil
+
+			BetterPlacementTools[2]:client_onCreate()
+			
+			table.remove(BetterPlacementTools, 1)
+		else
+
+			-- Switch BetterPlacementClass to first entry
+			
+			BetterPlacementClass = nil
+
+			BetterPlacementTools[1]:client_onCreate()
+			
+			table.remove(BetterPlacementTools, UsefulUtils.find(self, BetterPlacementTools))
+		end
+
+	end
 end
 
 -- On/Off
 
 function BetterPlacementTemplateClass.client_onReload(self)
 
-	if self.instanceIndex == 1 and sm.localPlayer.getActiveItem() ~= BetterPlacementClass.toolUuid then -- not holding a BetterPlacement tool
+	if sm.localPlayer.getActiveItem() ~= BetterPlacementClass.toolUuid then -- not holding a BetterPlacement tool
 		
 		self.placementCore:onReload()
 	else
@@ -104,7 +138,7 @@ end
 
 function BetterPlacementTemplateClass.client_onToggle(self)
 
-	if self.instanceIndex == 1 and sm.localPlayer.getActiveItem() ~= BetterPlacementClass.toolUuid then -- not holding a BetterPlacement tool
+	if sm.localPlayer.getActiveItem() ~= BetterPlacementClass.toolUuid then -- not holding a BetterPlacement tool
 		
 		BetterPlacementClass.placementCore:onToggle()
 	else
@@ -117,7 +151,7 @@ end
 
 function BetterPlacementTemplateClass.client_onEquippedUpdate(self, primaryState, secondaryState, forceBuild)
 
-	self.placementCore.primaryState = primaryState
+	BetterPlacementClass.placementCore.primaryState = primaryState
 
 	-- The first parameter doesn't work for some reason
 
@@ -126,15 +160,13 @@ end
 
 function BetterPlacementTemplateClass:client_onUpdate()
 
-	if self.instanceIndex ~= 1 then
+	if self ~= BetterPlacementClass then
 		return
 	end
 
-	local item = sm.localPlayer.getActiveItem()
+	if sm.localPlayer.getActiveItem() == BetterPlacementClass.toolUuid then
 
-	if item == BetterPlacementClass.toolUuid then
-
-		if BetterPlacementClass.on then
+		if self.on then
 			sm.gui.setInteractionText("", sm.gui.getKeyBinding("Reload", true), "Disable Better Placement")
 		
 		else

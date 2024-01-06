@@ -169,6 +169,23 @@ function UsefulUtils.contains(object, table)
 end
 
 
+---@param object any
+---@param table table
+---@return any
+function UsefulUtils.find(object, table)
+	
+	for key, value in pairs(table) do
+		
+		if value == object then
+			
+			return key
+		end
+	end
+
+	return nil
+end
+
+
 ---@param effect SmartEffect|Effect
 ---@param state "None"|"Solid"|"Blue"|"Red"
 function UsefulUtils.setShapeRenderableState(effect, state)
