@@ -39,8 +39,6 @@ function BetterPlacementCoreV2:initialize()
 
 	self:createEffects()
 
-	UsefulUtils.linkCallback(BetterPlacementClass, "sv_createPart", UsefulUtils.sv_createPart, -1, true)
-
 	self:reset()
 end
 
