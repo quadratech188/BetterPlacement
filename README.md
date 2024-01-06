@@ -40,6 +40,7 @@ TBD
 
 # Known issues
 - The BetterPlacement Tool (seemingly) randomly turns off when other instances are removed
+- Almost certainly doesn't work in multiplayer
 
 # Links
 Github: https://github.com/quadratech188/BetterPlacement
