@@ -6,7 +6,7 @@ A collection of building-related tools.
 2. Hold the part you want to place, look where you want to place it
 3. Select the Rotation Axis by looking at different parts of the gizmo, Press Q (rotation key) to Rotate.
   Press R (reload key) to lock the gizmo to that spot.
-4. Press and hold (For the Click & Drag setting) or Press {For the Click Twice setting) the primary mouse button for the positioning gizmo to show up.
+4. Press and hold (For the Click & Drag setting) or Press (For the Click Twice setting) the primary mouse button for the positioning gizmo to show up.
 5. Move the part visualization to your desired spot by moving the cursor and pressing Q to use the vertical axis
 6. Release the primary mouse button (For the Click & Drag setting) or click it again (For the Click Twice setting)
 ### Settings
@@ -28,3 +28,18 @@ Tweakeroo's Flexible Block Placement (concept)
 
 ### Settings
 TBD
+
+# Changelog
+
+## v3.0
+- Added Selection Tool
+- Tweaked placement mechanics
+
+## v3.1
+- Overhauled (previously broken) instance handling
+
+# Known issues
+- The BetterPlacement Tool (seemingly) randomly turns off when other instances are removed
+
+# Links
+Github: https://github.com/quadratech188/BetterPlacement
