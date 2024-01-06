@@ -25,7 +25,7 @@ end
 
 function SelectionToolTemplateClass:client_onCreate()
 	
-	if SelectionToolInstances == nil or SelectionToolInstances == 0 or BPDebug then
+	if SelectionToolClass == nil then
 
 		sm.gui.chatMessage("Initializing SelectionTool")
 		print("Initializing SelectionTool")
@@ -87,10 +87,6 @@ function SelectionToolTemplateClass:client_onCreate()
 	
 		sm.gui.chatMessage("Initialized SelectionTool")
 		print("Initialized SelectionTool")
-	else
-		SelectionToolInstances = SelectionToolInstances + 1
-
-		self.instanceIndex = SelectionToolInstances
 	end
 end
 
@@ -119,9 +115,12 @@ end
 
 function SelectionToolTemplateClass:client_onDestroy()
 	
-	self.highLightEffect:stop()
+	self:reset()
 
-	SelectionToolInstances = SelectionToolInstances - 1
+	if self == SelectionToolClass then
+		
+		SelectionToolClass = nil
+	end
 end
 
 
@@ -167,7 +166,15 @@ end
 
 function SelectionToolTemplateClass:client_onUpdate()
 
-	if self.instanceIndex == 1 and sm.localPlayer.getActiveItem() == self.toolUuid then
+	if SelectionToolClass == nil then
+		self:client_onCreate()
+	end
+
+	if self ~= SelectionToolClass then
+		return
+	end
+
+	if sm.localPlayer.getActiveItem() == self.toolUuid then
 		self.raycastSuccess, self.raycastResult = sm.localPlayer.getRaycast(7.5)
 
 		self.pieMenu:doFrame()
@@ -180,7 +187,7 @@ function SelectionToolTemplateClass:client_onUpdate()
 		self.reloadState = false
 	end
 	
-	if self.instanceIndex == 1 and sm.localPlayer.getActiveItem() ~= self.toolUuid then
+	if sm.localPlayer.getActiveItem() ~= self.toolUuid then
 		
 		self:reset()
 	end
