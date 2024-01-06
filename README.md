@@ -28,3 +28,18 @@ Tweakeroo's Flexible Block Placement (concept)
 
 ### Settings
 TBD
+
+# Changelog
+
+## v3.0
+- Added Selection Tool
+- Tweaked placement mechanics
+
+## v3.1
+- Overhauled (previously broken) instance handling
+
+# Known issues
+- The BetterPlacement Tool (seemingly) randomly turns off when other instances are removed
+
+# Links
+Github: https://github.com/quadratech188/BetterPlacement
