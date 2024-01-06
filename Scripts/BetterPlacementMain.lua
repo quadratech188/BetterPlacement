@@ -78,36 +78,7 @@ function BetterPlacementTemplateClass:client_onDestroy()
 
 		sm.json.save(self.placementCore.settings, "$CONTENT_DATA/Scripts/settings.json")
 		
-		if #BetterPlacementTools == 1 then -- If self is the only BetterPlacement Tool
-
-			print("Destroying BetterPlacementTool")
-
-			BetterPlacementClass = nil -- Delete self
-
-			BetterPlacementTools = {}
-			
-			print("Destroyed BetterPlacementTool")
-
-		elseif BetterPlacementTools[1] == self then -- If self is the first entry
-			
-			-- Switch BetterPlacementClass to second entry
-			
-			BetterPlacementClass = nil
-
-			BetterPlacementTools[2]:client_onCreate()
-			
-			table.remove(BetterPlacementTools, 1)
-		else
-
-			-- Switch BetterPlacementClass to first entry
-			
-			BetterPlacementClass = nil
-
-			BetterPlacementTools[1]:client_onCreate()
-			
-			table.remove(BetterPlacementTools, UsefulUtils.find(self, BetterPlacementTools))
-		end
-
+		BetterPlacementClass = nil
 	end
 end
 
@@ -159,6 +130,11 @@ function BetterPlacementTemplateClass.client_onEquippedUpdate(self, primaryState
 end
 
 function BetterPlacementTemplateClass:client_onUpdate()
+
+	if BetterPlacementClass == nil then -- If main class was removed
+		
+		self:client_onCreate()
+	end
 
 	if self ~= BetterPlacementClass then
 		return

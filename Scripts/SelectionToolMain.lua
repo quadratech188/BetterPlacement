@@ -32,10 +32,6 @@ function SelectionToolTemplateClass:client_onCreate()
 
 		self.toolUuid = sm.uuid.new("79f915b5-25cf-485c-9022-23becf9b3e09")
 
-		SelectionToolInstances = 1
-	
-		self.instanceIndex = 1
-
 		-- Create global access point
 
 		---@type ToolClass
